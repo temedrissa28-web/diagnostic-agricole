@@ -877,10 +877,13 @@ document.getElementById("calculate-btn").addEventListener("click", () => {
   const planText = data.apports.map(a => {
     const totalKg = a.dose_par_m2 * surface;
     const totalDisplay = totalKg >= 1 ? totalKg.toFixed(1) + " kg" : (totalKg * 1000).toFixed(0) + " g";
-    return `- ${a.produit} : ${totalDisplay} — ${a.moment}`;
+    return `\n• ${a.produit}\n  Dose totale : ${totalDisplay} pour ${surface} m²\n  Application : ${a.moment}`;
   }).join("\n");
 
-  const waMessage = `Nouvelle demande de plan de fertilisation\nCulture : ${CULTURE_LABELS[fSelectedCulture]}\nType souhaité : ${TYPE_LABELS[fSelectedType]}\nSurface : ${surface} m²\n\nPlan calculé par l'outil (pour référence) :\n${planText}\n\nConseil : ${data.conseil}`;
+  const now = new Date();
+  const refCodeMsg = "FERT-" + now.getFullYear().toString().slice(2) + String(now.getMonth()+1).padStart(2,"0") + String(now.getDate()).padStart(2,"0") + "-" + Math.floor(Math.random()*90+10);
+
+  const waMessage = `📋 FICHE DE FERTILISATION — N° ${refCodeMsg}\n\nCulture : ${CULTURE_LABELS[fSelectedCulture]}\nType : ${TYPE_LABELS[fSelectedType]}\nSurface : ${surface} m²\n\n— PLAN CALCULÉ PAR L'OUTIL —${planText}\n\nConseil : ${data.conseil}\n\n(Aide à la décision — à confirmer par le conseiller)`;
   const waLink = "https://wa.me/22674864682?text=" + encodeURIComponent(waMessage);
 
   document.getElementById("fculture-tag-3").textContent = CULTURE_LABELS[fSelectedCulture] + " — " + TYPE_LABELS[fSelectedType] + " — " + surface + " m²";
@@ -1017,10 +1020,13 @@ diagnoseBtn.addEventListener("click", () => {
     .sort((a,b) => b.pct - a.pct || b.overlap - a.overlap)
     .slice(0, 3);
   const hypothesesText = scored.length > 0
-    ? scored.map((d,i) => `${i+1}. ${d.nom} (${d.pct}% de correspondance)`).join("\n")
-    : "Aucune correspondance forte trouvée par l'outil — à évaluer manuellement.";
+    ? scored.map((d,i) => `\n${i+1}. ${d.nom} (${d.pct}% de correspondance)\n   Latin : ${d.latin}\n   Cause probable : ${d.cause}\n   Recommandations : ${d.reco}`).join("\n")
+    : "\nAucune correspondance forte trouvée par l'outil — à évaluer manuellement.";
 
-  const waMessage = `Nouvelle demande de diagnostic\nCulture : ${CULTURE_LABELS[selectedCulture]}\nSymptômes observés :\n${symptomLabels}\n\nHypothèses de l'outil (pour référence) :\n${hypothesesText}`;
+  const now = new Date();
+  const refCodeMsg = "AGR-" + now.getFullYear().toString().slice(2) + String(now.getMonth()+1).padStart(2,"0") + String(now.getDate()).padStart(2,"0") + "-" + Math.floor(Math.random()*90+10);
+
+  const waMessage = `📋 FICHE DE DIAGNOSTIC — N° ${refCodeMsg}\n\nCulture : ${CULTURE_LABELS[selectedCulture]}\n\nSymptômes observés :\n${symptomLabels}\n\n— RÉSULTAT DE L'OUTIL —${hypothesesText}\n\n(Aide à la décision — à confirmer par le conseiller)`;
   const waLink = "https://wa.me/22674864682?text=" + encodeURIComponent(waMessage);
 
   document.getElementById("culture-tag-3").textContent = CULTURE_LABELS[selectedCulture];
