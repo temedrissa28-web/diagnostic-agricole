@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgroDiagnostic — Prototype V0.8</title>
+<style>
+:root{
+  --green:#1f7a45; --green2:#2f9b5d; --bg:#f5f8f5; --card:#fff;
+  --text:#183126; --muted:#64756c; --line:#dfe8e1; --warning:#fff6dc;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+header{background:linear-gradient(135deg,#155d35,#2d9658);color:#fff;padding:24px 18px}
+header h1{margin:0 0 6px;font-size:27px} header p{margin:0;opacity:.9}
+main{max-width:850px;margin:auto;padding:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:0 3px 12px #1831260d}
+h2{font-size:20px;margin:0 0 14px}.small{font-size:13px;color:var(--muted)}
+label{display:block;font-weight:700;margin:13px 0 7px}
+select,input,textarea{width:100%;padding:12px;border:1px solid #cfdcd3;border-radius:10px;background:#fff;font-size:15px}
+textarea{min-height:90px;resize:vertical}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check{border:1px solid var(--line);border-radius:10px;padding:10px;font-weight:500}
+.check input{width:auto;margin-right:7px}
+button{width:100%;border:0;border-radius:12px;padding:14px;background:var(--green);color:#fff;font-weight:700;font-size:16px;cursor:pointer}
+button:hover{background:#176238}
+.result{display:none}.badge{display:inline-block;padding:7px 10px;border-radius:999px;background:#e9f5ed;color:#176238;font-weight:700;font-size:13px}
+.result ul{padding-left:20px}.warning{background:var(--warning);border-left:5px solid #d49a1e;padding:13px;border-radius:10px}
+.ref{font-size:13px;color:var(--muted);line-height:1.55}
+.hyp{border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0}
+.hyp strong{font-size:16px}.score{font-weight:700;color:var(--green)}
+.bar{height:8px;background:#edf2ee;border-radius:99px;overflow:hidden;margin:8px 0 12px}
+.bar span{display:block;height:100%;background:var(--green);border-radius:99px}
+.info{background:#eaf3ff;color:#24527a;padding:13px;border-radius:10px;margin:12px 0}
+.ref a{color:var(--green);font-weight:700}
+
+footer{text-align:center;color:var(--muted);font-size:12px;padding:15px}
+@media(max-width:600px){.grid,.checks{grid-template-columns:1fr}main{padding:12px}.card{padding:15px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>🌱 AgroDiagnostic</h1>
+  <p>Assistant d’orientation phytosanitaire — Prototype V0.8</p>
+</header>
+
+<main>
+<section class="card">
+  <h2>1. Informations générales</h2>
+  <div class="grid">
+    <div>
+      <label for="crop">Culture</label>
+      <select id="crop">
+        <option>Maïs</option><option>Piment</option><option>Tomate</option>
+        <option>Riz</option><option>Coton</option><option>Autre</option>
+      </select>
+    </div>
+    <div>
+      <label for="stage">Stade de la culture</label>
+      <select id="stage">
+        <option>Plantule / jeune plant</option><option>Croissance végétative</option>
+        <option>Floraison</option><option>Fructification / remplissage</option>
+        <option>Maturation</option><option>Inconnu</option>
+      </select>
+    </div>
+  </div>
+</section>
+
+<section class="card">
+  <h2>2. Symptômes observés</h2>
+  <p class="small">Sélectionne uniquement ce que tu observes réellement. Le système ne doit pas remplacer une confirmation technique ou de laboratoire.</p>
+  <div class="checks">
+    <label class="check"><input type="checkbox" value="taches" class="sym"> Taches / lésions sur feuilles</label>
+    <label class="check"><input type="checkbox" value="jaunissement" class="sym"> Jaunissement</label>
+    <label class="check"><input type="checkbox" value="fletrissement" class="sym"> Flétrissement</label>
+    <label class="check"><input type="checkbox" value="necrose" class="sym"> Nécrose / tissu desséché</label>
+    <label class="check"><input type="checkbox" value="deformation" class="sym"> Déformation / enroulement</label>
+    <label class="check"><input type="checkbox" value="mucus" class="sym"> Exsudat / mucus</label>
+    <label class="check"><input type="checkbox" value="insectes" class="sym"> Insectes visibles</label>
+    <label class="check"><input type="checkbox" value="trous" class="sym"> Trous / morsures</label>
+    <label class="check"><input type="checkbox" value="moisissure" class="sym"> Moisissure / feutrage</label>
+    <label class="check"><input type="checkbox" value="racines" class="sym"> Symptômes sur racines / collet</label>
+  </div>
+  <label for="color">Couleur ou aspect dominant</label>
+  <input id="color" placeholder="Ex. brun, rouge-orangé, jaune, vert pâle...">
+  <label for="distribution">Répartition dans la parcelle / les pots</label>
+  <select id="distribution">
+    <option>Quelques plantes isolées</option>
+    <option>Foyers localisés</option>
+    <option>Répartition assez uniforme</option>
+    <option>Je ne sais pas</option>
+  </select>
+</section>
+
+
+<section class="card">
+<h2>3. Indices discriminants — maïs</h2>
+<p class="small">Ces questions aident à distinguer plusieurs hypothèses ayant des symptômes proches.</p>
+<div class="grid">
+<div><label for="organ">Organe principalement atteint</label><select id="organ"><option>Feuilles</option><option>Cornet / jeunes feuilles</option><option>Tige</option><option>Épi / grains</option><option>Racines / collet</option><option>Plusieurs organes</option><option>Je ne sais pas</option></select></div>
+<div><label for="leafShape">Forme des lésions foliaires</label><select id="leafShape"><option>Je ne sais pas</option><option>Longues / elliptiques / en cigare</option><option>Rectangulaires, limitées par les nervures</option><option>Pustules poudreuses orange/brun-rouge</option><option>Rondes / ovales</option><option>Irrégulières</option></select></div>
+<div><label for="veins">Lésions limitées par les nervures ?</label><select id="veins"><option>Je ne sais pas</option><option>Oui</option><option>Non</option></select></div>
+<div><label for="corn">Dégâts concentrés dans le cornet ?</label><select id="corn"><option>Je ne sais pas</option><option>Oui</option><option>Non</option></select></div>
+<div><label for="frass">Déjections / frass visibles ?</label><select id="frass"><option>Je ne sais pas</option><option>Oui, dans le cornet</option><option>Oui, près d'une galerie de tige</option><option>Oui, ailleurs</option><option>Non</option></select></div>
+<div><label for="gallery">Galerie dans la tige ?</label><select id="gallery"><option>Je ne sais pas</option><option>Oui</option><option>Non</option></select></div>
+<div><label for="larva">Larve observée ?</label><select id="larva"><option>Je ne sais pas</option><option>Oui, dans le cornet</option><option>Oui, dans la tige</option><option>Oui, ailleurs</option><option>Non</option></select></div>
+<div><label for="deadheart">Point de croissance desséché (« cœur mort ») ?</label><select id="deadheart"><option>Je ne sais pas</option><option>Oui</option><option>Non</option></select></div>
+<div><label for="pustule">Pustules poudreuses visibles ?</label><select id="pustule"><option>Je ne sais pas</option><option>Oui</option><option>Non</option></select></div>
+</div>
+</section>
+
+<section class="card">
+  <h2>3. Contexte</h2>
+  <div class="grid">
+    <div>
+      <label for="speed">Vitesse d’évolution</label>
+      <select id="speed">
+        <option>Rapide (quelques jours)</option>
+        <option>Progressive</option><option>Lente</option><option>Je ne sais pas</option>
+      </select>
+    </div>
+    <div>
+      <label for="weather">Météo récente</label>
+      <select id="weather">
+        <option>Pluies / forte humidité</option>
+        <option>Chaleur / sécheresse</option><option>Alternance pluie-chaleur</option>
+        <option>Normale</option><option>Je ne sais pas</option>
+      </select>
+    </div>
+  </div>
+  <label for="management">Fertilisation, traitements ou changement récent</label>
+  <textarea id="management" placeholder="Ex. apport d’engrais, fiente, herbicide, insecticide, changement d’arrosage..."></textarea>
+  <label for="notes">Autres observations</label>
+  <textarea id="notes" placeholder="Décris ce que tu vois, sans essayer de donner toi-même le nom de la maladie."></textarea>
+</section>
+
+
+<section class="card">
+  <h2>📷 4. Photo de la plante</h2>
+  <p class="small">Ajoute une photo nette de la plante entière et, si possible, une photo rapprochée du symptôme. Dans cette version, la photo est enregistrée dans l’interface pour préparer le futur module d’analyse d’image ; elle n’est pas encore interprétée automatiquement.</p>
+  <label for="photo">Choisir une photo</label>
+  <input id="photo" type="file" accept="image/*" capture="environment" onchange="previewPhoto(event)">
+  <div id="photoPreview" style="display:none;margin-top:12px">
+    <img id="preview" alt="Aperçu de la photo" style="width:100%;max-height:320px;object-fit:contain;border-radius:12px;border:1px solid #dfe8e1">
+    <p class="small" id="photoStatus"></p>
+  </div>
+</section>
+
+<section class="card">
+  <h2>5. Analyse</h2>
+  <button onclick="diagnose()">🔎 Générer l’orientation</button>
+</section>
+
+<section class="card result" id="result">
+  <h2>Orientation du diagnostic</h2>
+  <span class="badge" id="quality"></span>
+  <div id="content"></div>
+  <div class="warning">
+    <strong>Limite importante :</strong> cette version produit une orientation à partir des informations saisies. Elle ne constitue pas une identification certaine d’une maladie ou d’un ravageur. Un cas ambigu doit être vérifié par un technicien compétent et, si nécessaire, par un laboratoire.
+  </div>
+</section>
+
+<section class="card">
+  <h2>📚 Références de cadrage</h2>
+  <div class="ref">
+    <p><strong>FAO</strong> — l’observation régulière de la culture, des ravageurs et des maladies, ainsi que la prise en compte du contexte agronomique et météorologique, font partie de la gestion intégrée des ravageurs.</p>
+    <p><strong>EPPO</strong> — les diagnostics phytosanitaires professionnels reposent sur des protocoles et méthodes permettant la détection et l’identification, avec des standards spécifiques.</p>
+    <p><a href="https://www.fao.org/agriculture/crops/thematic-sitemap/theme/compendium/tools-guidelines/how-to-ipm/en/" target="_blank" rel="noopener">FAO — How to practice Integrated Pest Management</a></p>
+    <p><a href="https://www.eppo.int/ACTIVITIES/plant_quarantine/diagnostics" target="_blank" rel="noopener">EPPO — activités de diagnostic</a></p>
+  </div>
+</section>
+</main>
+
+<footer>AgroDiagnostic V0.8 — prototype d’orientation • Ne remplace pas un diagnostic phytosanitaire officiel.</footer>
+
+<script>
+const CASES=[
+{name:"Chenille légionnaire d’automne — à examiner",type:"Ravageur",score(d){
+let s=0,e=[];if(d.crop==="Maïs"&&d.corn==="Oui"){s+=28;e.push("dégâts dans le cornet")}if(d.frass==="Oui, dans le cornet"){s+=25;e.push("déjections dans le cornet")}if(d.larva==="Oui, dans le cornet"){s+=30;e.push("larve dans le cornet")}if(d.sym.includes("trous")){s+=12;e.push("trous/morsures")}if(d.sym.includes("insectes")){s+=8;e.push("insecte/larve visible")}return[s,e]}},
+{name:"Foreur de tige — à examiner",type:"Ravageur",score(d){
+let s=0,e=[];if(d.crop==="Maïs"&&d.gallery==="Oui"){s+=35;e.push("galerie dans la tige")}if(d.frass==="Oui, près d'une galerie de tige"){s+=30;e.push("déjections près de la galerie")}if(d.larva==="Oui, dans la tige"){s+=30;e.push("larve dans la tige")}if(d.deadheart==="Oui"){s+=16;e.push("cœur mort")}if(d.sym.includes("trous")){s+=8;e.push("trous/fenêtres")}return[s,e]}},
+{name:"Brûlure helminthosporienne du Nord — à examiner",type:"Maladie foliaire",score(d){
+let s=0,e=[];if(d.crop==="Maïs"&&d.sym.includes("taches")){s+=15;e.push("taches foliaires")}if(d.leafShape==="Longues / elliptiques / en cigare"){s+=35;e.push("lésions longues/elliptiques")}if(d.organ==="Feuilles"){s+=10;e.push("feuilles atteintes")}if(d.weather==="Pluies / forte humidité"){s+=10;e.push("forte humidité")}return[Math.max(0,s),e]}},
+{name:"Cercosporiose — à examiner",type:"Maladie foliaire",score(d){
+let s=0,e=[];if(d.crop==="Maïs"&&d.sym.includes("taches")){s+=15;e.push("taches foliaires")}if(d.leafShape==="Rectangulaires, limitées par les nervures"){s+=40;e.push("lésions rectangulaires")}if(d.veins==="Oui"){s+=15;e.push("lésions limitées par les nervures")}if(d.weather==="Pluies / forte humidité"){s+=10;e.push("humidité")}return[Math.max(0,s),e]}},
+{name:"Rouille du maïs — à examiner",type:"Maladie foliaire",score(d){
+let s=0,e=[];if(d.crop==="Maïs"&&d.sym.includes("taches")){s+=10;e.push("atteinte foliaire")}if(d.leafShape==="Pustules poudreuses orange/brun-rouge"){s+=45;e.push("pustules poudreuses")}if(d.pustule==="Oui"){s+=30;e.push("pustules observées")}if(/orange|brun|rouge/i.test(d.color)){s+=8;e.push("couleur compatible")}return[Math.max(0,s),e]}},
+{name:"Facteur non infectieux / stress — à examiner",type:"Non infectieux",score(d){
+let s=0,e=[];if(d.sym.includes("jaunissement")){s+=20;e.push("jaunissement")}if(d.sym.includes("fletrissement")){s+=20;e.push("flétrissement")}if(d.weather==="Chaleur / sécheresse"){s+=22;e.push("chaleur/sécheresse")}if(d.distribution==="Répartition assez uniforme"){s+=12;e.push("répartition uniforme")}if(/herbicide|désherbant|phytotoxic|brûlure/i.test(d.management+" "+d.notes)){s+=20;e.push("phytotoxicité possible")}if(/engrais|urée|npk|fiente|fumure/i.test(d.management)){s+=10;e.push("fertilisation récente")}return[s,e]}}
+];
+
+function diagnose(){
+const d={crop:document.getElementById('crop').value,stage:document.getElementById('stage').value,
+sym:[...document.querySelectorAll('.sym:checked')].map(x=>x.value),color:document.getElementById('color').value.trim(),
+organ:document.getElementById('organ').value,leafShape:document.getElementById('leafShape').value,veins:document.getElementById('veins').value,
+corn:document.getElementById('corn').value,frass:document.getElementById('frass').value,gallery:document.getElementById('gallery').value,
+larva:document.getElementById('larva').value,deadheart:document.getElementById('deadheart').value,pustule:document.getElementById('pustule').value,
+distribution:document.getElementById('distribution').value,speed:document.getElementById('speed').value,weather:document.getElementById('weather').value,
+management:document.getElementById('management').value.trim(),notes:document.getElementById('notes').value.trim()};
+let q=0;if(d.sym.length)q+=2;if(d.sym.length>=2)q++;if(d.color)q++;if(d.organ!=="Je ne sais pas")q++;if(d.distribution!=="Je ne sais pas")q++;if(d.speed!=="Je ne sais pas")q++;if(d.notes)q++;
+const quality=d.sym.length===0?'Informations insuffisantes':q>=6?'Bonne qualité d’observation':q>=4?'Qualité moyenne':'Informations encore limitées';
+const results=CASES.map(c=>{const[score,evidence]=c.score(d);return{...c,score,evidence}}).filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
+let missing=[];if(!d.sym.length)missing.push("sélectionner les symptômes réellement observés");if(!d.color)missing.push("décrire la couleur/aspect");if(d.organ==="Je ne sais pas")missing.push("préciser l’organe");if(d.distribution==="Je ne sais pas")missing.push("préciser la répartition");if(d.speed==="Je ne sais pas")missing.push("préciser l’évolution");
+const photoFile=document.getElementById('photo').files[0];
+let html=`<p><strong>Culture :</strong> ${escapeHtml(d.crop)}</p><p><strong>Stade :</strong> ${escapeHtml(d.stage)}</p><p><strong>Photo :</strong> ${photoFile?'ajoutée au dossier':'non ajoutée'}</p><div class="info"><strong>Lecture :</strong> l’indice est un score interne de concordance. Ce n’est pas une probabilité de maladie.</div>`;
+if(!results.length)html+="<p>Aucune hypothèse suffisamment étayée avec les observations saisies.</p>";
+else html+="<p><strong>Hypothèses à examiner</strong></p>"+results.map((r,i)=>`<div class="hyp"><strong>${i+1}. ${escapeHtml(r.name)}</strong><p><span class="badge">${i===0?'À examiner en priorité':'Moins étayée'}</span> <span class="score">Indice : ${r.score}</span></p><div class="bar"><span style="width:${Math.min(100,r.score)}%"></span></div><p><strong>Type :</strong> ${escapeHtml(r.type)}</p><p><strong>Indices concordants :</strong> ${r.evidence.length?escapeHtml(r.evidence.join('; ')):'aucun indice spécifique'}</p><p><strong>À vérifier :</strong> observer directement les signes discriminants avant toute conclusion ou traitement.</p></div>`).join("");
+html+=`<p><strong>Informations utiles à compléter :</strong></p><ul>${(missing.length?missing:['Aucune information essentielle supplémentaire détectée.']).map(x=>'<li>'+escapeHtml(x)+'</li>').join('')}</ul><p><strong>Prochaine action :</strong></p><ul><li>Photographier la plante entière et le symptôme en gros plan.</li><li>Pour un ravageur du maïs, rechercher larves et déjections dans le cornet ou les galeries.</li><li>Pour une maladie foliaire, préciser forme et relation avec les nervures.</li><li>Comparer plantes atteintes et saines.</li><li>En cas d’ambiguïté importante, faire confirmer par un technicien et/ou un laboratoire.</li></ul>`;
+document.getElementById('quality').textContent=quality;document.getElementById('content').innerHTML=html;const r=document.getElementById('result');r.style.display='block';r.scrollIntoView({behavior:'smooth'});
+}
+
+function previewPhoto(event){
+  const file=event.target.files[0];
+  if(!file) return;
+  const preview=document.getElementById('preview');
+  const box=document.getElementById('photoPreview');
+  const status=document.getElementById('photoStatus');
+  preview.src=URL.createObjectURL(file);
+  box.style.display='block';
+  status.textContent='Photo ajoutée : '+file.name;
+}
+
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+</script>
+</body>
+</html>
