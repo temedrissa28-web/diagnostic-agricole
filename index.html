@@ -3,226 +3,1115 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AgroDiagnostic — Prototype V0.8</title>
+<title>Fiche de diagnostic — Cultures</title>
 <style>
-:root{
-  --green:#1f7a45; --green2:#2f9b5d; --bg:#f5f8f5; --card:#fff;
-  --text:#183126; --muted:#64756c; --line:#dfe8e1; --warning:#fff6dc;
-}
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
-header{background:linear-gradient(135deg,#155d35,#2d9658);color:#fff;padding:24px 18px}
-header h1{margin:0 0 6px;font-size:27px} header p{margin:0;opacity:.9}
-main{max-width:850px;margin:auto;padding:18px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:0 3px 12px #1831260d}
-h2{font-size:20px;margin:0 0 14px}.small{font-size:13px;color:var(--muted)}
-label{display:block;font-weight:700;margin:13px 0 7px}
-select,input,textarea{width:100%;padding:12px;border:1px solid #cfdcd3;border-radius:10px;background:#fff;font-size:15px}
-textarea{min-height:90px;resize:vertical}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.check{border:1px solid var(--line);border-radius:10px;padding:10px;font-weight:500}
-.check input{width:auto;margin-right:7px}
-button{width:100%;border:0;border-radius:12px;padding:14px;background:var(--green);color:#fff;font-weight:700;font-size:16px;cursor:pointer}
-button:hover{background:#176238}
-.result{display:none}.badge{display:inline-block;padding:7px 10px;border-radius:999px;background:#e9f5ed;color:#176238;font-weight:700;font-size:13px}
-.result ul{padding-left:20px}.warning{background:var(--warning);border-left:5px solid #d49a1e;padding:13px;border-radius:10px}
-.ref{font-size:13px;color:var(--muted);line-height:1.55}
-.hyp{border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0}
-.hyp strong{font-size:16px}.score{font-weight:700;color:var(--green)}
-.bar{height:8px;background:#edf2ee;border-radius:99px;overflow:hidden;margin:8px 0 12px}
-.bar span{display:block;height:100%;background:var(--green);border-radius:99px}
-.info{background:#eaf3ff;color:#24527a;padding:13px;border-radius:10px;margin:12px 0}
-.ref a{color:var(--green);font-weight:700}
+  :root{
+    --paper:#F3EEE2;
+    --paper-dark:#E7DFC9;
+    --ink:#242118;
+    --ink-soft:#5B5646;
+    --leaf:#3D5A3A;
+    --leaf-deep:#243D26;
+    --rust:#B4482B;
+    --rust-soft:#D9C9A8;
+    --line:#c9bf9e;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Iowan Old Style","Palatino Linotype",Georgia,serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    padding:18px;
+  }
+  .sheet{
+    max-width:480px;
+    margin:0 auto;
+    background:var(--paper);
+    border:1px solid var(--line);
+    position:relative;
+  }
+  .sheet::before{
+    content:"";
+    position:absolute;
+    inset:6px;
+    border:1px solid var(--line);
+    pointer-events:none;
+  }
+  header{
+    padding:22px 20px 16px;
+    border-bottom:2px solid var(--ink);
+    margin:0 6px;
+  }
+  .eyebrow{
+    font-family:"Courier New",monospace;
+    font-size:11px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    display:flex;
+    justify-content:space-between;
+  }
+  h1{
+    font-size:26px;
+    margin:8px 0 2px;
+    font-weight:600;
+    letter-spacing:.01em;
+  }
+  .sub{
+    font-size:13px;
+    color:var(--ink-soft);
+    font-style:italic;
+  }
+  .stamp{
+    position:absolute;
+    top:16px;
+    right:20px;
+    width:56px;
+    height:56px;
+    border:1.5px solid var(--rust);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transform:rotate(-8deg);
+    opacity:.75;
+  }
+  .stamp svg{width:30px;height:30px;fill:var(--rust);}
 
-footer{text-align:center;color:var(--muted);font-size:12px;padding:15px}
-@media(max-width:600px){.grid,.checks{grid-template-columns:1fr}main{padding:12px}.card{padding:15px}}
+  main{padding:18px 20px 24px; margin:0 6px;}
+  .step-label{
+    font-family:"Courier New",monospace;
+    font-size:11px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--leaf-deep);
+    margin:0 0 10px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .step-label::before{
+    content:"";
+    width:16px;height:1px;
+    background:var(--leaf-deep);
+  }
+  fieldset{
+    border:none;
+    padding:0;
+    margin:0 0 22px;
+  }
+  .grid-2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+  .pick-btn{
+    border:1px solid var(--line);
+    background:var(--paper-dark);
+    padding:12px 10px;
+    font-family:inherit;
+    font-size:14px;
+    color:var(--ink);
+    cursor:pointer;
+    text-align:left;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    transition:background .15s, border-color .15s;
+  }
+  .pick-btn svg{width:18px;height:18px;flex:none;stroke:var(--leaf-deep);fill:none;stroke-width:1.4;}
+  .pick-btn.active{
+    background:var(--leaf-deep);
+    border-color:var(--leaf-deep);
+    color:var(--paper);
+  }
+  .pick-btn.active svg{stroke:var(--paper);}
+
+  .culture-tag{
+    display:inline-block;
+    font-family:"Courier New",monospace;
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    background:var(--leaf-deep);
+    color:var(--paper);
+    padding:3px 10px;
+    margin-bottom:14px;
+  }
+
+  .symptom-list{list-style:none;margin:0;padding:0;}
+  .symptom-list .group-header{
+    font-family:"Courier New",monospace;
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--leaf-deep);
+    background:var(--paper-dark);
+    padding:8px 4px 6px;
+    margin-top:6px;
+    border-bottom:1px solid var(--line);
+  }
+  .symptom-list li:first-child .group-header{margin-top:0;}
+  .symptom-list li{
+    border-bottom:1px solid var(--line);
+  }
+  .symptom-list label{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    padding:11px 2px;
+    font-size:14.5px;
+    line-height:1.35;
+    cursor:pointer;
+  }
+  .symptom-list input{
+    margin-top:3px;
+    accent-color:var(--leaf-deep);
+    width:15px;height:15px;
+    flex:none;
+  }
+
+  .actions{display:flex; gap:10px; margin-top:6px;}
+  button.primary{
+    flex:1;
+    background:var(--leaf-deep);
+    color:var(--paper);
+    border:none;
+    padding:13px 16px;
+    font-family:"Courier New",monospace;
+    font-size:12.5px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    cursor:pointer;
+  }
+  button.primary:disabled{opacity:.35; cursor:not-allowed;}
+  button.ghost{
+    background:transparent;
+    border:1px solid var(--ink-soft);
+    color:var(--ink-soft);
+    padding:13px 14px;
+    font-family:"Courier New",monospace;
+    font-size:12.5px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    cursor:pointer;
+  }
+
+  .hidden{display:none !important;}
+
+  .result-card{
+    border:1.5px solid var(--ink);
+    padding:16px 16px 14px;
+    margin-bottom:14px;
+    background:var(--paper-dark);
+    position:relative;
+  }
+  .result-card .rank{
+    position:absolute;
+    top:-11px; left:14px;
+    background:var(--paper);
+    border:1px solid var(--ink);
+    font-family:"Courier New",monospace;
+    font-size:10.5px;
+    padding:1px 8px;
+    letter-spacing:.08em;
+  }
+  .result-card h2{
+    font-size:18px;
+    margin:6px 0 2px;
+  }
+  .result-card .latin{
+    font-style:italic;
+    color:var(--ink-soft);
+    font-size:13px;
+    margin-bottom:10px;
+  }
+  .match-bar{
+    height:4px;
+    background:var(--line);
+    margin-bottom:12px;
+    position:relative;
+  }
+  .match-bar span{
+    display:block;
+    height:100%;
+    background:var(--rust);
+  }
+  .result-card h3{
+    font-family:"Courier New",monospace;
+    font-size:10.5px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--leaf-deep);
+    margin:12px 0 4px;
+  }
+  .result-card p{
+    font-size:13.5px;
+    line-height:1.5;
+    margin:0;
+  }
+  .no-match{
+    text-align:center;
+    padding:30px 10px;
+    color:var(--ink-soft);
+    font-style:italic;
+    font-size:14px;
+  }
+  .disclaimer{
+    font-family:"Courier New",monospace;
+    font-size:10.5px;
+    line-height:1.6;
+    color:var(--ink-soft);
+    border-top:1px dashed var(--line);
+    padding-top:12px;
+    margin-top:6px;
+  }
+  footer{
+    border-top:2px solid var(--ink);
+    margin:0 6px;
+    padding:10px 20px 14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-family:"Courier New",monospace;
+    font-size:10px;
+    color:var(--ink-soft);
+    letter-spacing:.05em;
+  }
+  .progress-dots{display:flex; gap:5px;}
+  .progress-dots span{
+    width:6px;height:6px;border-radius:50%;
+    background:var(--line);
+  }
+  .progress-dots span.on{background:var(--leaf-deep);}
 </style>
 </head>
 <body>
-<header>
-  <h1>🌱 AgroDiagnostic</h1>
-  <p>Assistant d’orientation phytosanitaire — Prototype V0.8</p>
-</header>
-
-<main>
-<section class="card">
-  <h2>1. Informations générales</h2>
-  <div class="grid">
-    <div>
-      <label for="crop">Culture</label>
-      <select id="crop">
-        <option>Maïs</option><option>Piment</option><option>Tomate</option>
-        <option>Riz</option><option>Coton</option><option>Autre</option>
-      </select>
-    </div>
-    <div>
-      <label for="stage">Stade de la culture</label>
-      <select id="stage">
-        <option>Plantule / jeune plant</option><option>Croissance végétative</option>
-        <option>Floraison</option><option>Fructification / remplissage</option>
-        <option>Maturation</option><option>Inconnu</option>
-      </select>
-    </div>
+<div class="sheet">
+  <div class="stamp">
+    <svg viewBox="0 0 24 24"><path d="M12 2C9 6 7 9 7 12a5 5 0 0010 0c0-3-2-6-5-10z"/></svg>
   </div>
-</section>
+  <header>
+    <div class="eyebrow"><span>Fiche de diagnostic</span><span id="ref-code">N° —</span></div>
+    <h1>Diagnostic cultures</h1>
+    <div class="sub">Outil d'aide au diagnostic phytosanitaire au champ</div>
+  </header>
 
-<section class="card">
-  <h2>2. Symptômes observés</h2>
-  <p class="small">Sélectionne uniquement ce que tu observes réellement. Le système ne doit pas remplacer une confirmation technique ou de laboratoire.</p>
-  <div class="checks">
-    <label class="check"><input type="checkbox" value="taches" class="sym"> Taches / lésions sur feuilles</label>
-    <label class="check"><input type="checkbox" value="jaunissement" class="sym"> Jaunissement</label>
-    <label class="check"><input type="checkbox" value="fletrissement" class="sym"> Flétrissement</label>
-    <label class="check"><input type="checkbox" value="necrose" class="sym"> Nécrose / tissu desséché</label>
-    <label class="check"><input type="checkbox" value="deformation" class="sym"> Déformation / enroulement</label>
-    <label class="check"><input type="checkbox" value="mucus" class="sym"> Exsudat / mucus</label>
-    <label class="check"><input type="checkbox" value="insectes" class="sym"> Insectes visibles</label>
-    <label class="check"><input type="checkbox" value="trous" class="sym"> Trous / morsures</label>
-    <label class="check"><input type="checkbox" value="moisissure" class="sym"> Moisissure / feutrage</label>
-    <label class="check"><input type="checkbox" value="racines" class="sym"> Symptômes sur racines / collet</label>
+  <div id="tab-switcher" style="display:flex; margin:0 6px; border-bottom:2px solid var(--ink);">
+    <button type="button" id="tab-diagnostic" style="flex:1; padding:12px; font-family:'Courier New',monospace; font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; border:none; background:var(--leaf-deep); color:var(--paper); cursor:pointer;">Diagnostic</button>
+    <button type="button" id="tab-fertilisation" style="flex:1; padding:12px; font-family:'Courier New',monospace; font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; border:none; background:var(--paper-dark); color:var(--ink-soft); cursor:pointer;">Fertilisation</button>
   </div>
-  <label for="color">Couleur ou aspect dominant</label>
-  <input id="color" placeholder="Ex. brun, rouge-orangé, jaune, vert pâle...">
-  <label for="distribution">Répartition dans la parcelle / les pots</label>
-  <select id="distribution">
-    <option>Quelques plantes isolées</option>
-    <option>Foyers localisés</option>
-    <option>Répartition assez uniforme</option>
-    <option>Je ne sais pas</option>
-  </select>
-</section>
 
+  <main id="main-diagnostic">
+    <!-- ÉTAPE 0 : CULTURE -->
+    <section id="step0">
+      <p class="step-label">Étape 1 — Culture concernée</p>
+      <fieldset class="grid-2" id="cultures">
+        <button type="button" class="pick-btn" data-culture="piment">
+          <svg viewBox="0 0 24 24"><path d="M12 8c4 0 7 3 7 7a7 7 0 01-14 0c0-4 3-7 7-7z"/><path d="M12 8V4M10 4h4"/></svg>
+          Piment
+        </button>
+        <button type="button" class="pick-btn" data-culture="tomate">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="7"/><path d="M12 6V4M9 5l1.5 1.5M15 5l-1.5 1.5"/></svg>
+          Tomate
+        </button>
+        <button type="button" class="pick-btn" data-culture="gombo">
+          <svg viewBox="0 0 24 24"><path d="M12 4c2 4 3 8 2 16-3-2-5-6-5-10 0-3 1.5-5 3-6z"/></svg>
+          Gombo
+        </button>
+        <button type="button" class="pick-btn" data-culture="mais">
+          <svg viewBox="0 0 24 24"><rect x="9" y="4" width="6" height="16" rx="3"/><path d="M9 8h6M9 12h6M9 16h6"/></svg>
+          Maïs
+        </button>
+        <button type="button" class="pick-btn" data-culture="niebe">
+          <svg viewBox="0 0 24 24"><path d="M6 12c0-4 3-7 7-7s7 3 7 7-3 7-7 7-7-3-7-7z"/><circle cx="9" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="15" cy="12" r="1.3"/></svg>
+          Niébé
+        </button>
+      </fieldset>
+    </section>
 
-<section class="card">
-<h2>3. Indices discriminants — maïs</h2>
-<p class="small">Ces questions aident à distinguer plusieurs hypothèses ayant des symptômes proches.</p>
-<div class="grid">
-<div><label for="organ">Organe principalement atteint</label><select id="organ"><option>Feuilles</option><option>Cornet / jeunes feuilles</option><option>Tige</option><option>Épi / grains</option><option>Racines / collet</option><option>Plusieurs organes</option><option>Je ne sais pas</option></select></div>
-<div><label for="leafShape">Forme des lésions foliaires</label><select id="leafShape"><option>Je ne sais pas</option><option>Longues / elliptiques / en cigare</option><option>Rectangulaires, limitées par les nervures</option><option>Pustules poudreuses orange/brun-rouge</option><option>Rondes / ovales</option><option>Irrégulières</option></select></div>
-<div><label for="veins">Lésions limitées par les nervures ?</label><select id="veins"><option>Je ne sais pas</option><option>Oui</option><option>Non</option></select></div>
-<div><label for="corn">Dégâts concentrés dans le cornet ?</label><select id="corn"><option>Je ne sais pas</option><option>Oui</option><option>Non</option></select></div>
-<div><label for="frass">Déjections / frass visibles ?</label><select id="frass"><option>Je ne sais pas</option><option>Oui, dans le cornet</option><option>Oui, près d'une galerie de tige</option><option>Oui, ailleurs</option><option>Non</option></select></div>
-<div><label for="gallery">Galerie dans la tige ?</label><select id="gallery"><option>Je ne sais pas</option><option>Oui</option><option>Non</option></select></div>
-<div><label for="larva">Larve observée ?</label><select id="larva"><option>Je ne sais pas</option><option>Oui, dans le cornet</option><option>Oui, dans la tige</option><option>Oui, ailleurs</option><option>Non</option></select></div>
-<div><label for="deadheart">Point de croissance desséché (« cœur mort ») ?</label><select id="deadheart"><option>Je ne sais pas</option><option>Oui</option><option>Non</option></select></div>
-<div><label for="pustule">Pustules poudreuses visibles ?</label><select id="pustule"><option>Je ne sais pas</option><option>Oui</option><option>Non</option></select></div>
+    <!-- ÉTAPE SYMPTÔMES -->
+    <section id="step2" class="hidden">
+      <div class="culture-tag" id="culture-tag-2"></div>
+      <p class="step-label">Étape 2 — Symptômes observés (toutes parties de la plante)</p>
+      <ul class="symptom-list" id="symptom-list"></ul>
+      <div class="actions">
+        <button type="button" class="ghost" id="back-to-1">← Changer de culture</button>
+        <button type="button" class="primary" id="diagnose-btn" disabled>Envoyer ma demande</button>
+      </div>
+    </section>
+
+    <!-- RÉSULTATS -->
+    <section id="step3" class="hidden">
+      <div class="culture-tag" id="culture-tag-3"></div>
+      <p class="step-label">Votre demande a été transmise</p>
+      <div id="results"></div>
+      <div class="disclaimer">
+        Vos observations sont transmises directement à un conseiller pour une réponse adaptée à votre situation réelle. Vous recevrez une réponse personnalisée sur WhatsApp.
+      </div>
+      <a href="#" id="whatsapp-contact-btn" target="_blank" rel="noopener" style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:14px; background:#3D5A3A; color:#F3EEE2; text-decoration:none; padding:13px 16px; font-family:'Courier New',monospace; font-size:12.5px; letter-spacing:.06em; text-transform:uppercase;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="#F3EEE2"><path d="M12 2a10 10 0 00-8.5 15.2L2 22l4.9-1.4A10 10 0 1012 2zm0 18a8 8 0 01-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1112 20zm4.4-5.9c-.2-.1-1.4-.7-1.6-.8s-.4-.1-.5.1-.6.8-.7.9-.3.2-.5.1a6.6 6.6 0 01-2-1.2 7.3 7.3 0 01-1.4-1.7c-.1-.2 0-.3.1-.5l.4-.4a2 2 0 00.3-.4.5.5 0 000-.5c0-.1-.5-1.3-.7-1.7s-.4-.4-.5-.4h-.5a.9.9 0 00-.6.3 2.8 2.8 0 00-.9 2.1 4.9 4.9 0 001 2.5 11.3 11.3 0 004.4 3.9c.6.3 1.1.4 1.5.6a3.6 3.6 0 001.6.1 2.7 2.7 0 001.8-1.2 2.2 2.2 0 00.1-1.2c-.1-.1-.2-.2-.4-.3z"/></svg>
+        Renvoyer la demande via WhatsApp
+      </a>
+      <div class="actions" style="margin-top:14px;">
+        <button type="button" class="ghost" id="restart-btn" style="flex:1;">↺ Nouveau diagnostic</button>
+      </div>
+    </section>
+  </main>
+
+  <main id="main-fertilisation" class="hidden">
+    <!-- F-ÉTAPE 0 : CULTURE -->
+    <section id="fstep0">
+      <p class="step-label">Étape 1 — Culture concernée</p>
+      <fieldset class="grid-2" id="fert-cultures">
+        <button type="button" class="pick-btn" data-fculture="piment">
+          <svg viewBox="0 0 24 24"><path d="M12 8c4 0 7 3 7 7a7 7 0 01-14 0c0-4 3-7 7-7z"/><path d="M12 8V4M10 4h4"/></svg>
+          Piment
+        </button>
+        <button type="button" class="pick-btn" data-fculture="tomate">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="7"/><path d="M12 6V4M9 5l1.5 1.5M15 5l-1.5 1.5"/></svg>
+          Tomate
+        </button>
+        <button type="button" class="pick-btn" data-fculture="gombo">
+          <svg viewBox="0 0 24 24"><path d="M12 4c2 4 3 8 2 16-3-2-5-6-5-10 0-3 1.5-5 3-6z"/></svg>
+          Gombo
+        </button>
+        <button type="button" class="pick-btn" data-fculture="mais">
+          <svg viewBox="0 0 24 24"><rect x="9" y="4" width="6" height="16" rx="3"/><path d="M9 8h6M9 12h6M9 16h6"/></svg>
+          Maïs
+        </button>
+        <button type="button" class="pick-btn" data-fculture="niebe">
+          <svg viewBox="0 0 24 24"><path d="M6 12c0-4 3-7 7-7s7 3 7 7-3 7-7 7-7-3-7-7z"/><circle cx="9" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="15" cy="12" r="1.3"/></svg>
+          Niébé
+        </button>
+      </fieldset>
+    </section>
+
+    <!-- F-ÉTAPE 1 : TYPE -->
+    <section id="fstep1" class="hidden">
+      <div class="culture-tag" id="fculture-tag-1"></div>
+      <p class="step-label">Étape 2 — Type de fertilisation</p>
+      <fieldset class="grid-2" id="fert-types">
+        <button type="button" class="pick-btn" data-ftype="organique">
+          <svg viewBox="0 0 24 24"><path d="M4 20c8-1 13-6 15-15C10 6 5 11 4 20z"/></svg>
+          Organique (fumier)
+        </button>
+        <button type="button" class="pick-btn" data-ftype="mineral">
+          <svg viewBox="0 0 24 24"><rect x="5" y="9" width="14" height="10" rx="1"/><path d="M9 9V6a3 3 0 016 0v3"/></svg>
+          Minéral (NPK/urée)
+        </button>
+      </fieldset>
+      <div class="actions">
+        <button type="button" class="ghost" id="fback-to-0" style="flex:1;">← Changer de culture</button>
+      </div>
+    </section>
+
+    <!-- F-ÉTAPE 2 : SURFACE -->
+    <section id="fstep2" class="hidden">
+      <div class="culture-tag" id="fculture-tag-2"></div>
+      <p class="step-label">Étape 3 — Surface à fertiliser</p>
+      <label style="display:block; font-size:14px; margin-bottom:8px; color:var(--ink-soft);">Surface en m² (ex : une planche de 20 m² → 20)</label>
+      <input type="number" id="surface-input" min="1" placeholder="Ex : 50" style="width:100%; box-sizing:border-box; padding:12px; border:1px solid var(--line); background:var(--paper-dark); font-family:inherit; font-size:16px; margin-bottom:18px;">
+      <div class="actions">
+        <button type="button" class="ghost" id="fback-to-1">← Retour</button>
+        <button type="button" class="primary" id="calculate-btn">Envoyer ma demande</button>
+      </div>
+    </section>
+
+    <!-- F-RÉSULTATS -->
+    <section id="fstep3" class="hidden">
+      <div class="culture-tag" id="fculture-tag-3"></div>
+      <p class="step-label">Votre demande a été transmise</p>
+      <div id="fert-results"></div>
+      <div class="disclaimer">
+        Votre demande est transmise directement à un conseiller, qui vous proposera un plan de fertilisation adapté à votre situation réelle. Réponse sur WhatsApp.
+      </div>
+      <div class="actions" style="margin-top:14px;">
+        <button type="button" class="ghost" id="frestart-btn" style="flex:1;">↺ Nouveau calcul</button>
+      </div>
+    </section>
+  </main>
+    <span>Zone soudano-sahélienne</span>
+    <div class="progress-dots">
+      <span id="dot1" class="on"></span><span id="dot2"></span><span id="dot3"></span>
+    </div>
+  </footer>
 </div>
-</section>
-
-<section class="card">
-  <h2>3. Contexte</h2>
-  <div class="grid">
-    <div>
-      <label for="speed">Vitesse d’évolution</label>
-      <select id="speed">
-        <option>Rapide (quelques jours)</option>
-        <option>Progressive</option><option>Lente</option><option>Je ne sais pas</option>
-      </select>
-    </div>
-    <div>
-      <label for="weather">Météo récente</label>
-      <select id="weather">
-        <option>Pluies / forte humidité</option>
-        <option>Chaleur / sécheresse</option><option>Alternance pluie-chaleur</option>
-        <option>Normale</option><option>Je ne sais pas</option>
-      </select>
-    </div>
-  </div>
-  <label for="management">Fertilisation, traitements ou changement récent</label>
-  <textarea id="management" placeholder="Ex. apport d’engrais, fiente, herbicide, insecticide, changement d’arrosage..."></textarea>
-  <label for="notes">Autres observations</label>
-  <textarea id="notes" placeholder="Décris ce que tu vois, sans essayer de donner toi-même le nom de la maladie."></textarea>
-</section>
-
-
-<section class="card">
-  <h2>📷 4. Photo de la plante</h2>
-  <p class="small">Ajoute une photo nette de la plante entière et, si possible, une photo rapprochée du symptôme. Dans cette version, la photo est enregistrée dans l’interface pour préparer le futur module d’analyse d’image ; elle n’est pas encore interprétée automatiquement.</p>
-  <label for="photo">Choisir une photo</label>
-  <input id="photo" type="file" accept="image/*" capture="environment" onchange="previewPhoto(event)">
-  <div id="photoPreview" style="display:none;margin-top:12px">
-    <img id="preview" alt="Aperçu de la photo" style="width:100%;max-height:320px;object-fit:contain;border-radius:12px;border:1px solid #dfe8e1">
-    <p class="small" id="photoStatus"></p>
-  </div>
-</section>
-
-<section class="card">
-  <h2>5. Analyse</h2>
-  <button onclick="diagnose()">🔎 Générer l’orientation</button>
-</section>
-
-<section class="card result" id="result">
-  <h2>Orientation du diagnostic</h2>
-  <span class="badge" id="quality"></span>
-  <div id="content"></div>
-  <div class="warning">
-    <strong>Limite importante :</strong> cette version produit une orientation à partir des informations saisies. Elle ne constitue pas une identification certaine d’une maladie ou d’un ravageur. Un cas ambigu doit être vérifié par un technicien compétent et, si nécessaire, par un laboratoire.
-  </div>
-</section>
-
-<section class="card">
-  <h2>📚 Références de cadrage</h2>
-  <div class="ref">
-    <p><strong>FAO</strong> — l’observation régulière de la culture, des ravageurs et des maladies, ainsi que la prise en compte du contexte agronomique et météorologique, font partie de la gestion intégrée des ravageurs.</p>
-    <p><strong>EPPO</strong> — les diagnostics phytosanitaires professionnels reposent sur des protocoles et méthodes permettant la détection et l’identification, avec des standards spécifiques.</p>
-    <p><a href="https://www.fao.org/agriculture/crops/thematic-sitemap/theme/compendium/tools-guidelines/how-to-ipm/en/" target="_blank" rel="noopener">FAO — How to practice Integrated Pest Management</a></p>
-    <p><a href="https://www.eppo.int/ACTIVITIES/plant_quarantine/diagnostics" target="_blank" rel="noopener">EPPO — activités de diagnostic</a></p>
-  </div>
-</section>
-</main>
-
-<footer>AgroDiagnostic V0.8 — prototype d’orientation • Ne remplace pas un diagnostic phytosanitaire officiel.</footer>
 
 <script>
-const CASES=[
-{name:"Chenille légionnaire d’automne — à examiner",type:"Ravageur",score(d){
-let s=0,e=[];if(d.crop==="Maïs"&&d.corn==="Oui"){s+=28;e.push("dégâts dans le cornet")}if(d.frass==="Oui, dans le cornet"){s+=25;e.push("déjections dans le cornet")}if(d.larva==="Oui, dans le cornet"){s+=30;e.push("larve dans le cornet")}if(d.sym.includes("trous")){s+=12;e.push("trous/morsures")}if(d.sym.includes("insectes")){s+=8;e.push("insecte/larve visible")}return[s,e]}},
-{name:"Foreur de tige — à examiner",type:"Ravageur",score(d){
-let s=0,e=[];if(d.crop==="Maïs"&&d.gallery==="Oui"){s+=35;e.push("galerie dans la tige")}if(d.frass==="Oui, près d'une galerie de tige"){s+=30;e.push("déjections près de la galerie")}if(d.larva==="Oui, dans la tige"){s+=30;e.push("larve dans la tige")}if(d.deadheart==="Oui"){s+=16;e.push("cœur mort")}if(d.sym.includes("trous")){s+=8;e.push("trous/fenêtres")}return[s,e]}},
-{name:"Brûlure helminthosporienne du Nord — à examiner",type:"Maladie foliaire",score(d){
-let s=0,e=[];if(d.crop==="Maïs"&&d.sym.includes("taches")){s+=15;e.push("taches foliaires")}if(d.leafShape==="Longues / elliptiques / en cigare"){s+=35;e.push("lésions longues/elliptiques")}if(d.organ==="Feuilles"){s+=10;e.push("feuilles atteintes")}if(d.weather==="Pluies / forte humidité"){s+=10;e.push("forte humidité")}return[Math.max(0,s),e]}},
-{name:"Cercosporiose — à examiner",type:"Maladie foliaire",score(d){
-let s=0,e=[];if(d.crop==="Maïs"&&d.sym.includes("taches")){s+=15;e.push("taches foliaires")}if(d.leafShape==="Rectangulaires, limitées par les nervures"){s+=40;e.push("lésions rectangulaires")}if(d.veins==="Oui"){s+=15;e.push("lésions limitées par les nervures")}if(d.weather==="Pluies / forte humidité"){s+=10;e.push("humidité")}return[Math.max(0,s),e]}},
-{name:"Rouille du maïs — à examiner",type:"Maladie foliaire",score(d){
-let s=0,e=[];if(d.crop==="Maïs"&&d.sym.includes("taches")){s+=10;e.push("atteinte foliaire")}if(d.leafShape==="Pustules poudreuses orange/brun-rouge"){s+=45;e.push("pustules poudreuses")}if(d.pustule==="Oui"){s+=30;e.push("pustules observées")}if(/orange|brun|rouge/i.test(d.color)){s+=8;e.push("couleur compatible")}return[Math.max(0,s),e]}},
-{name:"Facteur non infectieux / stress — à examiner",type:"Non infectieux",score(d){
-let s=0,e=[];if(d.sym.includes("jaunissement")){s+=20;e.push("jaunissement")}if(d.sym.includes("fletrissement")){s+=20;e.push("flétrissement")}if(d.weather==="Chaleur / sécheresse"){s+=22;e.push("chaleur/sécheresse")}if(d.distribution==="Répartition assez uniforme"){s+=12;e.push("répartition uniforme")}if(/herbicide|désherbant|phytotoxic|brûlure/i.test(d.management+" "+d.notes)){s+=20;e.push("phytotoxicité possible")}if(/engrais|urée|npk|fiente|fumure/i.test(d.management)){s+=10;e.push("fertilisation récente")}return[s,e]}}
+const CULTURE_LABELS = { piment: "Piment", tomate: "Tomate", gombo: "Gombo", mais: "Maïs", niebe: "Niébé" };
+
+// Pictogrammes réutilisables par grande famille de symptômes
+const ICONS = {
+  taches_foliaires: '<path d="M18 4C10 6 6 12 6 20c0 8 6 13 12 13s12-5 12-13c0-8-4-14-12-16z"/><circle cx="14" cy="17" r="1.6"/><circle cx="20" cy="22" r="1.6"/><circle cx="15" cy="26" r="1.6"/>',
+  poudre_blanche: '<path d="M18 4C10 6 6 12 6 20c0 8 6 13 12 13s12-5 12-13c0-8-4-14-12-16z"/><circle cx="13" cy="15" r=".9"/><circle cx="17" cy="13" r=".9"/><circle cx="21" cy="16" r=".9"/><circle cx="15" cy="19" r=".9"/><circle cx="20" cy="21" r=".9"/><circle cx="12" cy="22" r=".9"/><circle cx="23" cy="20" r=".9"/>',
+  jaunissement_mosaique: '<path d="M18 4C10 6 6 12 6 20c0 8 6 13 12 13s12-5 12-13c0-8-4-14-12-16z"/><path d="M9 14c3 1 5 4 4 8-1 3-1 6 1 9M23 12c-2 2-2 5 0 8s2 6 0 9" stroke-width="1.1"/>',
+  fletrissement: '<path d="M18 4v11"/><path d="M18 15c0 6-6 8-6 14M18 15c0 6 6 8 6 14" stroke-linecap="round"/>',
+  pourriture_fruit: '<path d="M18 10c6 0 10 5 10 11a10 10 0 01-20 0c0-6 4-11 10-11z"/><path d="M18 10V5M16 5h4"/><ellipse cx="16" cy="22" rx="4" ry="3" fill="var(--rust)" stroke="none" opacity=".55"/>',
+  insecte_piqueur: '<ellipse cx="18" cy="20" rx="6" ry="8"/><circle cx="18" cy="9" r="3"/><path d="M8 16l4 2M28 16l-4 2M8 26l4-2M28 26l-4-2M13 10l3 3M23 10l-3 3"/>',
+  galeries: '<path d="M18 4C10 6 6 12 6 20c0 8 6 13 12 13s12-5 12-13c0-8-4-14-12-16z"/><path d="M11 14c2 2 0 4 2 6s0 4 2 6 0 3 2 5" stroke-width="1.1" stroke-dasharray="1.5 2"/>',
+  galles_racines: '<path d="M18 6v10"/><path d="M18 16c-4 1-6 4-6 8M18 16c4 1 6 4 6 8" stroke-linecap="round"/><circle cx="12" cy="24" r="2.2"/><circle cx="24" cy="24" r="2.2"/><circle cx="16" cy="29" r="2"/><circle cx="20" cy="29" r="2"/>',
+  champignon_sol: '<path d="M6 27h24" stroke-width="1.4"/><path d="M12 27c0-6 2-10 6-13" stroke-dasharray="2 2"/><path d="M18 27c2-3 2-6 0-9"/><path d="M22 27c1-4 0-7-2-10" stroke-dasharray="2 2"/>',
+  plante_parasite: '<path d="M18 6v21" stroke-width="1.4"/><path d="M6 27h24" stroke-width="1.4"/><path d="M18 20c-2-3-6-3-8-1 2 3 6 3 8 1zM18 20c2-3 6-3 8-1-2 3-6 3-8 1z" fill="var(--rust)" fill-opacity=".35"/><circle cx="18" cy="15" r="1.6"/>',
+  carence: '<path d="M18 4C10 6 6 12 6 20c0 8 6 13 12 13s12-5 12-13c0-8-4-14-12-16z"/><path d="M18 8l-3 8h6l-3 8" stroke="var(--rust)" stroke-width="1.3"/>',
+  chenille: '<path d="M7 22c2-3 4-3 5 0s3 3 5 0 3-3 5 0 3 3 5 0 4-3 4 0" stroke-linecap="round"/><circle cx="7" cy="22" r="1.6"/>',
+  defaut: '<path d="M18 4C10 6 6 12 6 20c0 8 6 13 12 13s12-5 12-13c0-8-4-14-12-16z"/>'
+};
+
+// Association diagnostic → pictogramme
+const ICON_BY_ID = {
+  anthracnose:"pourriture_fruit", bacteriose:"taches_foliaires", oidium_piment:"poudre_blanche",
+  fletrissement_bacterien_piment:"fletrissement", pucerons_piment:"insecte_piqueur", thrips_piment:"insecte_piqueur",
+  virus_aleurode_piment:"jaunissement_mosaique", necrose_apicale_piment:"carence", nematodes_piment:"galles_racines",
+  fonte_semis_piment:"champignon_sol",
+  mildiou_tomate:"taches_foliaires", alternariose_tomate:"taches_foliaires", fletrissement_bacterien_tomate:"fletrissement",
+  fusariose_tomate:"fletrissement", tylcv_tomate:"jaunissement_mosaique", necrose_apicale_tomate:"carence",
+  mineuse_tomate:"galeries",
+  virus_mosaique_gombo:"jaunissement_mosaique", oidium_gombo:"poudre_blanche", jassides_gombo:"insecte_piqueur",
+  pourriture_fruits_gombo:"pourriture_fruit", chenilles_foreuses_gombo:"chenille", nematodes_gombo:"galles_racines",
+  rouille_mais:"taches_foliaires", charbon_mais:"pourriture_fruit", virus_striure_mais:"jaunissement_mosaique",
+  chenille_legionnaire_mais:"chenille", foreurs_tige_mais:"galeries", carence_azote_mais:"carence",
+  striga_mais:"plante_parasite",
+  virus_mosaique_niebe:"jaunissement_mosaique", bacteriose_niebe:"taches_foliaires", oidium_niebe:"poudre_blanche",
+  cercosporiose_niebe:"taches_foliaires", thrips_fleurs_niebe:"insecte_piqueur", punaises_gousses_niebe:"insecte_piqueur",
+  foreuse_gousses_niebe:"chenille", striga_niebe:"plante_parasite", fonte_semis_niebe:"champignon_sol",
+  nematodes_niebe:"galles_racines"
+};
+
+function iconSvg(diagId){
+  const key = ICON_BY_ID[diagId] || "defaut";
+  return `<svg viewBox="0 0 36 36" width="34" height="34" fill="none" stroke="var(--leaf-deep)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">${ICONS[key]}</svg>`;
+}
+
+// Base de connaissances par culture
+const DIAGNOSES = [
+  // --- PIMENT ---
+  { id:"anthracnose", culture:"piment", nom:"Anthracnose du fruit", latin:"Colletotrichum spp.",
+    organes:["fruits"], symptomes:["fr_taches_concentriques","fr_pourriture_molle","fr_points_noirs"],
+    cause:"Champignon favorisé par l'humidité, la pluie battante et les blessures sur le fruit. Se conserve sur résidus de culture et semences.",
+    reco:"Retirer et détruire les fruits atteints (ne pas composter). Éviter l'excès d'irrigation par aspersion. Traitement fongicide préventif à base de cuivre en début de floraison si pression forte. Utiliser des semences saines." },
+  { id:"bacteriose", culture:"piment", nom:"Bactériose (tache bactérienne)", latin:"Xanthomonas spp.",
+    organes:["feuilles","fruits"], symptomes:["fe_taches_huileuses","fe_halo_jaune","fr_lesions_liege"],
+    cause:"Bactérie disséminée par la pluie, les outils et les manipulations sur feuillage humide.",
+    reco:"Éviter de travailler la parcelle quand le feuillage est mouillé. Rotation avec cultures non-solanacées (≥2 ans). Élimination des débris infectés. Cuivre en préventif dès les premiers symptômes." },
+  { id:"oidium_piment", culture:"piment", nom:"Oïdium", latin:"Leveillula taurica",
+    organes:["feuilles"], symptomes:["fe_poudre_blanche","fe_jaunissement","fe_chute"],
+    cause:"Champignon favorisé par une forte hygrométrie nocturne et une chaleur diurne — fréquent en saison sèche sous abri ou pot.",
+    reco:"Aérer les plants, éviter la densité excessive. Soufre mouillable en traitement préventif/curatif léger. Supprimer les feuilles fortement atteintes." },
+  { id:"fletrissement_bacterien_piment", culture:"piment", nom:"Flétrissement bactérien", latin:"Ralstonia solanacearum",
+    organes:["plante"], symptomes:["pl_fletrissement_rapide","pl_pas_jaunissement","pl_ecoulement_bacterien"],
+    cause:"Bactérie du sol, très agressive en sol chaud et humide. Se propage par l'eau d'irrigation et les outils.",
+    reco:"Arracher et détruire immédiatement les plants atteints (hors parcelle). Ne pas replanter de solanacées sur le site avant plusieurs années. Désinfecter les outils. Test rapide : tige coupée plongée dans l'eau — un exsudat blanc laiteux confirme la bactérie." },
+  { id:"pucerons_piment", culture:"piment", nom:"Pucerons", latin:"Aphididae",
+    organes:["feuilles"], symptomes:["fe_enroulement_jeunes","fe_miellat","fe_petits_insectes"],
+    cause:"Insectes piqueurs-suceurs colonisant les jeunes pousses ; vecteurs de viroses.",
+    reco:"Surveiller le dessous des jeunes feuilles. Favoriser les auxiliaires (coccinelles). Savon noir en pulvérisation si attaque localisée. Éviter les excès d'azote qui favorisent les pullulations." },
+  { id:"thrips_piment", culture:"piment", nom:"Thrips", latin:"Thrips spp. / Frankliniella spp.",
+    organes:["feuilles"], symptomes:["fe_argenture","fe_deformation_bourgeons","fe_points_noirs_excrements"],
+    cause:"Petits insectes filiformes se nourrissant sur bourgeons et jeunes feuilles ; vecteurs du virus TSWV.",
+    reco:"Poser des pièges chromatiques bleus pour le suivi. Traitement à base d'extraits de neem en préventif. Détruire les adventices hôtes autour de la parcelle." },
+  { id:"virus_aleurode_piment", culture:"piment", nom:"Virose transmise par aleurodes", latin:"Bemisia tabaci / Begomovirus",
+    organes:["feuilles","plante"], symptomes:["fe_mosaique_jaune","fe_enroulement_foliaire","pl_nanisme"],
+    cause:"Virus transmis par la mouche blanche (aleurode) ; plante contaminée souvent rabougrie et peu productive.",
+    reco:"Aucun traitement curatif du virus : arracher les plants atteints. Lutter contre le vecteur (filets anti-insectes en pépinière, pièges jaunes engluées). Éviter la proximité avec cultures très infestées (tomate, coton)." },
+  { id:"necrose_apicale_piment", culture:"piment", nom:"Nécrose apicale (cul noir)", latin:"Carence physiologique en calcium",
+    organes:["fruits"], symptomes:["fr_pourriture_extremite_noire","fr_pas_insectes"],
+    cause:"Trouble physiologique lié à une irrigation irrégulière limitant l'absorption du calcium, pas une maladie infectieuse.",
+    reco:"Régulariser l'irrigation (éviter alternance sécheresse/excès d'eau). Apport de calcium (chaux agricole, ou pulvérisation foliaire de chlorure de calcium). Pailler pour stabiliser l'humidité du sol." },
+  { id:"nematodes_piment", culture:"piment", nom:"Nématodes à galles", latin:"Meloidogyne spp.",
+    organes:["plante"], symptomes:["pl_fletrissement_jour","pl_nanisme","pl_galles_racines"],
+    cause:"Vers microscopiques du sol formant des galles sur les racines, gênant l'absorption d'eau et de nutriments.",
+    reco:"Arracher un plant suspect et vérifier les racines (petites boursouflures = galles). Rotation avec cultures non hôtes (céréales). Amendement en matière organique et solarisation du sol entre deux cycles." },
+  { id:"fonte_semis_piment", culture:"piment", nom:"Fonte des semis", latin:"Pythium spp. / Rhizoctonia spp.",
+    organes:["tiges","plante"], symptomes:["ti_pourriture_collet","pl_effondrement_jeunes_plants"],
+    cause:"Champignons du sol attaquant les jeunes plantules en pépinière, favorisés par un substrat trop humide et mal drainé.",
+    reco:"Améliorer le drainage du substrat de pépinière. Éviter les semis trop denses. Désinfecter le substrat avant semis. Retirer immédiatement les plantules atteintes pour limiter la propagation." },
+
+  // --- TOMATE ---
+  { id:"mildiou_tomate", culture:"tomate", nom:"Mildiou", latin:"Phytophthora infestans",
+    organes:["feuilles","fruits"], symptomes:["to_fe_taches_huileuses_brunes","to_fe_duvet_blanchatre","to_fr_pourriture_brune_huileuse"],
+    cause:"Champignon favorisé par l'humidité prolongée et les températures fraîches à modérées, en saison pluvieuse.",
+    reco:"Espacer les plants pour aérer le feuillage. Éviter l'arrosage par aspersion en fin de journée. Fongicide à base de cuivre dès les premiers signes. Détruire les résidus de culture après récolte." },
+  { id:"alternariose_tomate", culture:"tomate", nom:"Alternariose (\"œil de bœuf\")", latin:"Alternaria solani",
+    organes:["feuilles"], symptomes:["to_fe_taches_cercles_concentriques","to_fe_chute_feuilles_agees"],
+    cause:"Champignon qui débute sur les feuilles âgées du bas de la plante, favorisé par l'alternance humidité/sécheresse.",
+    reco:"Supprimer les feuilles basses atteintes. Éviter le stress hydrique. Rotation culturale. Fongicide de contact si progression rapide." },
+  { id:"fletrissement_bacterien_tomate", culture:"tomate", nom:"Flétrissement bactérien", latin:"Ralstonia solanacearum",
+    organes:["plante","tiges"], symptomes:["to_pl_fletrissement_rapide_sans_jaunissement","to_pl_ecoulement_bacterien","to_ti_ecoulement_bacterien"],
+    cause:"Bactérie du sol très agressive par temps chaud et humide, se propageant par l'eau et les outils.",
+    reco:"Arracher et détruire immédiatement les plants atteints. Éviter de replanter des solanacées sur la parcelle pendant plusieurs années. Désinfecter les outils entre deux plants." },
+  { id:"fusariose_tomate", culture:"tomate", nom:"Fusariose vasculaire", latin:"Fusarium oxysporum f. sp. lycopersici",
+    organes:["feuilles","plante"], symptomes:["to_fe_jaunissement_unilateral","to_pl_jaunissement_progressif_unilateral"],
+    cause:"Champignon du sol obstruant les vaisseaux conducteurs, provoquant un jaunissement souvent asymétrique (un seul côté de la plante).",
+    reco:"Aucun traitement curatif efficace au champ. Utiliser des variétés résistantes si disponibles. Rotation longue et désinfection du matériel. Éviter les excès d'irrigation." },
+  { id:"tylcv_tomate", culture:"tomate", nom:"Virus des feuilles jaunes en cuillère", latin:"Tomato Yellow Leaf Curl Virus (TYLCV)",
+    organes:["feuilles","plante"], symptomes:["to_fe_enroulement_jaunissement","to_pl_nanisme_enroulement"],
+    cause:"Virus transmis par la mouche blanche (Bemisia tabaci), particulièrement actif en saison chaude et sèche.",
+    reco:"Arracher et détruire les plants atteints tôt. Lutter contre la mouche blanche (filets, pièges jaunes engluées). Éviter de planter en bordure de parcelles déjà infestées." },
+  { id:"necrose_apicale_tomate", culture:"tomate", nom:"Nécrose apicale (cul noir)", latin:"Carence physiologique en calcium",
+    organes:["fruits"], symptomes:["to_fr_extremite_noire"],
+    cause:"Trouble physiologique lié à une irrigation irrégulière limitant l'absorption du calcium par le fruit.",
+    reco:"Régulariser l'irrigation. Pailler le sol pour stabiliser l'humidité. Apport de calcium par pulvérisation foliaire (chlorure de calcium) si le problème persiste." },
+  { id:"mineuse_tomate", culture:"tomate", nom:"Mineuse de la tomate", latin:"Tuta absoluta",
+    organes:["feuilles","fruits"], symptomes:["to_fe_galeries_mines","to_fr_galeries_perforations"],
+    cause:"Chenille qui creuse des galeries dans les feuilles et les fruits ; ravageur majeur de la tomate en Afrique de l'Ouest.",
+    reco:"Poser des pièges à phéromones pour le suivi. Détruire les fruits et feuilles minés. Favoriser les auxiliaires (punaises prédatrices). Traitement au Bacillus thuringiensis en cas de forte pression." },
+
+  // --- GOMBO ---
+  { id:"virus_mosaique_gombo", culture:"gombo", nom:"Virus de la mosaïque du gombo", latin:"Okra Mosaic Virus",
+    organes:["feuilles","plante"], symptomes:["go_fe_mosaique_jaune_vert","go_pl_nanisme"],
+    cause:"Virus transmis par des insectes piqueurs-suceurs (pucerons, aleurodes), fréquent en saison chaude.",
+    reco:"Arracher les plants fortement atteints. Utiliser des semences saines et si possible des variétés tolérantes. Lutter contre les insectes vecteurs." },
+  { id:"oidium_gombo", culture:"gombo", nom:"Oïdium", latin:"Erysiphe cichoracearum",
+    organes:["feuilles"], symptomes:["go_fe_poudre_blanche"],
+    cause:"Champignon favorisé par une forte hygrométrie nocturne combinée à une chaleur diurne.",
+    reco:"Aérer les plants (densité de semis raisonnable). Soufre mouillable en traitement préventif. Supprimer les feuilles très atteintes." },
+  { id:"jassides_gombo", culture:"gombo", nom:"Jassides (cicadelles)", latin:"Amrasca biguttula",
+    organes:["feuilles"], symptomes:["go_fe_jaunissement_bordure","go_fe_enroulement_bord"],
+    cause:"Petits insectes piqueurs-suceurs provoquant un jaunissement caractéristique en bordure de feuille (\"hopperburn\").",
+    reco:"Surveiller le dessous des feuilles. Favoriser les auxiliaires naturels. Extrait de neem en pulvérisation si attaque marquée." },
+  { id:"pourriture_fruits_gombo", culture:"gombo", nom:"Pourriture des jeunes fruits", latin:"Choanephora cucurbitarum / complexe fongique",
+    organes:["fruits"], symptomes:["go_fr_pourriture_molle_jeunes"],
+    cause:"Champignons opportunistes favorisés par l'humidité, s'installant souvent après une blessure ou une chute de fleur.",
+    reco:"Récolter régulièrement pour éviter le vieillissement des fruits sur pied. Retirer et détruire les fruits pourris. Éviter l'excès d'irrigation par aspersion." },
+  { id:"chenilles_foreuses_gombo", culture:"gombo", nom:"Chenilles foreuses des capsules", latin:"Earias spp.",
+    organes:["fruits"], symptomes:["go_fr_trous_perforations","go_fr_chute_boutons"],
+    cause:"Chenilles pénétrant dans les boutons floraux et les jeunes capsules, provoquant leur chute ou leur déformation.",
+    reco:"Ramasser et détruire les fruits et boutons atteints. Favoriser les auxiliaires. Traitement au Bacillus thuringiensis en cas de forte attaque." },
+  { id:"nematodes_gombo", culture:"gombo", nom:"Nématodes à galles", latin:"Meloidogyne spp.",
+    organes:["plante"], symptomes:["go_pl_galles_racines","go_pl_fletrissement_jour","go_pl_nanisme"],
+    cause:"Vers microscopiques du sol formant des galles sur les racines, limitant l'absorption d'eau et de nutriments.",
+    reco:"Vérifier les racines d'un plant suspect (boursouflures = galles). Rotation avec céréales. Amendement organique et solarisation du sol entre cycles." },
+
+  // --- MAÏS ---
+  { id:"rouille_mais", culture:"mais", nom:"Rouille du maïs", latin:"Puccinia spp.",
+    organes:["feuilles"], symptomes:["ma_fe_pustules_orangees"],
+    cause:"Champignon favorisé par une humidité élevée et des températures modérées.",
+    reco:"Utiliser des variétés tolérantes si disponibles. Éviter les densités de semis trop élevées. Rotation culturale." },
+  { id:"charbon_mais", culture:"mais", nom:"Charbon du maïs", latin:"Ustilago maydis",
+    organes:["fruits","tiges"], symptomes:["ma_fr_galles_noires"],
+    cause:"Champignon formant des galles grisâtres à noires sur les épis, tiges ou panicules, libérant des spores noires à maturité.",
+    reco:"Détruire les galles avant leur éclatement (ne pas laisser au champ). Rotation culturale. Éviter les blessures mécaniques sur les plants qui favorisent l'infection." },
+  { id:"virus_striure_mais", culture:"mais", nom:"Striure du maïs", latin:"Maize Streak Virus (MSV)",
+    organes:["feuilles","plante"], symptomes:["ma_fe_striures_jaunes_paralleles","ma_pl_nanisme_jaunissement"],
+    cause:"Virus transmis par des cicadelles, provoquant des striures parallèles aux nervures et un retard de croissance marqué.",
+    reco:"Semer tôt en début de saison pour limiter l'exposition aux cicadelles vectrices. Arracher les plants très atteints. Détruire les repousses spontanées qui hébergent le virus entre deux cycles." },
+  { id:"chenille_legionnaire_mais", culture:"mais", nom:"Chenille légionnaire d'automne", latin:"Spodoptera frugiperda",
+    organes:["feuilles"], symptomes:["ma_fe_trous_fenetre","ma_fe_excrements_cornet"],
+    cause:"Chenille très invasive en Afrique de l'Ouest, se nourrissant dans le cornet des jeunes plants de maïs.",
+    reco:"Inspecter le cornet des jeunes plants régulièrement. Écraser les œufs et jeunes chenilles à la main si détection précoce. Bacillus thuringiensis ou extraits botaniques (neem) en traitement ciblé sur le cornet." },
+  { id:"foreurs_tige_mais", culture:"mais", nom:"Foreurs de tige", latin:"Busseola fusca",
+    organes:["tiges"], symptomes:["ma_ti_galeries_internes","ma_ti_cassure"],
+    cause:"Chenilles creusant des galeries à l'intérieur de la tige, affaiblissant la plante qui peut casser sous le vent.",
+    reco:"Détruire les résidus de tiges après récolte (les chenilles y hivernent). Rotation culturale. Semis précoce pour limiter les dégâts sur jeunes plants." },
+  { id:"carence_azote_mais", culture:"mais", nom:"Carence en azote", latin:"Trouble physiologique",
+    organes:["feuilles"], symptomes:["ma_fe_jaunissement_v_pointe"],
+    cause:"Manque d'azote disponible dans le sol, souvent lié à un sol pauvre ou lessivé par les pluies.",
+    reco:"Apporter une fumure azotée (urée ou fumier bien décomposé) en couverture au stade 6-8 feuilles. Fractionner les apports pour limiter le lessivage." },
+  { id:"striga_mais", culture:"mais", nom:"Striga (plante parasite)", latin:"Striga hermonthica",
+    organes:["plante"], symptomes:["ma_pl_striga_visible","ma_pl_nanisme_jaunissement"],
+    cause:"Plante parasite qui se fixe sur les racines du maïs et détourne eau et nutriments, particulièrement présente sur sols pauvres et en monoculture répétée.",
+    reco:"Rotation avec des cultures pièges ou non-hôtes (niébé, coton). Améliorer la fertilité du sol (matière organique). Arracher le Striga avant floraison pour éviter la production de graines (qui restent viables des années dans le sol)." },
+
+  // --- NIÉBÉ ---
+  { id:"virus_mosaique_niebe", culture:"niebe", nom:"Virus de la mosaïque du niébé", latin:"Cowpea Aphid-Borne Mosaic Virus (CABMV)",
+    organes:["feuilles","plante"], symptomes:["ni_fe_mosaique_deformee","ni_pl_nanisme"],
+    cause:"Virus transmis par les pucerons (Aphis craccivora), très répandu sur niébé en Afrique de l'Ouest.",
+    reco:"Utiliser des semences saines ou certifiées. Arracher les plants fortement atteints. Lutter contre les pucerons vecteurs. Privilégier des variétés tolérantes si disponibles." },
+  { id:"bacteriose_niebe", culture:"niebe", nom:"Bactériose du niébé", latin:"Xanthomonas axonopodis pv. vignicola",
+    organes:["feuilles"], symptomes:["ni_fe_taches_angulaires_huileuses","ni_fe_halo_jaune"],
+    cause:"Bactérie favorisée par l'humidité, disséminée par la pluie, les outils et les semences infectées.",
+    reco:"Utiliser des semences saines. Éviter de travailler la parcelle par temps humide. Rotation culturale. Détruire les résidus infectés après récolte." },
+  { id:"oidium_niebe", culture:"niebe", nom:"Oïdium", latin:"Erysiphe polygoni",
+    organes:["feuilles"], symptomes:["ni_fe_poudre_blanche"],
+    cause:"Champignon favorisé par une forte hygrométrie nocturne et une chaleur diurne, souvent en fin de cycle.",
+    reco:"Aérer les plants (densité raisonnable). Soufre mouillable en traitement préventif. Récolter à temps pour limiter la pression en fin de cycle." },
+  { id:"cercosporiose_niebe", culture:"niebe", nom:"Cercosporiose", latin:"Cercospora spp.",
+    organes:["feuilles"], symptomes:["ni_fe_taches_brunes_irregulieres","ni_fe_chute_agees"],
+    cause:"Champignon apparaissant souvent sur les feuilles âgées en fin de cycle, favorisé par l'humidité.",
+    reco:"Rotation culturale. Détruire les résidus après récolte. Éviter les densités de semis excessives qui limitent l'aération du feuillage." },
+  { id:"thrips_fleurs_niebe", culture:"niebe", nom:"Thrips des fleurs", latin:"Megalurothrips sjostedti",
+    organes:["fleurs"], symptomes:["ni_fl_avortement_fleurs","ni_fl_deformation_boutons"],
+    cause:"Ravageur majeur du niébé en Afrique de l'Ouest, s'attaquant aux boutons floraux et provoquant leur avortement.",
+    reco:"Semer tôt pour limiter le chevauchement avec les pics de population de thrips. Extrait de neem en traitement préventif au stade floraison. Variétés tolérantes si disponibles." },
+  { id:"punaises_gousses_niebe", culture:"niebe", nom:"Punaises suceuses de gousses", latin:"Clavigralla spp.",
+    organes:["fruits"], symptomes:["ni_fr_taches_deprimees","ni_fr_graines_ratatinees"],
+    cause:"Punaises piquant les gousses en formation, provoquant des taches déprimées et des graines mal remplies.",
+    reco:"Surveiller la parcelle pendant la formation des gousses. Récolter dès maturité pour limiter l'exposition. Extrait de neem en cas de forte pression." },
+  { id:"foreuse_gousses_niebe", culture:"niebe", nom:"Foreuse des gousses", latin:"Maruca vitrata",
+    organes:["fruits","fleurs"], symptomes:["ni_fr_perforations","ni_fl_fleurs_agglomerees_soie"],
+    cause:"Chenille qui agglomère fleurs et jeunes gousses avec de la soie avant de les perforer de l'intérieur ; ravageur majeur du niébé.",
+    reco:"Inspecter régulièrement les grappes florales. Détruire les fleurs/gousses agglomérées atteintes. Bacillus thuringiensis en traitement ciblé au stade floraison-fructification." },
+  { id:"striga_niebe", culture:"niebe", nom:"Striga (plante parasite)", latin:"Striga gesnerioides",
+    organes:["plante"], symptomes:["ni_pl_striga_visible","ni_pl_nanisme_jaunissement"],
+    cause:"Plante parasite spécifique du niébé, se fixant sur les racines et détournant eau et nutriments ; favorisée par les sols pauvres et la monoculture répétée.",
+    reco:"Rotation avec céréales, ou variétés résistantes au Striga si disponibles. Améliorer la fertilité du sol. Arracher le Striga avant floraison pour empêcher la production de graines (viables plusieurs années dans le sol)." },
+  { id:"fonte_semis_niebe", culture:"niebe", nom:"Fonte des semis", latin:"Rhizoctonia spp. / Fusarium spp.",
+    organes:["tiges","plante"], symptomes:["ni_ti_pourriture_collet","ni_pl_effondrement_jeunes_plants"],
+    cause:"Champignons du sol attaquant les jeunes plantules, favorisés par un sol trop humide et mal drainé.",
+    reco:"Améliorer le drainage. Éviter les semis trop denses. Désinfecter les semences avant semis si possible." },
+  { id:"nematodes_niebe", culture:"niebe", nom:"Nématodes à galles", latin:"Meloidogyne spp.",
+    organes:["plante"], symptomes:["ni_pl_galles_racines","ni_pl_fletrissement_jour"],
+    cause:"Vers microscopiques du sol formant des galles sur les racines, limitant l'absorption d'eau et de nutriments.",
+    reco:"Vérifier les racines d'un plant suspect (boursouflures = galles). Rotation avec céréales. Amendement organique et solarisation du sol entre deux cycles." }
 ];
 
-function diagnose(){
-const d={crop:document.getElementById('crop').value,stage:document.getElementById('stage').value,
-sym:[...document.querySelectorAll('.sym:checked')].map(x=>x.value),color:document.getElementById('color').value.trim(),
-organ:document.getElementById('organ').value,leafShape:document.getElementById('leafShape').value,veins:document.getElementById('veins').value,
-corn:document.getElementById('corn').value,frass:document.getElementById('frass').value,gallery:document.getElementById('gallery').value,
-larva:document.getElementById('larva').value,deadheart:document.getElementById('deadheart').value,pustule:document.getElementById('pustule').value,
-distribution:document.getElementById('distribution').value,speed:document.getElementById('speed').value,weather:document.getElementById('weather').value,
-management:document.getElementById('management').value.trim(),notes:document.getElementById('notes').value.trim()};
-let q=0;if(d.sym.length)q+=2;if(d.sym.length>=2)q++;if(d.color)q++;if(d.organ!=="Je ne sais pas")q++;if(d.distribution!=="Je ne sais pas")q++;if(d.speed!=="Je ne sais pas")q++;if(d.notes)q++;
-const quality=d.sym.length===0?'Informations insuffisantes':q>=6?'Bonne qualité d’observation':q>=4?'Qualité moyenne':'Informations encore limitées';
-const results=CASES.map(c=>{const[score,evidence]=c.score(d);return{...c,score,evidence}}).filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
-let missing=[];if(!d.sym.length)missing.push("sélectionner les symptômes réellement observés");if(!d.color)missing.push("décrire la couleur/aspect");if(d.organ==="Je ne sais pas")missing.push("préciser l’organe");if(d.distribution==="Je ne sais pas")missing.push("préciser la répartition");if(d.speed==="Je ne sais pas")missing.push("préciser l’évolution");
-const photoFile=document.getElementById('photo').files[0];
-let html=`<p><strong>Culture :</strong> ${escapeHtml(d.crop)}</p><p><strong>Stade :</strong> ${escapeHtml(d.stage)}</p><p><strong>Photo :</strong> ${photoFile?'ajoutée au dossier':'non ajoutée'}</p><div class="info"><strong>Lecture :</strong> l’indice est un score interne de concordance. Ce n’est pas une probabilité de maladie.</div>`;
-if(!results.length)html+="<p>Aucune hypothèse suffisamment étayée avec les observations saisies.</p>";
-else html+="<p><strong>Hypothèses à examiner</strong></p>"+results.map((r,i)=>`<div class="hyp"><strong>${i+1}. ${escapeHtml(r.name)}</strong><p><span class="badge">${i===0?'À examiner en priorité':'Moins étayée'}</span> <span class="score">Indice : ${r.score}</span></p><div class="bar"><span style="width:${Math.min(100,r.score)}%"></span></div><p><strong>Type :</strong> ${escapeHtml(r.type)}</p><p><strong>Indices concordants :</strong> ${r.evidence.length?escapeHtml(r.evidence.join('; ')):'aucun indice spécifique'}</p><p><strong>À vérifier :</strong> observer directement les signes discriminants avant toute conclusion ou traitement.</p></div>`).join("");
-html+=`<p><strong>Informations utiles à compléter :</strong></p><ul>${(missing.length?missing:['Aucune information essentielle supplémentaire détectée.']).map(x=>'<li>'+escapeHtml(x)+'</li>').join('')}</ul><p><strong>Prochaine action :</strong></p><ul><li>Photographier la plante entière et le symptôme en gros plan.</li><li>Pour un ravageur du maïs, rechercher larves et déjections dans le cornet ou les galeries.</li><li>Pour une maladie foliaire, préciser forme et relation avec les nervures.</li><li>Comparer plantes atteintes et saines.</li><li>En cas d’ambiguïté importante, faire confirmer par un technicien et/ou un laboratoire.</li></ul>`;
-document.getElementById('quality').textContent=quality;document.getElementById('content').innerHTML=html;const r=document.getElementById('result');r.style.display='block';r.scrollIntoView({behavior:'smooth'});
+const SYMPTOMES = {
+  piment: {
+    feuilles: [
+      { id:"fe_taches_huileuses", label:"Taches huileuses, souvent bordées d'un halo jaune" },
+      { id:"fe_halo_jaune", label:"Halo jaunâtre autour des taches" },
+      { id:"fe_poudre_blanche", label:"Poudre blanche farineuse (surtout sous la feuille)" },
+      { id:"fe_jaunissement", label:"Jaunissement progressif du feuillage" },
+      { id:"fe_chute", label:"Chute prématurée des feuilles" },
+      { id:"fe_enroulement_jeunes", label:"Enroulement des jeunes feuilles" },
+      { id:"fe_miellat", label:"Substance collante (miellat), parfois fourmis" },
+      { id:"fe_petits_insectes", label:"Petits insectes visibles au revers des feuilles" },
+      { id:"fe_argenture", label:"Aspect argenté / grisâtre sur la feuille" },
+      { id:"fe_deformation_bourgeons", label:"Déformation des jeunes bourgeons" },
+      { id:"fe_points_noirs_excrements", label:"Petits points noirs (excréments d'insectes)" },
+      { id:"fe_mosaique_jaune", label:"Mosaïque de taches jaunes et vertes" },
+      { id:"fe_enroulement_foliaire", label:"Enroulement marqué du limbe foliaire" }
+    ],
+    tiges: [ { id:"ti_pourriture_collet", label:"Pourriture ou étranglement au niveau du collet" } ],
+    fruits: [
+      { id:"fr_taches_concentriques", label:"Taches brunes circulaires concentriques" },
+      { id:"fr_pourriture_molle", label:"Pourriture molle du fruit" },
+      { id:"fr_points_noirs", label:"Petits points noirs dans les taches" },
+      { id:"fr_lesions_liege", label:"Lésions surélevées, aspect liégeux" },
+      { id:"fr_pourriture_extremite_noire", label:"Zone noire et sèche à l'extrémité du fruit" },
+      { id:"fr_pas_insectes", label:"Aucun insecte ni champignon visible sur la lésion" }
+    ],
+    plante: [
+      { id:"pl_fletrissement_rapide", label:"Flétrissement brutal de toute la plante" },
+      { id:"pl_pas_jaunissement", label:"Flétrissement sans jaunissement préalable" },
+      { id:"pl_ecoulement_bacterien", label:"Écoulement blanchâtre visqueux si on coupe la tige" },
+      { id:"pl_nanisme", label:"Plante rabougrie, croissance ralentie" },
+      { id:"pl_fletrissement_jour", label:"Flétrissement le jour, reprise apparente la nuit" },
+      { id:"pl_galles_racines", label:"Petites boursouflures (galles) visibles sur les racines" },
+      { id:"pl_effondrement_jeunes_plants", label:"Effondrement de jeunes plantules en pépinière" }
+    ]
+  },
+  tomate: {
+    feuilles: [
+      { id:"to_fe_taches_huileuses_brunes", label:"Taches brunes d'aspect huileux" },
+      { id:"to_fe_duvet_blanchatre", label:"Duvet blanchâtre au revers des taches" },
+      { id:"to_fe_taches_cercles_concentriques", label:"Taches en cercles concentriques (\"œil de bœuf\")" },
+      { id:"to_fe_chute_feuilles_agees", label:"Chute des feuilles âgées, en partant du bas" },
+      { id:"to_fe_jaunissement_unilateral", label:"Jaunissement touchant un seul côté de la feuille/plante" },
+      { id:"to_fe_enroulement_jaunissement", label:"Feuilles jaunes, enroulées en cuillère" },
+      { id:"to_fe_galeries_mines", label:"Galeries sinueuses creusées dans la feuille" }
+    ],
+    tiges: [ { id:"to_ti_ecoulement_bacterien", label:"Écoulement blanchâtre visqueux si on coupe la tige" } ],
+    fruits: [
+      { id:"to_fr_pourriture_brune_huileuse", label:"Pourriture brune d'aspect huileux sur le fruit" },
+      { id:"to_fr_extremite_noire", label:"Zone noire et sèche à l'extrémité du fruit" },
+      { id:"to_fr_galeries_perforations", label:"Petites galeries ou perforations dans le fruit" }
+    ],
+    plante: [
+      { id:"to_pl_fletrissement_rapide_sans_jaunissement", label:"Flétrissement brutal sans jaunissement préalable" },
+      { id:"to_pl_ecoulement_bacterien", label:"Écoulement blanchâtre visqueux si on coupe la tige/racine" },
+      { id:"to_pl_jaunissement_progressif_unilateral", label:"Jaunissement et flétrissement progressifs, asymétriques" },
+      { id:"to_pl_nanisme_enroulement", label:"Plante rabougrie avec feuilles enroulées" }
+    ]
+  },
+  gombo: {
+    feuilles: [
+      { id:"go_fe_mosaique_jaune_vert", label:"Mosaïque de taches jaunes et vertes" },
+      { id:"go_fe_poudre_blanche", label:"Poudre blanche farineuse sur la feuille" },
+      { id:"go_fe_jaunissement_bordure", label:"Jaunissement en bordure de feuille" },
+      { id:"go_fe_enroulement_bord", label:"Enroulement du bord de la feuille vers le bas" }
+    ],
+    tiges: [],
+    fruits: [
+      { id:"go_fr_pourriture_molle_jeunes", label:"Pourriture molle sur les jeunes fruits/capsules" },
+      { id:"go_fr_trous_perforations", label:"Trous ou perforations dans les capsules" },
+      { id:"go_fr_chute_boutons", label:"Chute anormale des boutons floraux ou jeunes capsules" }
+    ],
+    plante: [
+      { id:"go_pl_nanisme", label:"Plante rabougrie, croissance ralentie" },
+      { id:"go_pl_galles_racines", label:"Petites boursouflures (galles) sur les racines" },
+      { id:"go_pl_fletrissement_jour", label:"Flétrissement le jour, reprise apparente la nuit" }
+    ]
+  },
+  mais: {
+    feuilles: [
+      { id:"ma_fe_pustules_orangees", label:"Petites pustules orangées à brun-rouille sur la feuille" },
+      { id:"ma_fe_striures_jaunes_paralleles", label:"Striures jaunes fines, parallèles aux nervures" },
+      { id:"ma_fe_trous_fenetre", label:"Trous en \"fenêtre\" sur les jeunes feuilles" },
+      { id:"ma_fe_excrements_cornet", label:"Excréments visibles dans le cornet de la jeune plante" },
+      { id:"ma_fe_jaunissement_v_pointe", label:"Jaunissement en V partant de la pointe des vieilles feuilles" }
+    ],
+    tiges: [
+      { id:"ma_ti_galeries_internes", label:"Galeries visibles à l'intérieur de la tige" },
+      { id:"ma_ti_cassure", label:"Tiges qui cassent facilement sous le vent" }
+    ],
+    fruits: [ { id:"ma_fr_galles_noires", label:"Galles grisâtres à noires sur épis ou tiges" } ],
+    plante: [
+      { id:"ma_pl_nanisme_jaunissement", label:"Plante rabougrie et jaunissante" },
+      { id:"ma_pl_striga_visible", label:"Présence d'une petite plante parasite à fleurs violettes/roses à la base" }
+    ]
+  },
+  niebe: {
+    feuilles: [
+      { id:"ni_fe_mosaique_deformee", label:"Mosaïque jaune-vert avec déformation du limbe" },
+      { id:"ni_fe_taches_angulaires_huileuses", label:"Taches angulaires d'aspect huileux" },
+      { id:"ni_fe_halo_jaune", label:"Halo jaunâtre autour des taches" },
+      { id:"ni_fe_poudre_blanche", label:"Poudre blanche farineuse sur la feuille" },
+      { id:"ni_fe_taches_brunes_irregulieres", label:"Taches brunes à grisâtres de forme irrégulière" },
+      { id:"ni_fe_chute_agees", label:"Chute des feuilles âgées" }
+    ],
+    tiges: [ { id:"ni_ti_pourriture_collet", label:"Pourriture ou étranglement au niveau du collet" } ],
+    fruits: [
+      { id:"ni_fr_taches_deprimees", label:"Taches déprimées sur la gousse" },
+      { id:"ni_fr_graines_ratatinees", label:"Graines mal formées ou ratatinées" },
+      { id:"ni_fr_perforations", label:"Petites perforations dans la gousse" }
+    ],
+    fleurs: [
+      { id:"ni_fl_avortement_fleurs", label:"Avortement ou chute anormale des fleurs" },
+      { id:"ni_fl_deformation_boutons", label:"Déformation des boutons floraux" },
+      { id:"ni_fl_fleurs_agglomerees_soie", label:"Fleurs/jeunes gousses agglomérées par de la soie" }
+    ],
+    plante: [
+      { id:"ni_pl_nanisme", label:"Plante rabougrie, croissance ralentie" },
+      { id:"ni_pl_striga_visible", label:"Présence d'une petite plante parasite à fleurs violettes/roses à la base" },
+      { id:"ni_pl_nanisme_jaunissement", label:"Plante rabougrie et jaunissante" },
+      { id:"ni_pl_effondrement_jeunes_plants", label:"Effondrement de jeunes plantules" },
+      { id:"ni_pl_galles_racines", label:"Petites boursouflures (galles) sur les racines" },
+      { id:"ni_pl_fletrissement_jour", label:"Flétrissement le jour, reprise apparente la nuit" }
+    ]
+  }
+};
+
+const ORGANE_LABELS = { feuilles:"Feuilles", tiges:"Tiges", fruits:"Fruits / épis", plante:"Plante / racines", fleurs:"Fleurs" };
+
+let selectedCulture = null;
+let selectedSymptomes = new Set();
+
+// --- Bascule entre les deux outils ---
+const tabDiag = document.getElementById("tab-diagnostic");
+const tabFert = document.getElementById("tab-fertilisation");
+const mainDiag = document.getElementById("main-diagnostic");
+const mainFert = document.getElementById("main-fertilisation");
+tabDiag.addEventListener("click", () => {
+  mainDiag.classList.remove("hidden");
+  mainFert.classList.add("hidden");
+  tabDiag.style.background = "var(--leaf-deep)"; tabDiag.style.color = "var(--paper)";
+  tabFert.style.background = "var(--paper-dark)"; tabFert.style.color = "var(--ink-soft)";
+});
+tabFert.addEventListener("click", () => {
+  mainFert.classList.remove("hidden");
+  mainDiag.classList.add("hidden");
+  tabFert.style.background = "var(--leaf-deep)"; tabFert.style.color = "var(--paper)";
+  tabDiag.style.background = "var(--paper-dark)"; tabDiag.style.color = "var(--ink-soft)";
+});
+
+// --- Base de recommandations de fertilisation (doses indicatives par m²) ---
+const FERTILISATION = {
+  piment: {
+    organique: { apports:[{produit:"Fumier de volaille bien composté", dose_par_m2:1.5, moment:"En fond, à épandre et incorporer 2 à 3 semaines avant le repiquage."}], conseil:"Un apport complémentaire léger de compost toutes les 3 semaines pendant la culture améliore la vigueur des plants." },
+    mineral: { apports:[{produit:"NPK 15-15-15", dose_par_m2:0.03, moment:"En fond, au repiquage."},{produit:"Urée (46% N)", dose_par_m2:0.01, moment:"En couverture, fractionnée en 2 apports à 30 et 60 jours après repiquage."}], conseil:"Fractionner l'urée limite les pertes par lessivage et les risques de brûlure foliaire." }
+  },
+  tomate: {
+    organique: { apports:[{produit:"Fumier de volaille bien composté", dose_par_m2:1.8, moment:"En fond, 2 à 3 semaines avant plantation."}], conseil:"Un apport de compost au stade floraison soutient la fructification." },
+    mineral: { apports:[{produit:"NPK 15-15-15", dose_par_m2:0.04, moment:"En fond, au repiquage."},{produit:"Urée (46% N)", dose_par_m2:0.015, moment:"En couverture, fractionnée en 2 à 3 apports (30, 45 et 60 jours après repiquage)."}], conseil:"Éviter les excès d'azote qui favorisent le feuillage au détriment de la fructification." }
+  },
+  gombo: {
+    organique: { apports:[{produit:"Fumier de volaille composté", dose_par_m2:1.0, moment:"Au labour, avant semis."}], conseil:"Un complément de compost toutes les 3 à 4 semaines soutient la production continue de capsules." },
+    mineral: { apports:[{produit:"NPK 15-15-15", dose_par_m2:0.02, moment:"Au semis."},{produit:"Urée (46% N)", dose_par_m2:0.005, moment:"En couverture, 3 semaines après la levée."}], conseil:"Le gombo est peu exigeant : éviter les excès qui favorisent le feuillage au détriment des capsules." }
+  },
+  mais: {
+    organique: { apports:[{produit:"Fumier de volaille composté", dose_par_m2:1.2, moment:"Enfoui avant semis."}], conseil:"Un paillage limite le lessivage des éléments nutritifs en début de cycle." },
+    mineral: { apports:[{produit:"NPK 15-15-15", dose_par_m2:0.02, moment:"Au semis."},{produit:"Urée (46% N)", dose_par_m2:0.01, moment:"En couverture, fractionnée en 2 apports (25 et 45 jours après semis)."}], conseil:"Le 2e apport d'urée juste avant la floraison est déterminant pour le remplissage des grains." }
+  },
+  niebe: {
+    organique: { apports:[{produit:"Fumier de volaille composté", dose_par_m2:0.5, moment:"Au labour, avant semis."}], conseil:"Le niébé fixe une partie de son azote grâce aux bactéries des nodosités racinaires : un apport léger suffit." },
+    mineral: { apports:[{produit:"NPK 15-15-15", dose_par_m2:0.01, moment:"Au semis uniquement."}], conseil:"Éviter tout apport d'azote supplémentaire (urée) : un excès réduit la formation des nodosités fixatrices." }
+  }
+};
+
+let fSelectedCulture = null;
+let fSelectedType = null;
+const TYPE_LABELS = { organique:"Organique", mineral:"Minéral" };
+
+document.querySelectorAll("#fert-cultures .pick-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#fert-cultures .pick-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    fSelectedCulture = btn.dataset.fculture;
+    document.getElementById("fculture-tag-1").textContent = CULTURE_LABELS[fSelectedCulture];
+    document.getElementById("fstep0").classList.add("hidden");
+    document.getElementById("fstep1").classList.remove("hidden");
+  });
+});
+
+document.querySelectorAll("#fert-types .pick-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#fert-types .pick-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    fSelectedType = btn.dataset.ftype;
+    document.getElementById("fculture-tag-2").textContent = CULTURE_LABELS[fSelectedCulture] + " — " + TYPE_LABELS[fSelectedType];
+    document.getElementById("fstep1").classList.add("hidden");
+    document.getElementById("fstep2").classList.remove("hidden");
+  });
+});
+
+document.getElementById("fback-to-0").addEventListener("click", () => {
+  document.getElementById("fstep1").classList.add("hidden");
+  document.getElementById("fstep0").classList.remove("hidden");
+});
+document.getElementById("fback-to-1").addEventListener("click", () => {
+  document.getElementById("fstep2").classList.add("hidden");
+  document.getElementById("fstep1").classList.remove("hidden");
+});
+
+document.getElementById("calculate-btn").addEventListener("click", () => {
+  const surface = parseFloat(document.getElementById("surface-input").value);
+  if (!surface || surface <= 0) { alert("Merci d'indiquer une surface valide en m²."); return; }
+
+  // Calcul interne du plan (envoyé uniquement au conseiller, jamais affiché au client)
+  const data = FERTILISATION[fSelectedCulture][fSelectedType];
+  const planText = data.apports.map(a => {
+    const totalKg = a.dose_par_m2 * surface;
+    const totalDisplay = totalKg >= 1 ? totalKg.toFixed(1) + " kg" : (totalKg * 1000).toFixed(0) + " g";
+    return `- ${a.produit} : ${totalDisplay} — ${a.moment}`;
+  }).join("\n");
+
+  const waMessage = `Nouvelle demande de plan de fertilisation\nCulture : ${CULTURE_LABELS[fSelectedCulture]}\nType souhaité : ${TYPE_LABELS[fSelectedType]}\nSurface : ${surface} m²\n\nPlan calculé par l'outil (pour référence) :\n${planText}\n\nConseil : ${data.conseil}`;
+  const waLink = "https://wa.me/22674864682?text=" + encodeURIComponent(waMessage);
+
+  document.getElementById("fculture-tag-3").textContent = CULTURE_LABELS[fSelectedCulture] + " — " + TYPE_LABELS[fSelectedType] + " — " + surface + " m²";
+
+  if (isExpert) {
+    // Mode conseiller : affiche directement le plan calculé, pas de message WhatsApp
+    const fertResultsDiv = document.getElementById("fert-results");
+    fertResultsDiv.innerHTML = "";
+    data.apports.forEach(a => {
+      const totalKg = a.dose_par_m2 * surface;
+      const totalDisplay = totalKg >= 1 ? totalKg.toFixed(1) + " kg" : (totalKg * 1000).toFixed(0) + " g";
+      const card = document.createElement("div");
+      card.className = "result-card";
+      card.innerHTML = `
+        <h2 style="margin-top:6px;">${a.produit}</h2>
+        <div class="latin">${totalDisplay} au total pour ${surface} m²</div>
+        <h3>Moment d'application</h3>
+        <p>${a.moment}</p>
+      `;
+      fertResultsDiv.appendChild(card);
+    });
+    const conseilCard = document.createElement("div");
+    conseilCard.className = "result-card";
+    conseilCard.innerHTML = `<h3 style="margin-top:6px;">Conseil</h3><p>${data.conseil}</p>`;
+    fertResultsDiv.appendChild(conseilCard);
+  } else {
+    document.getElementById("fert-results").innerHTML = `
+      <div class="result-card">
+        <h2 style="margin-top:6px;">Demande envoyée</h2>
+        <p>Votre demande a été transmise. Vous recevrez un plan de fertilisation personnalisé directement sur WhatsApp.</p>
+      </div>
+    `;
+    window.open(waLink, "_blank");
+  }
+
+  document.getElementById("fstep2").classList.add("hidden");
+  document.getElementById("fstep3").classList.remove("hidden");
+});
+
+document.getElementById("frestart-btn").addEventListener("click", () => {
+  document.querySelectorAll("#fert-cultures .pick-btn, #fert-types .pick-btn").forEach(b => b.classList.remove("active"));
+  fSelectedCulture = null; fSelectedType = null;
+  document.getElementById("surface-input").value = "";
+  document.getElementById("fstep3").classList.add("hidden");
+  document.getElementById("fstep0").classList.remove("hidden");
+});
+
+const step0 = document.getElementById("step0");
+const step2 = document.getElementById("step2");
+const step3 = document.getElementById("step3");
+const symptomList = document.getElementById("symptom-list");
+const diagnoseBtn = document.getElementById("diagnose-btn");
+const resultsDiv = document.getElementById("results");
+const refCode = document.getElementById("ref-code");
+
+function setDots(n){
+  for(let i=1;i<=3;i++){
+    document.getElementById("dot"+i).classList.toggle("on", i<=n);
+  }
 }
 
-function previewPhoto(event){
-  const file=event.target.files[0];
-  if(!file) return;
-  const preview=document.getElementById('preview');
-  const box=document.getElementById('photoPreview');
-  const status=document.getElementById('photoStatus');
-  preview.src=URL.createObjectURL(file);
-  box.style.display='block';
-  status.textContent='Photo ajoutée : '+file.name;
+function genRef(){
+  const d = new Date();
+  const code = "AGR-" + d.getFullYear().toString().slice(2) + String(d.getMonth()+1).padStart(2,"0") + String(d.getDate()).padStart(2,"0") + "-" + Math.floor(Math.random()*90+10);
+  refCode.textContent = "N° " + code;
+}
+genRef();
+
+document.querySelectorAll("#cultures .pick-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#cultures .pick-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    selectedCulture = btn.dataset.culture;
+    document.getElementById("culture-tag-2").textContent = CULTURE_LABELS[selectedCulture];
+    buildAllSymptomsList(selectedCulture);
+    step0.classList.add("hidden");
+    step2.classList.remove("hidden");
+    setDots(2);
+  });
+});
+
+const ORGANE_ORDER = ["feuilles", "tiges", "fleurs", "fruits", "plante"];
+
+function buildAllSymptomsList(culture){
+  symptomList.innerHTML = "";
+  selectedSymptomes = new Set();
+  diagnoseBtn.disabled = true;
+  ORGANE_ORDER.forEach(organe => {
+    const list = SYMPTOMES[culture][organe];
+    if (!list || list.length === 0) return;
+    const header = document.createElement("li");
+    header.innerHTML = `<div class="group-header">${ORGANE_LABELS[organe]}</div>`;
+    symptomList.appendChild(header);
+    list.forEach(s => {
+      const li = document.createElement("li");
+      const label = document.createElement("label");
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.value = s.id;
+      input.dataset.organe = organe;
+      input.addEventListener("change", () => {
+        if(input.checked) selectedSymptomes.add(s.id);
+        else selectedSymptomes.delete(s.id);
+        diagnoseBtn.disabled = selectedSymptomes.size === 0;
+      });
+      label.appendChild(input);
+      label.appendChild(document.createTextNode(s.label));
+      li.appendChild(label);
+      symptomList.appendChild(li);
+    });
+  });
 }
 
-function escapeHtml(s){
-  return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+document.getElementById("back-to-1").addEventListener("click", () => {
+  step2.classList.add("hidden");
+  step0.classList.remove("hidden");
+  setDots(1);
+});
+
+diagnoseBtn.addEventListener("click", () => {
+  const allSymptomEntries = ORGANE_ORDER.flatMap(o => SYMPTOMES[selectedCulture][o] || []);
+  const symptomLabels = allSymptomEntries
+    .filter(s => selectedSymptomes.has(s.id))
+    .map(s => "- " + s.label)
+    .join("\n");
+
+  // Calcul interne des hypothèses (envoyé uniquement au conseiller, jamais affiché au client)
+  const candidats = DIAGNOSES.filter(d => d.culture === selectedCulture);
+  const scored = candidats.map(d => {
+    const overlap = d.symptomes.filter(s => selectedSymptomes.has(s)).length;
+    const pct = Math.round((overlap / d.symptomes.length) * 100);
+    return { ...d, overlap, pct };
+  }).filter(d => d.overlap > 0)
+    .sort((a,b) => b.pct - a.pct || b.overlap - a.overlap)
+    .slice(0, 3);
+  const hypothesesText = scored.length > 0
+    ? scored.map((d,i) => `${i+1}. ${d.nom} (${d.pct}% de correspondance)`).join("\n")
+    : "Aucune correspondance forte trouvée par l'outil — à évaluer manuellement.";
+
+  const waMessage = `Nouvelle demande de diagnostic\nCulture : ${CULTURE_LABELS[selectedCulture]}\nSymptômes observés :\n${symptomLabels}\n\nHypothèses de l'outil (pour référence) :\n${hypothesesText}`;
+  const waLink = "https://wa.me/22674864682?text=" + encodeURIComponent(waMessage);
+
+  document.getElementById("culture-tag-3").textContent = CULTURE_LABELS[selectedCulture];
+
+  if (isExpert) {
+    // Mode conseiller : affiche directement les résultats calculés, pas de message WhatsApp
+    resultsDiv.innerHTML = "";
+    if (scored.length === 0) {
+      resultsDiv.innerHTML = '<div class="no-match">Aucune correspondance suffisante trouvée avec les symptômes cochés.</div>';
+    } else {
+      scored.forEach((d, i) => {
+        const card = document.createElement("div");
+        card.className = "result-card";
+        card.innerHTML = `
+          <div class="rank">${i===0 ? "HYPOTHÈSE PRINCIPALE" : "HYPOTHÈSE " + (i+1)}</div>
+          <div style="display:flex; align-items:flex-start; gap:12px; margin-top:6px;">
+            <div style="flex:none; width:34px; height:34px;">${iconSvg(d.id)}</div>
+            <div style="flex:1;">
+              <h2 style="margin:0 0 2px;">${d.nom}</h2>
+              <div class="latin">${d.latin}</div>
+            </div>
+          </div>
+          <div class="match-bar"><span style="width:${d.pct}%"></span></div>
+          <h3>Cause probable</h3>
+          <p>${d.cause}</p>
+          <h3>Recommandations</h3>
+          <p>${d.reco}</p>
+        `;
+        resultsDiv.appendChild(card);
+      });
+    }
+    document.getElementById("whatsapp-contact-btn").href = waLink;
+  } else {
+    resultsDiv.innerHTML = `
+      <div class="result-card">
+        <h2 style="margin-top:6px;">Demande envoyée</h2>
+        <p>Vos observations ont été transmises. Vous recevrez un diagnostic personnalisé directement sur WhatsApp.</p>
+      </div>
+    `;
+    document.getElementById("whatsapp-contact-btn").href = waLink;
+    window.open(waLink, "_blank");
+  }
+
+  step2.classList.add("hidden");
+  step3.classList.remove("hidden");
+  setDots(3);
+});
+
+document.getElementById("restart-btn").addEventListener("click", () => {
+  document.querySelectorAll(".pick-btn").forEach(b => b.classList.remove("active"));
+  selectedCulture = null;
+  selectedSymptomes = new Set();
+  step3.classList.add("hidden");
+  step0.classList.remove("hidden");
+  genRef();
+  setDots(1);
+});
+// --- Lien personnalisé : verrouillage de l'outil et/ou de la culture via l'URL ---
+// Exemples :
+//   ?outil=diagnostic&culture=piment   → uniquement le diagnostic piment
+//   ?outil=fertilisation&culture=mais  → uniquement la fertilisation maïs
+//   ?outil=diagnostic                  → diagnostic, toutes cultures
+//   (aucun paramètre)                  → outil complet, version de référence
+const urlParams = new URLSearchParams(window.location.search);
+const lockOutil = urlParams.get("outil");
+const lockCulture = urlParams.get("culture");
+const isExpert = urlParams.get("expert") === "1";
+
+if (lockOutil === "diagnostic") {
+  document.getElementById("tab-switcher").classList.add("hidden");
+} else if (lockOutil === "fertilisation") {
+  document.getElementById("tab-switcher").classList.add("hidden");
+  tabFert.click();
+}
+
+if (lockCulture && CULTURE_LABELS[lockCulture]) {
+  // Verrouille la culture côté diagnostic
+  selectedCulture = lockCulture;
+  document.getElementById("culture-tag-2").textContent = CULTURE_LABELS[lockCulture];
+  buildAllSymptomsList(lockCulture);
+  step0.classList.add("hidden");
+  step2.classList.remove("hidden");
+  setDots(2);
+  document.getElementById("back-to-1").classList.add("hidden");
+
+  // Verrouille la culture côté fertilisation
+  fSelectedCulture = lockCulture;
+  document.getElementById("fculture-tag-1").textContent = CULTURE_LABELS[lockCulture];
+  document.getElementById("fstep0").classList.add("hidden");
+  document.getElementById("fstep1").classList.remove("hidden");
+  document.getElementById("fback-to-0").classList.add("hidden");
 }
 </script>
 </body>
