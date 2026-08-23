@@ -340,7 +340,33 @@
       <ul class="symptom-list" id="symptom-list"></ul>
       <div class="actions">
         <button type="button" class="ghost" id="back-to-1">← Changer de culture</button>
-        <button type="button" class="primary" id="diagnose-btn" disabled>Envoyer ma demande</button>
+        <button type="button" class="primary" id="diagnose-btn" disabled>Continuer</button>
+      </div>
+    </section>
+
+    <!-- ÉTAPE PRÉCISIONS -->
+    <section id="stepQuestions" class="hidden">
+      <div class="culture-tag" id="culture-tag-2b"></div>
+      <p class="step-label">Étape 3 — Précisions pour affiner le résultat</p>
+      <div style="margin-bottom:20px;">
+        <p style="font-size:14px; font-weight:600; margin:0 0 8px;">As-tu observé des insectes sur la plante (pucerons, mouches blanches, chenilles, punaises...) ?</p>
+        <fieldset class="grid-2" id="fu-insectes" style="margin-bottom:0;">
+          <button type="button" class="pick-btn" data-fu-group="insectes" data-fu-val="ctx_insectes_presents">Oui, des insectes visibles</button>
+          <button type="button" class="pick-btn" data-fu-group="insectes" data-fu-val="ctx_insectes_absents">Non, aucun insecte</button>
+          <button type="button" class="pick-btn" data-fu-group="insectes" data-fu-val="">Je ne sais pas</button>
+        </fieldset>
+      </div>
+      <div style="margin-bottom:12px;">
+        <p style="font-size:14px; font-weight:600; margin:0 0 8px;">Le problème est-il apparu après une période humide (pluie, forte rosée) ou plutôt en saison sèche ?</p>
+        <fieldset class="grid-2" id="fu-meteo" style="margin-bottom:0;">
+          <button type="button" class="pick-btn" data-fu-group="meteo" data-fu-val="ctx_humide">Après une période humide</button>
+          <button type="button" class="pick-btn" data-fu-group="meteo" data-fu-val="ctx_sec">En saison sèche</button>
+          <button type="button" class="pick-btn" data-fu-group="meteo" data-fu-val="">Je ne sais pas</button>
+        </fieldset>
+      </div>
+      <div class="actions">
+        <button type="button" class="ghost" id="back-to-2">← Retour</button>
+        <button type="button" class="primary" id="submit-btn">Envoyer ma demande</button>
       </div>
     </section>
 
@@ -436,7 +462,7 @@
   </main>
     <span>Zone soudano-sahélienne</span>
     <div class="progress-dots">
-      <span id="dot1" class="on"></span><span id="dot2"></span><span id="dot3"></span>
+      <span id="dot1" class="on"></span><span id="dot2"></span><span id="dot3"></span><span id="dot4"></span>
     </div>
   </footer>
 </div>
@@ -490,15 +516,15 @@ function iconSvg(diagId){
 const DIAGNOSES = [
   // --- PIMENT ---
   { id:"anthracnose", culture:"piment", nom:"Anthracnose du fruit", latin:"Colletotrichum spp.",
-    organes:["fruits"], symptomes:["fr_taches_concentriques","fr_pourriture_molle","fr_points_noirs"],
+    organes:["fruits"], symptomes:["fr_taches_concentriques","fr_pourriture_molle","fr_points_noirs","ctx_humide"],
     cause:"Champignon favorisé par l'humidité, la pluie battante et les blessures sur le fruit. Se conserve sur résidus de culture et semences.",
     reco:"Retirer et détruire les fruits atteints (ne pas composter). Éviter l'excès d'irrigation par aspersion. Traitement fongicide préventif à base de cuivre en début de floraison si pression forte. Utiliser des semences saines." },
   { id:"bacteriose", culture:"piment", nom:"Bactériose (tache bactérienne)", latin:"Xanthomonas spp.",
-    organes:["feuilles","fruits"], symptomes:["fe_taches_huileuses","fe_halo_jaune","fr_lesions_liege"],
+    organes:["feuilles","fruits"], symptomes:["fe_taches_huileuses","fe_halo_jaune","fr_lesions_liege","ctx_humide"],
     cause:"Bactérie disséminée par la pluie, les outils et les manipulations sur feuillage humide.",
     reco:"Éviter de travailler la parcelle quand le feuillage est mouillé. Rotation avec cultures non-solanacées (≥2 ans). Élimination des débris infectés. Cuivre en préventif dès les premiers symptômes." },
   { id:"oidium_piment", culture:"piment", nom:"Oïdium", latin:"Leveillula taurica",
-    organes:["feuilles"], symptomes:["fe_poudre_blanche","fe_jaunissement","fe_chute"],
+    organes:["feuilles"], symptomes:["fe_poudre_blanche","fe_jaunissement","fe_chute","ctx_humide"],
     cause:"Champignon favorisé par une forte hygrométrie nocturne et une chaleur diurne — fréquent en saison sèche sous abri ou pot.",
     reco:"Aérer les plants, éviter la densité excessive. Soufre mouillable en traitement préventif/curatif léger. Supprimer les feuilles fortement atteintes." },
   { id:"fletrissement_bacterien_piment", culture:"piment", nom:"Flétrissement bactérien", latin:"Ralstonia solanacearum",
@@ -506,15 +532,15 @@ const DIAGNOSES = [
     cause:"Bactérie du sol, très agressive en sol chaud et humide. Se propage par l'eau d'irrigation et les outils.",
     reco:"Arracher et détruire immédiatement les plants atteints (hors parcelle). Ne pas replanter de solanacées sur le site avant plusieurs années. Désinfecter les outils. Test rapide : tige coupée plongée dans l'eau — un exsudat blanc laiteux confirme la bactérie." },
   { id:"pucerons_piment", culture:"piment", nom:"Pucerons", latin:"Aphididae",
-    organes:["feuilles"], symptomes:["fe_enroulement_jeunes","fe_miellat","fe_petits_insectes"],
+    organes:["feuilles"], symptomes:["fe_enroulement_jeunes","fe_miellat","fe_petits_insectes","ctx_insectes_presents"],
     cause:"Insectes piqueurs-suceurs colonisant les jeunes pousses ; vecteurs de viroses.",
     reco:"Surveiller le dessous des jeunes feuilles. Favoriser les auxiliaires (coccinelles). Savon noir en pulvérisation si attaque localisée. Éviter les excès d'azote qui favorisent les pullulations." },
   { id:"thrips_piment", culture:"piment", nom:"Thrips", latin:"Thrips spp. / Frankliniella spp.",
-    organes:["feuilles"], symptomes:["fe_argenture","fe_deformation_bourgeons","fe_points_noirs_excrements"],
+    organes:["feuilles"], symptomes:["fe_argenture","fe_deformation_bourgeons","fe_points_noirs_excrements","ctx_insectes_presents"],
     cause:"Petits insectes filiformes se nourrissant sur bourgeons et jeunes feuilles ; vecteurs du virus TSWV.",
     reco:"Poser des pièges chromatiques bleus pour le suivi. Traitement à base d'extraits de neem en préventif. Détruire les adventices hôtes autour de la parcelle." },
   { id:"virus_aleurode_piment", culture:"piment", nom:"Virose transmise par aleurodes", latin:"Bemisia tabaci / Begomovirus",
-    organes:["feuilles","plante"], symptomes:["fe_mosaique_jaune","fe_enroulement_foliaire","pl_nanisme"],
+    organes:["feuilles","plante"], symptomes:["fe_mosaique_jaune","fe_enroulement_foliaire","pl_nanisme","ctx_insectes_presents"],
     cause:"Virus transmis par la mouche blanche (aleurode) ; plante contaminée souvent rabougrie et peu productive.",
     reco:"Aucun traitement curatif du virus : arracher les plants atteints. Lutter contre le vecteur (filets anti-insectes en pépinière, pièges jaunes engluées). Éviter la proximité avec cultures très infestées (tomate, coton)." },
   { id:"necrose_apicale_piment", culture:"piment", nom:"Nécrose apicale (cul noir)", latin:"Carence physiologique en calcium",
@@ -526,21 +552,21 @@ const DIAGNOSES = [
     cause:"Vers microscopiques du sol formant des galles sur les racines, gênant l'absorption d'eau et de nutriments.",
     reco:"Arracher un plant suspect et vérifier les racines (petites boursouflures = galles). Rotation avec cultures non hôtes (céréales). Amendement en matière organique et solarisation du sol entre deux cycles." },
   { id:"fonte_semis_piment", culture:"piment", nom:"Fonte des semis", latin:"Pythium spp. / Rhizoctonia spp.",
-    organes:["tiges","plante"], symptomes:["ti_pourriture_collet","pl_effondrement_jeunes_plants"],
+    organes:["tiges","plante"], symptomes:["ti_pourriture_collet","pl_effondrement_jeunes_plants","ctx_humide"],
     cause:"Champignons du sol attaquant les jeunes plantules en pépinière, favorisés par un substrat trop humide et mal drainé.",
     reco:"Améliorer le drainage du substrat de pépinière. Éviter les semis trop denses. Désinfecter le substrat avant semis. Retirer immédiatement les plantules atteintes pour limiter la propagation." },
 
   // --- TOMATE ---
   { id:"mildiou_tomate", culture:"tomate", nom:"Mildiou", latin:"Phytophthora infestans",
-    organes:["feuilles","fruits"], symptomes:["to_fe_taches_huileuses_brunes","to_fe_duvet_blanchatre","to_fr_pourriture_brune_huileuse"],
+    organes:["feuilles","fruits"], symptomes:["to_fe_taches_huileuses_brunes","to_fe_duvet_blanchatre","to_fr_pourriture_brune_huileuse","ctx_humide"],
     cause:"Champignon favorisé par l'humidité prolongée et les températures fraîches à modérées, en saison pluvieuse.",
     reco:"Espacer les plants pour aérer le feuillage. Éviter l'arrosage par aspersion en fin de journée. Fongicide à base de cuivre dès les premiers signes. Détruire les résidus de culture après récolte." },
   { id:"alternariose_tomate", culture:"tomate", nom:"Alternariose (\"œil de bœuf\")", latin:"Alternaria solani",
-    organes:["feuilles"], symptomes:["to_fe_taches_cercles_concentriques","to_fe_chute_feuilles_agees"],
+    organes:["feuilles"], symptomes:["to_fe_taches_cercles_concentriques","to_fe_chute_feuilles_agees","ctx_humide"],
     cause:"Champignon qui débute sur les feuilles âgées du bas de la plante, favorisé par l'alternance humidité/sécheresse.",
     reco:"Supprimer les feuilles basses atteintes. Éviter le stress hydrique. Rotation culturale. Fongicide de contact si progression rapide." },
   { id:"fletrissement_bacterien_tomate", culture:"tomate", nom:"Flétrissement bactérien", latin:"Ralstonia solanacearum",
-    organes:["plante","tiges"], symptomes:["to_pl_fletrissement_rapide_sans_jaunissement","to_pl_ecoulement_bacterien","to_ti_ecoulement_bacterien"],
+    organes:["plante","tiges"], symptomes:["to_pl_fletrissement_rapide_sans_jaunissement","to_pl_ecoulement_bacterien","to_ti_ecoulement_bacterien","ctx_humide"],
     cause:"Bactérie du sol très agressive par temps chaud et humide, se propageant par l'eau et les outils.",
     reco:"Arracher et détruire immédiatement les plants atteints. Éviter de replanter des solanacées sur la parcelle pendant plusieurs années. Désinfecter les outils entre deux plants." },
   { id:"fusariose_tomate", culture:"tomate", nom:"Fusariose vasculaire", latin:"Fusarium oxysporum f. sp. lycopersici",
@@ -548,7 +574,7 @@ const DIAGNOSES = [
     cause:"Champignon du sol obstruant les vaisseaux conducteurs, provoquant un jaunissement souvent asymétrique (un seul côté de la plante).",
     reco:"Aucun traitement curatif efficace au champ. Utiliser des variétés résistantes si disponibles. Rotation longue et désinfection du matériel. Éviter les excès d'irrigation." },
   { id:"tylcv_tomate", culture:"tomate", nom:"Virus des feuilles jaunes en cuillère", latin:"Tomato Yellow Leaf Curl Virus (TYLCV)",
-    organes:["feuilles","plante"], symptomes:["to_fe_enroulement_jaunissement","to_pl_nanisme_enroulement"],
+    organes:["feuilles","plante"], symptomes:["to_fe_enroulement_jaunissement","to_pl_nanisme_enroulement","ctx_insectes_presents"],
     cause:"Virus transmis par la mouche blanche (Bemisia tabaci), particulièrement actif en saison chaude et sèche.",
     reco:"Arracher et détruire les plants atteints tôt. Lutter contre la mouche blanche (filets, pièges jaunes engluées). Éviter de planter en bordure de parcelles déjà infestées." },
   { id:"necrose_apicale_tomate", culture:"tomate", nom:"Nécrose apicale (cul noir)", latin:"Carence physiologique en calcium",
@@ -556,29 +582,29 @@ const DIAGNOSES = [
     cause:"Trouble physiologique lié à une irrigation irrégulière limitant l'absorption du calcium par le fruit.",
     reco:"Régulariser l'irrigation. Pailler le sol pour stabiliser l'humidité. Apport de calcium par pulvérisation foliaire (chlorure de calcium) si le problème persiste." },
   { id:"mineuse_tomate", culture:"tomate", nom:"Mineuse de la tomate", latin:"Tuta absoluta",
-    organes:["feuilles","fruits"], symptomes:["to_fe_galeries_mines","to_fr_galeries_perforations"],
+    organes:["feuilles","fruits"], symptomes:["to_fe_galeries_mines","to_fr_galeries_perforations","ctx_insectes_presents"],
     cause:"Chenille qui creuse des galeries dans les feuilles et les fruits ; ravageur majeur de la tomate en Afrique de l'Ouest.",
     reco:"Poser des pièges à phéromones pour le suivi. Détruire les fruits et feuilles minés. Favoriser les auxiliaires (punaises prédatrices). Traitement au Bacillus thuringiensis en cas de forte pression." },
 
   // --- GOMBO ---
   { id:"virus_mosaique_gombo", culture:"gombo", nom:"Virus de la mosaïque du gombo", latin:"Okra Mosaic Virus",
-    organes:["feuilles","plante"], symptomes:["go_fe_mosaique_jaune_vert","go_pl_nanisme"],
+    organes:["feuilles","plante"], symptomes:["go_fe_mosaique_jaune_vert","go_pl_nanisme","ctx_insectes_presents"],
     cause:"Virus transmis par des insectes piqueurs-suceurs (pucerons, aleurodes), fréquent en saison chaude.",
     reco:"Arracher les plants fortement atteints. Utiliser des semences saines et si possible des variétés tolérantes. Lutter contre les insectes vecteurs." },
   { id:"oidium_gombo", culture:"gombo", nom:"Oïdium", latin:"Erysiphe cichoracearum",
-    organes:["feuilles"], symptomes:["go_fe_poudre_blanche"],
+    organes:["feuilles"], symptomes:["go_fe_poudre_blanche","ctx_humide"],
     cause:"Champignon favorisé par une forte hygrométrie nocturne combinée à une chaleur diurne.",
     reco:"Aérer les plants (densité de semis raisonnable). Soufre mouillable en traitement préventif. Supprimer les feuilles très atteintes." },
   { id:"jassides_gombo", culture:"gombo", nom:"Jassides (cicadelles)", latin:"Amrasca biguttula",
-    organes:["feuilles"], symptomes:["go_fe_jaunissement_bordure","go_fe_enroulement_bord"],
+    organes:["feuilles"], symptomes:["go_fe_jaunissement_bordure","go_fe_enroulement_bord","ctx_insectes_presents"],
     cause:"Petits insectes piqueurs-suceurs provoquant un jaunissement caractéristique en bordure de feuille (\"hopperburn\").",
     reco:"Surveiller le dessous des feuilles. Favoriser les auxiliaires naturels. Extrait de neem en pulvérisation si attaque marquée." },
   { id:"pourriture_fruits_gombo", culture:"gombo", nom:"Pourriture des jeunes fruits", latin:"Choanephora cucurbitarum / complexe fongique",
-    organes:["fruits"], symptomes:["go_fr_pourriture_molle_jeunes"],
+    organes:["fruits"], symptomes:["go_fr_pourriture_molle_jeunes","ctx_humide"],
     cause:"Champignons opportunistes favorisés par l'humidité, s'installant souvent après une blessure ou une chute de fleur.",
     reco:"Récolter régulièrement pour éviter le vieillissement des fruits sur pied. Retirer et détruire les fruits pourris. Éviter l'excès d'irrigation par aspersion." },
   { id:"chenilles_foreuses_gombo", culture:"gombo", nom:"Chenilles foreuses des capsules", latin:"Earias spp.",
-    organes:["fruits"], symptomes:["go_fr_trous_perforations","go_fr_chute_boutons"],
+    organes:["fruits"], symptomes:["go_fr_trous_perforations","go_fr_chute_boutons","ctx_insectes_presents"],
     cause:"Chenilles pénétrant dans les boutons floraux et les jeunes capsules, provoquant leur chute ou leur déformation.",
     reco:"Ramasser et détruire les fruits et boutons atteints. Favoriser les auxiliaires. Traitement au Bacillus thuringiensis en cas de forte attaque." },
   { id:"nematodes_gombo", culture:"gombo", nom:"Nématodes à galles", latin:"Meloidogyne spp.",
@@ -588,23 +614,23 @@ const DIAGNOSES = [
 
   // --- MAÏS ---
   { id:"rouille_mais", culture:"mais", nom:"Rouille du maïs", latin:"Puccinia spp.",
-    organes:["feuilles"], symptomes:["ma_fe_pustules_orangees"],
+    organes:["feuilles"], symptomes:["ma_fe_pustules_orangees","ctx_humide"],
     cause:"Champignon favorisé par une humidité élevée et des températures modérées.",
     reco:"Utiliser des variétés tolérantes si disponibles. Éviter les densités de semis trop élevées. Rotation culturale." },
   { id:"charbon_mais", culture:"mais", nom:"Charbon du maïs", latin:"Ustilago maydis",
-    organes:["fruits","tiges"], symptomes:["ma_fr_galles_noires"],
+    organes:["fruits","tiges"], symptomes:["ma_fr_galles_noires","ctx_humide"],
     cause:"Champignon formant des galles grisâtres à noires sur les épis, tiges ou panicules, libérant des spores noires à maturité.",
     reco:"Détruire les galles avant leur éclatement (ne pas laisser au champ). Rotation culturale. Éviter les blessures mécaniques sur les plants qui favorisent l'infection." },
   { id:"virus_striure_mais", culture:"mais", nom:"Striure du maïs", latin:"Maize Streak Virus (MSV)",
-    organes:["feuilles","plante"], symptomes:["ma_fe_striures_jaunes_paralleles","ma_pl_nanisme_jaunissement"],
+    organes:["feuilles","plante"], symptomes:["ma_fe_striures_jaunes_paralleles","ma_pl_nanisme_jaunissement","ctx_insectes_presents"],
     cause:"Virus transmis par des cicadelles, provoquant des striures parallèles aux nervures et un retard de croissance marqué.",
     reco:"Semer tôt en début de saison pour limiter l'exposition aux cicadelles vectrices. Arracher les plants très atteints. Détruire les repousses spontanées qui hébergent le virus entre deux cycles." },
   { id:"chenille_legionnaire_mais", culture:"mais", nom:"Chenille légionnaire d'automne", latin:"Spodoptera frugiperda",
-    organes:["feuilles"], symptomes:["ma_fe_trous_fenetre","ma_fe_excrements_cornet"],
+    organes:["feuilles"], symptomes:["ma_fe_trous_fenetre","ma_fe_excrements_cornet","ctx_insectes_presents"],
     cause:"Chenille très invasive en Afrique de l'Ouest, se nourrissant dans le cornet des jeunes plants de maïs.",
     reco:"Inspecter le cornet des jeunes plants régulièrement. Écraser les œufs et jeunes chenilles à la main si détection précoce. Bacillus thuringiensis ou extraits botaniques (neem) en traitement ciblé sur le cornet." },
   { id:"foreurs_tige_mais", culture:"mais", nom:"Foreurs de tige", latin:"Busseola fusca",
-    organes:["tiges"], symptomes:["ma_ti_galeries_internes","ma_ti_cassure"],
+    organes:["tiges"], symptomes:["ma_ti_galeries_internes","ma_ti_cassure","ctx_insectes_presents"],
     cause:"Chenilles creusant des galeries à l'intérieur de la tige, affaiblissant la plante qui peut casser sous le vent.",
     reco:"Détruire les résidus de tiges après récolte (les chenilles y hivernent). Rotation culturale. Semis précoce pour limiter les dégâts sur jeunes plants." },
   { id:"carence_azote_mais", culture:"mais", nom:"Carence en azote", latin:"Trouble physiologique",
@@ -618,31 +644,31 @@ const DIAGNOSES = [
 
   // --- NIÉBÉ ---
   { id:"virus_mosaique_niebe", culture:"niebe", nom:"Virus de la mosaïque du niébé", latin:"Cowpea Aphid-Borne Mosaic Virus (CABMV)",
-    organes:["feuilles","plante"], symptomes:["ni_fe_mosaique_deformee","ni_pl_nanisme"],
+    organes:["feuilles","plante"], symptomes:["ni_fe_mosaique_deformee","ni_pl_nanisme","ctx_insectes_presents"],
     cause:"Virus transmis par les pucerons (Aphis craccivora), très répandu sur niébé en Afrique de l'Ouest.",
     reco:"Utiliser des semences saines ou certifiées. Arracher les plants fortement atteints. Lutter contre les pucerons vecteurs. Privilégier des variétés tolérantes si disponibles." },
   { id:"bacteriose_niebe", culture:"niebe", nom:"Bactériose du niébé", latin:"Xanthomonas axonopodis pv. vignicola",
-    organes:["feuilles"], symptomes:["ni_fe_taches_angulaires_huileuses","ni_fe_halo_jaune"],
+    organes:["feuilles"], symptomes:["ni_fe_taches_angulaires_huileuses","ni_fe_halo_jaune","ctx_humide"],
     cause:"Bactérie favorisée par l'humidité, disséminée par la pluie, les outils et les semences infectées.",
     reco:"Utiliser des semences saines. Éviter de travailler la parcelle par temps humide. Rotation culturale. Détruire les résidus infectés après récolte." },
   { id:"oidium_niebe", culture:"niebe", nom:"Oïdium", latin:"Erysiphe polygoni",
-    organes:["feuilles"], symptomes:["ni_fe_poudre_blanche"],
+    organes:["feuilles"], symptomes:["ni_fe_poudre_blanche","ctx_humide"],
     cause:"Champignon favorisé par une forte hygrométrie nocturne et une chaleur diurne, souvent en fin de cycle.",
     reco:"Aérer les plants (densité raisonnable). Soufre mouillable en traitement préventif. Récolter à temps pour limiter la pression en fin de cycle." },
   { id:"cercosporiose_niebe", culture:"niebe", nom:"Cercosporiose", latin:"Cercospora spp.",
-    organes:["feuilles"], symptomes:["ni_fe_taches_brunes_irregulieres","ni_fe_chute_agees"],
+    organes:["feuilles"], symptomes:["ni_fe_taches_brunes_irregulieres","ni_fe_chute_agees","ctx_humide"],
     cause:"Champignon apparaissant souvent sur les feuilles âgées en fin de cycle, favorisé par l'humidité.",
     reco:"Rotation culturale. Détruire les résidus après récolte. Éviter les densités de semis excessives qui limitent l'aération du feuillage." },
   { id:"thrips_fleurs_niebe", culture:"niebe", nom:"Thrips des fleurs", latin:"Megalurothrips sjostedti",
-    organes:["fleurs"], symptomes:["ni_fl_avortement_fleurs","ni_fl_deformation_boutons"],
+    organes:["fleurs"], symptomes:["ni_fl_avortement_fleurs","ni_fl_deformation_boutons","ctx_insectes_presents"],
     cause:"Ravageur majeur du niébé en Afrique de l'Ouest, s'attaquant aux boutons floraux et provoquant leur avortement.",
     reco:"Semer tôt pour limiter le chevauchement avec les pics de population de thrips. Extrait de neem en traitement préventif au stade floraison. Variétés tolérantes si disponibles." },
   { id:"punaises_gousses_niebe", culture:"niebe", nom:"Punaises suceuses de gousses", latin:"Clavigralla spp.",
-    organes:["fruits"], symptomes:["ni_fr_taches_deprimees","ni_fr_graines_ratatinees"],
+    organes:["fruits"], symptomes:["ni_fr_taches_deprimees","ni_fr_graines_ratatinees","ctx_insectes_presents"],
     cause:"Punaises piquant les gousses en formation, provoquant des taches déprimées et des graines mal remplies.",
     reco:"Surveiller la parcelle pendant la formation des gousses. Récolter dès maturité pour limiter l'exposition. Extrait de neem en cas de forte pression." },
   { id:"foreuse_gousses_niebe", culture:"niebe", nom:"Foreuse des gousses", latin:"Maruca vitrata",
-    organes:["fruits","fleurs"], symptomes:["ni_fr_perforations","ni_fl_fleurs_agglomerees_soie"],
+    organes:["fruits","fleurs"], symptomes:["ni_fr_perforations","ni_fl_fleurs_agglomerees_soie","ctx_insectes_presents"],
     cause:"Chenille qui agglomère fleurs et jeunes gousses avec de la soie avant de les perforer de l'intérieur ; ravageur majeur du niébé.",
     reco:"Inspecter régulièrement les grappes florales. Détruire les fleurs/gousses agglomérées atteintes. Bacillus thuringiensis en traitement ciblé au stade floraison-fructification." },
   { id:"striga_niebe", culture:"niebe", nom:"Striga (plante parasite)", latin:"Striga gesnerioides",
@@ -650,7 +676,7 @@ const DIAGNOSES = [
     cause:"Plante parasite spécifique du niébé, se fixant sur les racines et détournant eau et nutriments ; favorisée par les sols pauvres et la monoculture répétée.",
     reco:"Rotation avec céréales, ou variétés résistantes au Striga si disponibles. Améliorer la fertilité du sol. Arracher le Striga avant floraison pour empêcher la production de graines (viables plusieurs années dans le sol)." },
   { id:"fonte_semis_niebe", culture:"niebe", nom:"Fonte des semis", latin:"Rhizoctonia spp. / Fusarium spp.",
-    organes:["tiges","plante"], symptomes:["ni_ti_pourriture_collet","ni_pl_effondrement_jeunes_plants"],
+    organes:["tiges","plante"], symptomes:["ni_ti_pourriture_collet","ni_pl_effondrement_jeunes_plants","ctx_humide"],
     cause:"Champignons du sol attaquant les jeunes plantules, favorisés par un sol trop humide et mal drainé.",
     reco:"Améliorer le drainage. Éviter les semis trop denses. Désinfecter les semences avant semis si possible." },
   { id:"nematodes_niebe", culture:"niebe", nom:"Nématodes à galles", latin:"Meloidogyne spp.",
@@ -658,6 +684,41 @@ const DIAGNOSES = [
     cause:"Vers microscopiques du sol formant des galles sur les racines, limitant l'absorption d'eau et de nutriments.",
     reco:"Vérifier les racines d'un plant suspect (boursouflures = galles). Rotation avec céréales. Amendement organique et solarisation du sol entre deux cycles." }
 ];
+
+// --- Calcul pondéré : les symptômes rares (spécifiques à peu de diagnostics) comptent
+// davantage que les symptômes génériques partagés par de nombreux diagnostics. ---
+function symptomWeights(culture){
+  const freq = {};
+  DIAGNOSES.filter(d => d.culture === culture).forEach(d => {
+    d.symptomes.forEach(s => { freq[s] = (freq[s] || 0) + 1; });
+  });
+  const weights = {};
+  Object.keys(freq).forEach(s => { weights[s] = 1 / freq[s]; });
+  return weights;
+}
+
+function scoreDiagnoses(culture, selectedSet){
+  const weights = symptomWeights(culture);
+  const PENALTY_RULES = [
+    { if_selected: "ctx_insectes_absents", contradicts: "ctx_insectes_presents", factor: 0.25 },
+    { if_selected: "ctx_sec", contradicts: "ctx_humide", factor: 0.55 }
+  ];
+  const candidats = DIAGNOSES.filter(d => d.culture === culture);
+  return candidats.map(d => {
+    const matched = d.symptomes.filter(s => selectedSet.has(s));
+    const scoreMatched = matched.reduce((sum, s) => sum + (weights[s] || 1), 0);
+    const scoreTotal = d.symptomes.reduce((sum, s) => sum + (weights[s] || 1), 0);
+    let pct = scoreTotal > 0 ? Math.round((scoreMatched / scoreTotal) * 100) : 0;
+    PENALTY_RULES.forEach(rule => {
+      if (selectedSet.has(rule.if_selected) && d.symptomes.includes(rule.contradicts)) {
+        pct = Math.round(pct * rule.factor);
+      }
+    });
+    return { ...d, overlap: matched.length, pct };
+  }).filter(d => d.overlap > 0)
+    .sort((a,b) => b.pct - a.pct || b.overlap - a.overlap)
+    .slice(0, 3);
+}
 
 const SYMPTOMES = {
   piment: {
@@ -940,7 +1001,7 @@ const resultsDiv = document.getElementById("results");
 const refCode = document.getElementById("ref-code");
 
 function setDots(n){
-  for(let i=1;i<=3;i++){
+  for(let i=1;i<=4;i++){
     document.getElementById("dot"+i).classList.toggle("on", i<=n);
   }
 }
@@ -1003,22 +1064,56 @@ document.getElementById("back-to-1").addEventListener("click", () => {
   setDots(1);
 });
 
+let fuInsectes = "";
+let fuMeteo = "";
+
+document.querySelectorAll('#fu-insectes .pick-btn').forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll('#fu-insectes .pick-btn').forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    fuInsectes = btn.dataset.fuVal;
+  });
+});
+document.querySelectorAll('#fu-meteo .pick-btn').forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll('#fu-meteo .pick-btn').forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    fuMeteo = btn.dataset.fuVal;
+  });
+});
+
 diagnoseBtn.addEventListener("click", () => {
+  document.getElementById("culture-tag-2b").textContent = CULTURE_LABELS[selectedCulture];
+  step2.classList.add("hidden");
+  document.getElementById("stepQuestions").classList.remove("hidden");
+  setDots(3);
+});
+
+document.getElementById("back-to-2").addEventListener("click", () => {
+  document.getElementById("stepQuestions").classList.add("hidden");
+  step2.classList.remove("hidden");
+  setDots(2);
+});
+
+document.getElementById("submit-btn").addEventListener("click", () => {
+  if (fuInsectes) selectedSymptomes.add(fuInsectes);
+  if (fuMeteo) selectedSymptomes.add(fuMeteo);
+
   const allSymptomEntries = ORGANE_ORDER.flatMap(o => SYMPTOMES[selectedCulture][o] || []);
   const symptomLabels = allSymptomEntries
     .filter(s => selectedSymptomes.has(s.id))
     .map(s => "- " + s.label)
     .join("\n");
 
+  const precisions = [];
+  if (fuInsectes === "ctx_insectes_presents") precisions.push("- Insectes observés sur la plante : oui");
+  if (fuInsectes === "ctx_insectes_absents") precisions.push("- Insectes observés sur la plante : non");
+  if (fuMeteo === "ctx_humide") precisions.push("- Contexte climatique : période humide récente");
+  if (fuMeteo === "ctx_sec") precisions.push("- Contexte climatique : saison sèche");
+  const precisionsText = precisions.length > 0 ? "\n\nPrécisions complémentaires :\n" + precisions.join("\n") : "";
+
   // Calcul interne des hypothèses (envoyé uniquement au conseiller, jamais affiché au client)
-  const candidats = DIAGNOSES.filter(d => d.culture === selectedCulture);
-  const scored = candidats.map(d => {
-    const overlap = d.symptomes.filter(s => selectedSymptomes.has(s)).length;
-    const pct = Math.round((overlap / d.symptomes.length) * 100);
-    return { ...d, overlap, pct };
-  }).filter(d => d.overlap > 0)
-    .sort((a,b) => b.pct - a.pct || b.overlap - a.overlap)
-    .slice(0, 3);
+  const scored = scoreDiagnoses(selectedCulture, selectedSymptomes);
   const hypothesesText = scored.length > 0
     ? scored.map((d,i) => `\n${i+1}. ${d.nom} (${d.pct}% de correspondance)\n   Latin : ${d.latin}\n   Cause probable : ${d.cause}\n   Recommandations : ${d.reco}`).join("\n")
     : "\nAucune correspondance forte trouvée par l'outil — à évaluer manuellement.";
@@ -1026,13 +1121,12 @@ diagnoseBtn.addEventListener("click", () => {
   const now = new Date();
   const refCodeMsg = "AGR-" + now.getFullYear().toString().slice(2) + String(now.getMonth()+1).padStart(2,"0") + String(now.getDate()).padStart(2,"0") + "-" + Math.floor(Math.random()*90+10);
 
-  const waMessage = `📋 FICHE DE DIAGNOSTIC — N° ${refCodeMsg}\n\nCulture : ${CULTURE_LABELS[selectedCulture]}\n\nSymptômes observés :\n${symptomLabels}\n\n— RÉSULTAT DE L'OUTIL —${hypothesesText}\n\n(Aide à la décision — à confirmer par le conseiller)`;
+  const waMessage = `📋 FICHE DE DIAGNOSTIC — N° ${refCodeMsg}\n\nCulture : ${CULTURE_LABELS[selectedCulture]}\n\nSymptômes observés :\n${symptomLabels}${precisionsText}\n\n— RÉSULTAT DE L'OUTIL —${hypothesesText}\n\n(Aide à la décision — à confirmer par le conseiller)`;
   const waLink = "https://wa.me/22674864682?text=" + encodeURIComponent(waMessage);
 
   document.getElementById("culture-tag-3").textContent = CULTURE_LABELS[selectedCulture];
 
   if (isExpert) {
-    // Mode conseiller : affiche directement les résultats calculés, pas de message WhatsApp
     resultsDiv.innerHTML = "";
     if (scored.length === 0) {
       resultsDiv.innerHTML = '<div class="no-match">Aucune correspondance suffisante trouvée avec les symptômes cochés.</div>';
@@ -1070,15 +1164,17 @@ diagnoseBtn.addEventListener("click", () => {
     window.open(waLink, "_blank");
   }
 
-  step2.classList.add("hidden");
+  document.getElementById("stepQuestions").classList.add("hidden");
   step3.classList.remove("hidden");
-  setDots(3);
+  setDots(4);
 });
 
 document.getElementById("restart-btn").addEventListener("click", () => {
   document.querySelectorAll(".pick-btn").forEach(b => b.classList.remove("active"));
   selectedCulture = null;
   selectedSymptomes = new Set();
+  fuInsectes = "";
+  fuMeteo = "";
   step3.classList.add("hidden");
   step0.classList.remove("hidden");
   genRef();
