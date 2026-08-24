@@ -491,10 +491,24 @@
       </fieldset>
 
       <p style="font-size:14px; font-weight:600; margin:0 0 8px;">Position du terrain dans le paysage :</p>
-      <fieldset class="grid-2" id="sol-position" style="margin-bottom:12px;">
+      <fieldset class="grid-2" id="sol-position" style="margin-bottom:20px;">
         <button type="button" class="pick-btn" data-sol-group="position" data-sol-val="pos_plateau">Plateau / zone haute</button>
         <button type="button" class="pick-btn" data-sol-group="position" data-sol-val="pos_basfond">Bas-fond / vallée / bord de cours d'eau</button>
         <button type="button" class="pick-btn" data-sol-group="position" data-sol-val="pos_plaine">Plaine / zone intermédiaire</button>
+      </fieldset>
+
+      <p style="font-size:14px; font-weight:600; margin:0 0 8px;">Y a-t-il un ruissellement visible de l'eau en surface après une pluie (l'eau file sur le sol sans y entrer) ?</p>
+      <fieldset class="grid-2" id="sol-ruissellement" style="margin-bottom:20px;">
+        <button type="button" class="pick-btn" data-sol-group="ruissellement" data-sol-val="ruiss_oui">Oui, ruissellement visible</button>
+        <button type="button" class="pick-btn" data-sol-group="ruissellement" data-sol-val="ruiss_non">Non, pas de ruissellement</button>
+        <button type="button" class="pick-btn" data-sol-group="ruissellement" data-sol-val="">Je ne sais pas</button>
+      </fieldset>
+
+      <p style="font-size:14px; font-weight:600; margin:0 0 8px;">Le rendement obtenu par le passé sur cette parcelle était plutôt :</p>
+      <fieldset class="grid-2" id="sol-rendement" style="margin-bottom:12px;">
+        <button type="button" class="pick-btn" data-sol-group="rendement" data-sol-val="rend_bon">Bon</button>
+        <button type="button" class="pick-btn" data-sol-group="rendement" data-sol-val="rend_faible">Faible</button>
+        <button type="button" class="pick-btn" data-sol-group="rendement" data-sol-val="">Moyen / jamais cultivé / je ne sais pas</button>
       </fieldset>
 
       <div class="actions">
@@ -1089,13 +1103,34 @@ document.getElementById("frestart-btn").addEventListener("click", () => {
 });
 
 // --- Base de connaissances : types de sol et aptitudes culturales ---
+const SOL_LABELS = {
+  tex_sableux: "texture sableuse au toucher", tex_argileux: "texture argileuse et collante",
+  tex_limoneux: "texture limoneuse douce", tex_gravillonnaire: "présence de gravillons/cailloux",
+  col_rouge: "couleur rouge/ocre", col_noir: "couleur noire/gris foncé",
+  col_clair: "couleur claire/blanchâtre", col_brun: "couleur brune",
+  eau_rapide: "infiltration très rapide de l'eau", eau_stagnante: "eau stagnante plusieurs jours",
+  eau_normale: "infiltration normale de l'eau",
+  pos_plateau: "position en plateau/zone haute", pos_basfond: "position en bas-fond/vallée",
+  pos_plaine: "position en plaine",
+  ruiss_oui: "ruissellement visible de l'eau en surface", ruiss_non: "absence de ruissellement",
+  rend_bon: "bon rendement historique sur cette parcelle", rend_faible: "rendement historiquement faible"
+};
+
+const CULTURE_ORDER = ["piment","tomate","gombo","mais","niebe"];
+
 const SOIL_TYPES = [
   {
     id: "sableux",
     nom: "Sol sableux",
-    indicateurs: ["tex_sableux", "col_clair", "eau_rapide", "pos_plateau", "pos_plaine"],
+    indicateurs: ["tex_sableux", "col_clair", "eau_rapide", "pos_plateau", "pos_plaine", "rend_faible"],
     description: "Sol léger, drainant très vite, pauvre en matière organique et en éléments nutritifs — typique des zones sahéliennes sableuses.",
-    aptitudes: "Niébé et mil/sorgho s'y adaptent bien. Maïs, tomate et gombo y donnent de faibles rendements sans apport organique important. Le piment y est possible en planches enrichies.",
+    aptitudes: {
+      piment: { niveau: "Faible", note: "nécessite des planches très enrichies" },
+      tomate: { niveau: "Faible", note: "faibles rendements sans apport organique important" },
+      gombo: { niveau: "Moyen", note: "assez tolérant, apport organique recommandé" },
+      mais: { niveau: "Faible", note: "sensible au manque de rétention d'eau" },
+      niebe: { niveau: "Bon", note: "bien adapté, tolère la sécheresse" }
+    },
     amendements: "Apporter du fumier ou du compost en grande quantité avant chaque cycle. Pailler pour limiter l'évaporation et retenir l'humidité. Privilégier des apports fractionnés en engrais minéral, rapidement lessivés sinon."
   },
   {
@@ -1103,31 +1138,55 @@ const SOIL_TYPES = [
     nom: "Sol argileux",
     indicateurs: ["tex_argileux", "col_noir", "col_brun", "eau_stagnante", "pos_basfond", "pos_plaine"],
     description: "Sol lourd, retenant fortement l'eau, avec un risque d'asphyxie racinaire si le drainage est insuffisant.",
-    aptitudes: "Bon potentiel pour le maïs et le gombo si le drainage est correct. Le piment et la tomate y sont plus sensibles à l'excès d'eau — préférer des billons surélevés.",
+    aptitudes: {
+      piment: { niveau: "Moyen", note: "préférer des billons pour éviter l'excès d'eau" },
+      tomate: { niveau: "Moyen", note: "sensible à l'excès d'eau, drainage nécessaire" },
+      gombo: { niveau: "Bon", note: "bon potentiel si le drainage est correct" },
+      mais: { niveau: "Bon", note: "bon potentiel si le drainage est correct" },
+      niebe: { niveau: "Moyen", note: "supporte moins bien l'engorgement" }
+    },
     amendements: "Incorporer du sable et de la matière organique pour aérer la structure. Travailler en billons ou planches surélevées pour améliorer le drainage."
   },
   {
     id: "limoneux",
     nom: "Sol limoneux",
-    indicateurs: ["tex_limoneux", "col_brun", "eau_normale", "pos_basfond", "pos_plaine"],
+    indicateurs: ["tex_limoneux", "col_brun", "eau_normale", "pos_basfond", "pos_plaine", "ruiss_non", "rend_bon"],
     description: "Sol équilibré, fertile, à la texture douce — souvent le plus favorable aux cultures maraîchères.",
-    aptitudes: "Excellent pour l'ensemble des cultures suivies : piment, tomate, gombo, maïs et niébé s'y développent tous bien.",
+    aptitudes: {
+      piment: { niveau: "Bon", note: "sol équilibré et favorable" },
+      tomate: { niveau: "Bon", note: "sol équilibré et favorable" },
+      gombo: { niveau: "Bon", note: "sol équilibré et favorable" },
+      mais: { niveau: "Bon", note: "sol équilibré et favorable" },
+      niebe: { niveau: "Bon", note: "sol équilibré et favorable" }
+    },
     amendements: "Entretenir la fertilité par des apports organiques réguliers (compost, fumier) pour maintenir cette bonne structure dans la durée."
   },
   {
     id: "gravillonnaire",
     nom: "Sol gravillonnaire / latéritique",
-    indicateurs: ["tex_gravillonnaire", "col_rouge", "eau_rapide", "pos_plateau"],
-    description: "Sol pauvre et peu profond, avec présence de gravillons ou concrétions durcies, typique des plateaux latéritiques.",
-    aptitudes: "Le niébé et le mil/sorgho sont les plus tolérants. Le maraîchage (piment, tomate, gombo) y est difficile sans travail important du sol et gros apports organiques.",
-    amendements: "Apport organique massif et régulier. Un sous-solage ou décompactage peut aider à approfondir la zone racinaire exploitable. Sur les zones les plus pauvres, il peut être plus rentable de réserver ce terrain aux cultures les plus rustiques."
+    indicateurs: ["tex_gravillonnaire", "col_rouge", "eau_rapide", "pos_plateau", "ruiss_oui", "rend_faible"],
+    description: "Sol pauvre et peu profond, avec présence de gravillons ou concrétions durcies, typique des plateaux latéritiques. Le ruissellement fréquent expose ce type de sol à l'érosion.",
+    aptitudes: {
+      piment: { niveau: "Faible", note: "sol peu profond, difficile sans gros travail" },
+      tomate: { niveau: "Faible", note: "sol peu profond, difficile sans gros travail" },
+      gombo: { niveau: "Faible", note: "sol peu profond, difficile sans gros travail" },
+      mais: { niveau: "Faible", note: "faible réserve utile en eau" },
+      niebe: { niveau: "Moyen", note: "plus tolérant que les autres cultures suivies" }
+    },
+    amendements: "Apport organique massif et régulier. Un sous-solage ou décompactage peut aider à approfondir la zone racinaire exploitable. Prévoir des mesures anti-érosion (diguettes, cordons pierreux) si ruissellement marqué. Sur les zones les plus pauvres, il peut être plus rentable de réserver ce terrain aux cultures les plus rustiques."
   },
   {
     id: "hydromorphe",
     nom: "Sol hydromorphe / bas-fond",
-    indicateurs: ["col_noir", "eau_stagnante", "pos_basfond"],
+    indicateurs: ["col_noir", "eau_stagnante", "pos_basfond", "rend_bon"],
     description: "Sol de bas-fond ou de vallée, riche en matière organique mais avec un risque d'engorgement en saison des pluies.",
-    aptitudes: "Très fertile pour le maïs et le gombo en dehors des périodes de forte humidité. Le piment et la tomate y sont sensibles à l'excès d'eau — à cultiver plutôt en début/fin de saison des pluies ou en contre-saison.",
+    aptitudes: {
+      piment: { niveau: "Faible", note: "sensible à l'excès d'eau, préférer la contre-saison" },
+      tomate: { niveau: "Faible", note: "sensible à l'excès d'eau, préférer la contre-saison" },
+      gombo: { niveau: "Bon", note: "bon en dehors des pics d'engorgement" },
+      mais: { niveau: "Bon", note: "bon en dehors des pics d'engorgement" },
+      niebe: { niveau: "Moyen", note: "à réserver aux périodes moins humides" }
+    },
     amendements: "Prévoir un drainage (billons, petits fossés) pour évacuer l'excès d'eau. Bien choisir la période de semis pour éviter les pics d'engorgement."
   }
 ];
@@ -1136,18 +1195,27 @@ function scoreSoil(selected){
   return SOIL_TYPES.map(s => {
     const matched = s.indicateurs.filter(i => selected.has(i));
     const pct = Math.round((matched.length / s.indicateurs.length) * 100);
-    return { ...s, matched: matched.length, pct };
+    const missingLabels = s.indicateurs.filter(i => !selected.has(i)).map(i => SOL_LABELS[i] || i);
+    return { ...s, matched: matched.length, pct, missingLabels };
   }).sort((a,b) => b.pct - a.pct || b.matched - a.matched);
 }
 
-let solAnswers = { texture: "", couleur: "", eau: "", position: "" };
+function aptitudesText(s){
+  return CULTURE_ORDER.map(c => `${CULTURE_LABELS[c]} : ${s.aptitudes[c].niveau} (${s.aptitudes[c].note})`).join("\n   ");
+}
+
+function aptitudesHtml(s){
+  return CULTURE_ORDER.map(c => `<div style="display:flex; justify-content:space-between; gap:8px; padding:4px 0; border-bottom:1px solid var(--line); font-size:13.5px;"><span><strong>${CULTURE_LABELS[c]}</strong> — ${s.aptitudes[c].note}</span><span style="flex:none; font-family:'Courier New',monospace; font-size:11px; text-transform:uppercase;">${s.aptitudes[c].niveau}</span></div>`).join("");
+}
+
+let solAnswers = { texture: "", couleur: "", eau: "", position: "", ruissellement: "", rendement: "" };
 const solSubmitBtn = document.getElementById("sol-submit-btn");
 
 function checkSolComplete(){
   solSubmitBtn.disabled = !(solAnswers.texture && solAnswers.couleur && solAnswers.eau && solAnswers.position);
 }
 
-["texture","couleur","eau","position"].forEach(group => {
+["texture","couleur","eau","position","ruissellement","rendement"].forEach(group => {
   document.querySelectorAll(`#sol-${group} .pick-btn`).forEach(btn => {
     btn.addEventListener("click", () => {
       document.querySelectorAll(`#sol-${group} .pick-btn`).forEach(b => b.classList.remove("active"));
@@ -1159,13 +1227,22 @@ function checkSolComplete(){
 });
 
 solSubmitBtn.addEventListener("click", () => {
-  const selected = new Set(Object.values(solAnswers));
+  const selected = new Set(Object.values(solAnswers).filter(v => v));
   const scored = scoreSoil(selected);
   const top = scored[0];
 
   const now = new Date();
   const refCodeMsg = "SOL-" + now.getFullYear().toString().slice(2) + String(now.getMonth()+1).padStart(2,"0") + String(now.getDate()).padStart(2,"0") + "-" + Math.floor(Math.random()*90+10);
-  const waMessage = `📋 FICHE D'ÉVALUATION DU SOL — N° ${refCodeMsg}\n\nObservations transmises :\n- Texture : ${solAnswers.texture}\n- Couleur : ${solAnswers.couleur}\n- Comportement de l'eau : ${solAnswers.eau}\n- Position : ${solAnswers.position}\n\n— RÉSULTAT DE L'OUTIL —\n${scored.map((s,i) => `\n${i+1}. ${s.nom} (${s.pct}% de correspondance)\n   Description : ${s.description}\n   Aptitudes culturales : ${s.aptitudes}\n   Amendements conseillés : ${s.amendements}`).join("\n")}\n\n(Aide à la décision — à confirmer par le conseiller)`;
+  const obsLines = [
+    `- Texture : ${solAnswers.texture}`,
+    `- Couleur : ${solAnswers.couleur}`,
+    `- Comportement de l'eau : ${solAnswers.eau}`,
+    `- Position : ${solAnswers.position}`
+  ];
+  if (solAnswers.ruissellement) obsLines.push(`- Ruissellement : ${solAnswers.ruissellement === "ruiss_oui" ? "oui" : "non"}`);
+  if (solAnswers.rendement) obsLines.push(`- Rendement historique : ${solAnswers.rendement === "rend_bon" ? "bon" : "faible"}`);
+
+  const waMessage = `📋 FICHE D'ÉVALUATION DU SOL — N° ${refCodeMsg}\n\nObservations transmises :\n${obsLines.join("\n")}\n\n— RÉSULTAT DE L'OUTIL —\n${scored.map((s,i) => `\n${i+1}. ${s.nom} (${s.pct}% de correspondance)\n   Description : ${s.description}\n   Aptitudes par culture :\n   ${aptitudesText(s)}\n   Amendements conseillés : ${s.amendements}\n   Pour confirmer : ${s.missingLabels.length > 0 ? s.missingLabels.join(", ") : "tous les indices sont déjà présents"}`).join("\n")}\n\n(Aide à la décision — à confirmer par le conseiller)`;
   const waLink = "https://wa.me/22674864682?text=" + encodeURIComponent(waMessage);
 
   const resultsDivSol = document.getElementById("sol-results");
@@ -1180,10 +1257,12 @@ solSubmitBtn.addEventListener("click", () => {
         <div class="match-bar"><span style="width:${s.pct}%"></span></div>
         <h3>Description</h3>
         <p>${s.description}</p>
-        <h3>Aptitudes culturales</h3>
-        <p>${s.aptitudes}</p>
-        <h3>Amendements conseillés</h3>
+        <h3>Aptitudes par culture</h3>
+        ${aptitudesHtml(s)}
+        <h3 style="margin-top:12px;">Amendements conseillés</h3>
         <p>${s.amendements}</p>
+        <h3>Pour confirmer ce type de sol</h3>
+        <p>${s.missingLabels.length > 0 ? "À vérifier : " + s.missingLabels.join(", ") + "." : "Tous les indices caractéristiques sont déjà présents."}</p>
       `;
       resultsDivSol.appendChild(card);
     });
@@ -1205,7 +1284,7 @@ solSubmitBtn.addEventListener("click", () => {
 
 document.getElementById("sol-restart-btn").addEventListener("click", () => {
   document.querySelectorAll("#main-sol .pick-btn").forEach(b => b.classList.remove("active"));
-  solAnswers = { texture: "", couleur: "", eau: "", position: "" };
+  solAnswers = { texture: "", couleur: "", eau: "", position: "", ruissellement: "", rendement: "" };
   solSubmitBtn.disabled = true;
   document.getElementById("solStep1").classList.add("hidden");
   document.getElementById("solStep0").classList.remove("hidden");
