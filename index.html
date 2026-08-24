@@ -301,8 +301,9 @@
   </header>
 
   <div id="tab-switcher" style="display:flex; margin:0 6px; border-bottom:2px solid var(--ink);">
-    <button type="button" id="tab-diagnostic" style="flex:1; padding:12px; font-family:'Courier New',monospace; font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; border:none; background:var(--leaf-deep); color:var(--paper); cursor:pointer;">Diagnostic</button>
-    <button type="button" id="tab-fertilisation" style="flex:1; padding:12px; font-family:'Courier New',monospace; font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; border:none; background:var(--paper-dark); color:var(--ink-soft); cursor:pointer;">Fertilisation</button>
+    <button type="button" id="tab-diagnostic" style="flex:1; padding:12px; font-family:'Courier New',monospace; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; border:none; background:var(--leaf-deep); color:var(--paper); cursor:pointer;">Diagnostic</button>
+    <button type="button" id="tab-fertilisation" style="flex:1; padding:12px; font-family:'Courier New',monospace; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; border:none; background:var(--paper-dark); color:var(--ink-soft); cursor:pointer;">Fertilisation</button>
+    <button type="button" id="tab-sol" style="flex:1; padding:12px; font-family:'Courier New',monospace; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; border:none; background:var(--paper-dark); color:var(--ink-soft); cursor:pointer;">Sol</button>
   </div>
 
   <main id="main-diagnostic">
@@ -460,6 +461,65 @@
       </div>
     </section>
   </main>
+
+  <main id="main-sol" class="hidden">
+    <!-- ÉTAPE UNIQUE : QUESTIONS SOL -->
+    <section id="solStep0">
+      <p class="step-label">Étape 1 — Observation du terrain</p>
+
+      <p style="font-size:14px; font-weight:600; margin:0 0 8px;">Au toucher (sol humide, frotté entre les doigts), la texture est :</p>
+      <fieldset class="grid-2" id="sol-texture" style="margin-bottom:20px;">
+        <button type="button" class="pick-btn" data-sol-group="texture" data-sol-val="tex_sableux">Rugueuse, grains visibles</button>
+        <button type="button" class="pick-btn" data-sol-group="texture" data-sol-val="tex_argileux">Lisse et un peu collante</button>
+        <button type="button" class="pick-btn" data-sol-group="texture" data-sol-val="tex_limoneux">Douce, ni collante ni rugueuse</button>
+        <button type="button" class="pick-btn" data-sol-group="texture" data-sol-val="tex_gravillonnaire">Avec cailloux/gravillons durs</button>
+      </fieldset>
+
+      <p style="font-size:14px; font-weight:600; margin:0 0 8px;">Couleur dominante du sol :</p>
+      <fieldset class="grid-2" id="sol-couleur" style="margin-bottom:20px;">
+        <button type="button" class="pick-btn" data-sol-group="couleur" data-sol-val="col_rouge">Rouge / ocre</button>
+        <button type="button" class="pick-btn" data-sol-group="couleur" data-sol-val="col_noir">Noir / gris foncé</button>
+        <button type="button" class="pick-btn" data-sol-group="couleur" data-sol-val="col_clair">Gris clair / blanchâtre</button>
+        <button type="button" class="pick-btn" data-sol-group="couleur" data-sol-val="col_brun">Brun</button>
+      </fieldset>
+
+      <p style="font-size:14px; font-weight:600; margin:0 0 8px;">Comportement de l'eau après une pluie :</p>
+      <fieldset class="grid-2" id="sol-eau" style="margin-bottom:20px;">
+        <button type="button" class="pick-btn" data-sol-group="eau" data-sol-val="eau_rapide">S'infiltre très vite</button>
+        <button type="button" class="pick-btn" data-sol-group="eau" data-sol-val="eau_stagnante">Reste en flaques plusieurs jours</button>
+        <button type="button" class="pick-btn" data-sol-group="eau" data-sol-val="eau_normale">S'infiltre normalement</button>
+      </fieldset>
+
+      <p style="font-size:14px; font-weight:600; margin:0 0 8px;">Position du terrain dans le paysage :</p>
+      <fieldset class="grid-2" id="sol-position" style="margin-bottom:12px;">
+        <button type="button" class="pick-btn" data-sol-group="position" data-sol-val="pos_plateau">Plateau / zone haute</button>
+        <button type="button" class="pick-btn" data-sol-group="position" data-sol-val="pos_basfond">Bas-fond / vallée / bord de cours d'eau</button>
+        <button type="button" class="pick-btn" data-sol-group="position" data-sol-val="pos_plaine">Plaine / zone intermédiaire</button>
+      </fieldset>
+
+      <div class="actions">
+        <button type="button" class="primary" id="sol-submit-btn" disabled style="flex:1;">Envoyer ma demande</button>
+      </div>
+    </section>
+
+    <!-- RÉSULTATS SOL -->
+    <section id="solStep1" class="hidden">
+      <p class="step-label">Résultat — Type de sol probable</p>
+      <div id="sol-results"></div>
+      <div class="disclaimer">
+        Cette estimation se base sur l'observation visuelle du terrain, pas sur une analyse de laboratoire. Elle donne une orientation, à confirmer sur le terrain par un conseiller si besoin.
+      </div>
+      <a href="#" id="sol-whatsapp-btn" target="_blank" rel="noopener" style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:14px; background:#3D5A3A; color:#F3EEE2; text-decoration:none; padding:13px 16px; font-family:'Courier New',monospace; font-size:12.5px; letter-spacing:.06em; text-transform:uppercase;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="#F3EEE2"><path d="M12 2a10 10 0 00-8.5 15.2L2 22l4.9-1.4A10 10 0 1012 2zm0 18a8 8 0 01-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1112 20zm4.4-5.9c-.2-.1-1.4-.7-1.6-.8s-.4-.1-.5.1-.6.8-.7.9-.3.2-.5.1a6.6 6.6 0 01-2-1.2 7.3 7.3 0 01-1.4-1.7c-.1-.2 0-.3.1-.5l.4-.4a2 2 0 00.3-.4.5.5 0 000-.5c0-.1-.5-1.3-.7-1.7s-.4-.4-.5-.4h-.5a.9.9 0 00-.6.3 2.8 2.8 0 00-.9 2.1 4.9 4.9 0 001 2.5 11.3 11.3 0 004.4 3.9c.6.3 1.1.4 1.5.6a3.6 3.6 0 001.6.1 2.7 2.7 0 001.8-1.2 2.2 2.2 0 00.1-1.2c-.1-.1-.2-.2-.4-.3z"/></svg>
+        Renvoyer la demande via WhatsApp
+      </a>
+      <div class="actions" style="margin-top:14px;">
+        <button type="button" class="ghost" id="sol-restart-btn" style="flex:1;">↺ Nouvelle évaluation</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
     <span>Zone soudano-sahélienne</span>
     <div class="progress-dots">
       <span id="dot1" class="on"></span><span id="dot2"></span><span id="dot3"></span><span id="dot4"></span>
@@ -885,8 +945,25 @@ tabDiag.addEventListener("click", () => {
 tabFert.addEventListener("click", () => {
   mainFert.classList.remove("hidden");
   mainDiag.classList.add("hidden");
+  document.getElementById("main-sol").classList.add("hidden");
   tabFert.style.background = "var(--leaf-deep)"; tabFert.style.color = "var(--paper)";
   tabDiag.style.background = "var(--paper-dark)"; tabDiag.style.color = "var(--ink-soft)";
+  document.getElementById("tab-sol").style.background = "var(--paper-dark)"; document.getElementById("tab-sol").style.color = "var(--ink-soft)";
+});
+
+const tabSol = document.getElementById("tab-sol");
+const mainSol = document.getElementById("main-sol");
+tabSol.addEventListener("click", () => {
+  mainSol.classList.remove("hidden");
+  mainDiag.classList.add("hidden");
+  mainFert.classList.add("hidden");
+  tabSol.style.background = "var(--leaf-deep)"; tabSol.style.color = "var(--paper)";
+  tabDiag.style.background = "var(--paper-dark)"; tabDiag.style.color = "var(--ink-soft)";
+  tabFert.style.background = "var(--paper-dark)"; tabFert.style.color = "var(--ink-soft)";
+});
+tabDiag.addEventListener("click", () => {
+  document.getElementById("main-sol").classList.add("hidden");
+  tabSol.style.background = "var(--paper-dark)"; tabSol.style.color = "var(--ink-soft)";
 });
 
 // --- Base de recommandations de fertilisation (doses indicatives par m²) ---
@@ -1009,6 +1086,129 @@ document.getElementById("frestart-btn").addEventListener("click", () => {
   document.getElementById("surface-input").value = "";
   document.getElementById("fstep3").classList.add("hidden");
   document.getElementById("fstep0").classList.remove("hidden");
+});
+
+// --- Base de connaissances : types de sol et aptitudes culturales ---
+const SOIL_TYPES = [
+  {
+    id: "sableux",
+    nom: "Sol sableux",
+    indicateurs: ["tex_sableux", "col_clair", "eau_rapide", "pos_plateau", "pos_plaine"],
+    description: "Sol léger, drainant très vite, pauvre en matière organique et en éléments nutritifs — typique des zones sahéliennes sableuses.",
+    aptitudes: "Niébé et mil/sorgho s'y adaptent bien. Maïs, tomate et gombo y donnent de faibles rendements sans apport organique important. Le piment y est possible en planches enrichies.",
+    amendements: "Apporter du fumier ou du compost en grande quantité avant chaque cycle. Pailler pour limiter l'évaporation et retenir l'humidité. Privilégier des apports fractionnés en engrais minéral, rapidement lessivés sinon."
+  },
+  {
+    id: "argileux",
+    nom: "Sol argileux",
+    indicateurs: ["tex_argileux", "col_noir", "col_brun", "eau_stagnante", "pos_basfond", "pos_plaine"],
+    description: "Sol lourd, retenant fortement l'eau, avec un risque d'asphyxie racinaire si le drainage est insuffisant.",
+    aptitudes: "Bon potentiel pour le maïs et le gombo si le drainage est correct. Le piment et la tomate y sont plus sensibles à l'excès d'eau — préférer des billons surélevés.",
+    amendements: "Incorporer du sable et de la matière organique pour aérer la structure. Travailler en billons ou planches surélevées pour améliorer le drainage."
+  },
+  {
+    id: "limoneux",
+    nom: "Sol limoneux",
+    indicateurs: ["tex_limoneux", "col_brun", "eau_normale", "pos_basfond", "pos_plaine"],
+    description: "Sol équilibré, fertile, à la texture douce — souvent le plus favorable aux cultures maraîchères.",
+    aptitudes: "Excellent pour l'ensemble des cultures suivies : piment, tomate, gombo, maïs et niébé s'y développent tous bien.",
+    amendements: "Entretenir la fertilité par des apports organiques réguliers (compost, fumier) pour maintenir cette bonne structure dans la durée."
+  },
+  {
+    id: "gravillonnaire",
+    nom: "Sol gravillonnaire / latéritique",
+    indicateurs: ["tex_gravillonnaire", "col_rouge", "eau_rapide", "pos_plateau"],
+    description: "Sol pauvre et peu profond, avec présence de gravillons ou concrétions durcies, typique des plateaux latéritiques.",
+    aptitudes: "Le niébé et le mil/sorgho sont les plus tolérants. Le maraîchage (piment, tomate, gombo) y est difficile sans travail important du sol et gros apports organiques.",
+    amendements: "Apport organique massif et régulier. Un sous-solage ou décompactage peut aider à approfondir la zone racinaire exploitable. Sur les zones les plus pauvres, il peut être plus rentable de réserver ce terrain aux cultures les plus rustiques."
+  },
+  {
+    id: "hydromorphe",
+    nom: "Sol hydromorphe / bas-fond",
+    indicateurs: ["col_noir", "eau_stagnante", "pos_basfond"],
+    description: "Sol de bas-fond ou de vallée, riche en matière organique mais avec un risque d'engorgement en saison des pluies.",
+    aptitudes: "Très fertile pour le maïs et le gombo en dehors des périodes de forte humidité. Le piment et la tomate y sont sensibles à l'excès d'eau — à cultiver plutôt en début/fin de saison des pluies ou en contre-saison.",
+    amendements: "Prévoir un drainage (billons, petits fossés) pour évacuer l'excès d'eau. Bien choisir la période de semis pour éviter les pics d'engorgement."
+  }
+];
+
+function scoreSoil(selected){
+  return SOIL_TYPES.map(s => {
+    const matched = s.indicateurs.filter(i => selected.has(i));
+    const pct = Math.round((matched.length / s.indicateurs.length) * 100);
+    return { ...s, matched: matched.length, pct };
+  }).sort((a,b) => b.pct - a.pct || b.matched - a.matched);
+}
+
+let solAnswers = { texture: "", couleur: "", eau: "", position: "" };
+const solSubmitBtn = document.getElementById("sol-submit-btn");
+
+function checkSolComplete(){
+  solSubmitBtn.disabled = !(solAnswers.texture && solAnswers.couleur && solAnswers.eau && solAnswers.position);
+}
+
+["texture","couleur","eau","position"].forEach(group => {
+  document.querySelectorAll(`#sol-${group} .pick-btn`).forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(`#sol-${group} .pick-btn`).forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      solAnswers[group] = btn.dataset.solVal;
+      checkSolComplete();
+    });
+  });
+});
+
+solSubmitBtn.addEventListener("click", () => {
+  const selected = new Set(Object.values(solAnswers));
+  const scored = scoreSoil(selected);
+  const top = scored[0];
+
+  const now = new Date();
+  const refCodeMsg = "SOL-" + now.getFullYear().toString().slice(2) + String(now.getMonth()+1).padStart(2,"0") + String(now.getDate()).padStart(2,"0") + "-" + Math.floor(Math.random()*90+10);
+  const waMessage = `📋 FICHE D'ÉVALUATION DU SOL — N° ${refCodeMsg}\n\nObservations transmises :\n- Texture : ${solAnswers.texture}\n- Couleur : ${solAnswers.couleur}\n- Comportement de l'eau : ${solAnswers.eau}\n- Position : ${solAnswers.position}\n\n— RÉSULTAT DE L'OUTIL —\n${scored.map((s,i) => `\n${i+1}. ${s.nom} (${s.pct}% de correspondance)\n   Description : ${s.description}\n   Aptitudes culturales : ${s.aptitudes}\n   Amendements conseillés : ${s.amendements}`).join("\n")}\n\n(Aide à la décision — à confirmer par le conseiller)`;
+  const waLink = "https://wa.me/22674864682?text=" + encodeURIComponent(waMessage);
+
+  const resultsDivSol = document.getElementById("sol-results");
+  if (isExpert) {
+    resultsDivSol.innerHTML = "";
+    scored.forEach((s, i) => {
+      const card = document.createElement("div");
+      card.className = "result-card";
+      card.innerHTML = `
+        <div class="rank">${i===0 ? "HYPOTHÈSE PRINCIPALE" : "HYPOTHÈSE " + (i+1)}</div>
+        <h2 style="margin:6px 0 2px;">${s.nom}</h2>
+        <div class="match-bar"><span style="width:${s.pct}%"></span></div>
+        <h3>Description</h3>
+        <p>${s.description}</p>
+        <h3>Aptitudes culturales</h3>
+        <p>${s.aptitudes}</p>
+        <h3>Amendements conseillés</h3>
+        <p>${s.amendements}</p>
+      `;
+      resultsDivSol.appendChild(card);
+    });
+    document.getElementById("sol-whatsapp-btn").href = waLink;
+  } else {
+    resultsDivSol.innerHTML = `
+      <div class="result-card">
+        <h2 style="margin-top:6px;">Demande envoyée</h2>
+        <p>Vos observations ont été transmises. Vous recevrez une évaluation personnalisée directement sur WhatsApp.</p>
+      </div>
+    `;
+    document.getElementById("sol-whatsapp-btn").href = waLink;
+    window.open(waLink, "_blank");
+  }
+
+  document.getElementById("solStep0").classList.add("hidden");
+  document.getElementById("solStep1").classList.remove("hidden");
+});
+
+document.getElementById("sol-restart-btn").addEventListener("click", () => {
+  document.querySelectorAll("#main-sol .pick-btn").forEach(b => b.classList.remove("active"));
+  solAnswers = { texture: "", couleur: "", eau: "", position: "" };
+  solSubmitBtn.disabled = true;
+  document.getElementById("solStep1").classList.add("hidden");
+  document.getElementById("solStep0").classList.remove("hidden");
 });
 
 const step0 = document.getElementById("step0");
