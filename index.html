@@ -714,7 +714,9 @@ function scoreDiagnoses(culture, selectedSet){
         pct = Math.round(pct * rule.factor);
       }
     });
-    return { ...d, overlap: matched.length, pct };
+    return { ...d, overlap: matched.length, pct,
+      missingLabels: d.symptomes.filter(s => !selectedSet.has(s)).map(s => getSymptomLabel(culture, s))
+    };
   }).filter(d => d.overlap > 0)
     .sort((a,b) => b.pct - a.pct || b.overlap - a.overlap)
     .slice(0, 3);
@@ -848,6 +850,23 @@ const SYMPTOMES = {
 };
 
 const ORGANE_LABELS = { feuilles:"Feuilles", tiges:"Tiges", fruits:"Fruits / épis", plante:"Plante / racines", fleurs:"Fleurs" };
+
+const CONTEXT_LABELS = {
+  ctx_insectes_presents: "Présence d'insectes observée sur la plante",
+  ctx_insectes_absents: "Absence d'insectes confirmée",
+  ctx_humide: "Apparition après une période humide",
+  ctx_sec: "Apparition en saison sèche"
+};
+
+function getSymptomLabel(culture, symptomId){
+  if (CONTEXT_LABELS[symptomId]) return CONTEXT_LABELS[symptomId];
+  const organes = SYMPTOMES[culture] || {};
+  for (const organe in organes){
+    const found = (organes[organe] || []).find(s => s.id === symptomId);
+    if (found) return found.label;
+  }
+  return symptomId;
+}
 
 let selectedCulture = null;
 let selectedSymptomes = new Set();
@@ -1115,7 +1134,7 @@ document.getElementById("submit-btn").addEventListener("click", () => {
   // Calcul interne des hypothèses (envoyé uniquement au conseiller, jamais affiché au client)
   const scored = scoreDiagnoses(selectedCulture, selectedSymptomes);
   const hypothesesText = scored.length > 0
-    ? scored.map((d,i) => `\n${i+1}. ${d.nom} (${d.pct}% de correspondance)\n   Latin : ${d.latin}\n   Cause probable : ${d.cause}\n   Traitement : ${d.traitement}\n   Prévention : ${d.prevention}`).join("\n")
+    ? scored.map((d,i) => `\n${i+1}. ${d.nom} (${d.pct}% de correspondance)\n   Latin : ${d.latin}\n   Cause probable : ${d.cause}\n   Traitement : ${d.traitement}\n   Prévention : ${d.prevention}\n   Pour confirmer : ${d.missingLabels.length > 0 ? d.missingLabels.join(", ") : "tous les signes caractéristiques sont déjà présents"}`).join("\n")
     : "\nAucune correspondance forte trouvée par l'outil — à évaluer manuellement.";
 
   const now = new Date();
@@ -1150,6 +1169,8 @@ document.getElementById("submit-btn").addEventListener("click", () => {
           <p>${d.traitement}</p>
           <h3>Prévention</h3>
           <p>${d.prevention}</p>
+          <h3>Pour confirmer ce diagnostic</h3>
+          <p>${d.missingLabels.length > 0 ? "À vérifier chez le producteur : " + d.missingLabels.join(", ") + "." : "Tous les signes caractéristiques de ce diagnostic sont déjà présents."}</p>
         `;
         resultsDiv.appendChild(card);
       });
