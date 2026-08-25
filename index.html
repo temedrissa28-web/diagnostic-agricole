@@ -439,7 +439,23 @@
     <!-- F-ÉTAPE 2 : SURFACE -->
     <section id="fstep2" class="hidden">
       <div class="culture-tag" id="fculture-tag-2"></div>
-      <p class="step-label">Étape 3 — Surface à fertiliser</p>
+      <p class="step-label">Étape 3 — Écartement et surface</p>
+
+      <div class="disclaimer" id="fspacing-info" style="margin-bottom:16px; border-top:none; padding-top:0;"></div>
+
+      <p style="font-size:14px; font-weight:600; margin:0 0 8px;">Avez-vous respecté cet écartement conseillé ?</p>
+      <fieldset class="grid-2" id="fert-spacing-choice" style="margin-bottom:18px;">
+        <button type="button" class="pick-btn" data-spacing="oui">Oui, respecté</button>
+        <button type="button" class="pick-btn" data-spacing="non">Non, différent</button>
+      </fieldset>
+
+      <div id="fert-spacing-custom" class="hidden" style="margin-bottom:18px;">
+        <label style="display:block; font-size:14px; margin-bottom:6px; color:var(--ink-soft);">Écartement réel entre les lignes (cm)</label>
+        <input type="number" id="spacing-inter-input" min="1" placeholder="Ex : 50" style="width:100%; box-sizing:border-box; padding:12px; border:1px solid var(--line); background:var(--paper-dark); font-family:inherit; font-size:16px; margin-bottom:12px;">
+        <label style="display:block; font-size:14px; margin-bottom:6px; color:var(--ink-soft);">Écartement réel sur la ligne (cm)</label>
+        <input type="number" id="spacing-sur-input" min="1" placeholder="Ex : 30" style="width:100%; box-sizing:border-box; padding:12px; border:1px solid var(--line); background:var(--paper-dark); font-family:inherit; font-size:16px;">
+      </div>
+
       <label style="display:block; font-size:14px; margin-bottom:8px; color:var(--ink-soft);">Surface en m² (ex : une planche de 20 m² → 20)</label>
       <input type="number" id="surface-input" min="1" placeholder="Ex : 50" style="width:100%; box-sizing:border-box; padding:12px; border:1px solid var(--line); background:var(--paper-dark); font-family:inherit; font-size:16px; margin-bottom:18px;">
       <div class="actions">
@@ -1004,6 +1020,15 @@ const FERTILISATION = {
   }
 };
 
+// --- Écartements conseillés par culture (en cm) ---
+const ECARTEMENTS = {
+  piment: { inter: 60, sur: 40 },
+  tomate: { inter: 70, sur: 50 },
+  gombo: { inter: 80, sur: 40 },
+  mais: { inter: 80, sur: 40 },
+  niebe: { inter: 60, sur: 25 }
+};
+
 let fSelectedCulture = null;
 let fSelectedType = null;
 const TYPE_LABELS = { organique:"Organique", mineral:"Minéral" };
@@ -1019,14 +1044,32 @@ document.querySelectorAll("#fert-cultures .pick-btn").forEach(btn => {
   });
 });
 
+let fSpacingRespected = null;
+
 document.querySelectorAll("#fert-types .pick-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll("#fert-types .pick-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
     fSelectedType = btn.dataset.ftype;
     document.getElementById("fculture-tag-2").textContent = CULTURE_LABELS[fSelectedCulture] + " — " + TYPE_LABELS[fSelectedType];
+    const ec = ECARTEMENTS[fSelectedCulture];
+    document.getElementById("fspacing-info").textContent = `Écartement conseillé pour ${CULTURE_LABELS[fSelectedCulture]} : ${ec.inter} cm entre les lignes, ${ec.sur} cm sur la ligne.`;
+    document.querySelectorAll("#fert-spacing-choice .pick-btn").forEach(b => b.classList.remove("active"));
+    document.getElementById("fert-spacing-custom").classList.add("hidden");
+    document.getElementById("spacing-inter-input").value = "";
+    document.getElementById("spacing-sur-input").value = "";
+    fSpacingRespected = null;
     document.getElementById("fstep1").classList.add("hidden");
     document.getElementById("fstep2").classList.remove("hidden");
+  });
+});
+
+document.querySelectorAll("#fert-spacing-choice .pick-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#fert-spacing-choice .pick-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    fSpacingRespected = btn.dataset.spacing;
+    document.getElementById("fert-spacing-custom").classList.toggle("hidden", fSpacingRespected !== "non");
   });
 });
 
@@ -1043,10 +1086,26 @@ document.getElementById("calculate-btn").addEventListener("click", () => {
   const surface = parseFloat(document.getElementById("surface-input").value);
   if (!surface || surface <= 0) { alert("Merci d'indiquer une surface valide en m²."); return; }
 
+  let densityFactor = 1;
+  let spacingNote = "Écartement conseillé respecté.";
+  if (fSpacingRespected === "non") {
+    const interReel = parseFloat(document.getElementById("spacing-inter-input").value);
+    const surReel = parseFloat(document.getElementById("spacing-sur-input").value);
+    if (!interReel || !surReel || interReel <= 0 || surReel <= 0) {
+      alert("Merci d'indiquer l'écartement réel (entre les lignes et sur la ligne) en cm.");
+      return;
+    }
+    const ec = ECARTEMENTS[fSelectedCulture];
+    const densiteConseillee = 1 / (ec.inter * ec.sur);
+    const densiteReelle = 1 / (interReel * surReel);
+    densityFactor = densiteReelle / densiteConseillee;
+    spacingNote = `Écartement réel : ${interReel} × ${surReel} cm (conseillé : ${ec.inter} × ${ec.sur} cm) → doses ajustées ×${densityFactor.toFixed(2)} selon la densité réelle de plantation.`;
+  }
+
   // Calcul interne du plan (envoyé uniquement au conseiller, jamais affiché au client)
   const data = FERTILISATION[fSelectedCulture][fSelectedType];
   const planText = data.apports.map(a => {
-    const totalKg = a.dose_par_m2 * surface;
+    const totalKg = a.dose_par_m2 * surface * densityFactor;
     const totalDisplay = totalKg >= 1 ? totalKg.toFixed(1) + " kg" : (totalKg * 1000).toFixed(0) + " g";
     return `\n• ${a.produit}\n  Dose totale : ${totalDisplay} pour ${surface} m²\n  Application : ${a.moment}`;
   }).join("\n");
@@ -1054,7 +1113,7 @@ document.getElementById("calculate-btn").addEventListener("click", () => {
   const now = new Date();
   const refCodeMsg = "FERT-" + now.getFullYear().toString().slice(2) + String(now.getMonth()+1).padStart(2,"0") + String(now.getDate()).padStart(2,"0") + "-" + Math.floor(Math.random()*90+10);
 
-  const waMessage = `📋 FICHE DE FERTILISATION — N° ${refCodeMsg}\n\nCulture : ${CULTURE_LABELS[fSelectedCulture]}\nType : ${TYPE_LABELS[fSelectedType]}\nSurface : ${surface} m²\n\n— PLAN CALCULÉ PAR L'OUTIL —${planText}\n\nConseil : ${data.conseil}\n\n(Aide à la décision — à confirmer par le conseiller)`;
+  const waMessage = `📋 FICHE DE FERTILISATION — N° ${refCodeMsg}\n\nCulture : ${CULTURE_LABELS[fSelectedCulture]}\nType : ${TYPE_LABELS[fSelectedType]}\nSurface : ${surface} m²\n${spacingNote}\n\n— PLAN CALCULÉ PAR L'OUTIL —${planText}\n\nConseil : ${data.conseil}\n\n(Aide à la décision — à confirmer par le conseiller)`;
   const waLink = "https://wa.me/22674864682?text=" + encodeURIComponent(waMessage);
 
   document.getElementById("fculture-tag-3").textContent = CULTURE_LABELS[fSelectedCulture] + " — " + TYPE_LABELS[fSelectedType] + " — " + surface + " m²";
@@ -1063,8 +1122,12 @@ document.getElementById("calculate-btn").addEventListener("click", () => {
     // Mode conseiller : affiche directement le plan calculé, pas de message WhatsApp
     const fertResultsDiv = document.getElementById("fert-results");
     fertResultsDiv.innerHTML = "";
+    const spacingCard = document.createElement("div");
+    spacingCard.className = "result-card";
+    spacingCard.innerHTML = `<h3 style="margin-top:6px;">Écartement</h3><p>${spacingNote}</p>`;
+    fertResultsDiv.appendChild(spacingCard);
     data.apports.forEach(a => {
-      const totalKg = a.dose_par_m2 * surface;
+      const totalKg = a.dose_par_m2 * surface * densityFactor;
       const totalDisplay = totalKg >= 1 ? totalKg.toFixed(1) + " kg" : (totalKg * 1000).toFixed(0) + " g";
       const card = document.createElement("div");
       card.className = "result-card";
@@ -1095,9 +1158,12 @@ document.getElementById("calculate-btn").addEventListener("click", () => {
 });
 
 document.getElementById("frestart-btn").addEventListener("click", () => {
-  document.querySelectorAll("#fert-cultures .pick-btn, #fert-types .pick-btn").forEach(b => b.classList.remove("active"));
-  fSelectedCulture = null; fSelectedType = null;
+  document.querySelectorAll("#fert-cultures .pick-btn, #fert-types .pick-btn, #fert-spacing-choice .pick-btn").forEach(b => b.classList.remove("active"));
+  fSelectedCulture = null; fSelectedType = null; fSpacingRespected = null;
   document.getElementById("surface-input").value = "";
+  document.getElementById("spacing-inter-input").value = "";
+  document.getElementById("spacing-sur-input").value = "";
+  document.getElementById("fert-spacing-custom").classList.add("hidden");
   document.getElementById("fstep3").classList.add("hidden");
   document.getElementById("fstep0").classList.remove("hidden");
 });
