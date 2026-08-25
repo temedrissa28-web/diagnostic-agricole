@@ -309,7 +309,11 @@
   <main id="main-diagnostic">
     <!-- ÉTAPE 0 : CULTURE -->
     <section id="step0">
-      <p class="step-label">Étape 1 — Culture concernée</p>
+      <p class="step-label">Étape 1 — Localisation (optionnel)</p>
+      <label style="display:block; font-size:14px; margin-bottom:8px; color:var(--ink-soft);">Région / localité (ex : Bobo-Dioulasso, Kaya...)</label>
+      <input type="text" id="region-input-diag" placeholder="Ex : Kamboinsé, Ouagadougou" style="width:100%; box-sizing:border-box; padding:12px; border:1px solid var(--line); background:var(--paper-dark); font-family:inherit; font-size:16px; margin-bottom:18px;">
+
+      <p class="step-label">Étape 2 — Culture concernée</p>
       <fieldset class="grid-2" id="cultures">
         <button type="button" class="pick-btn" data-culture="piment">
           <svg viewBox="0 0 24 24"><path d="M12 8c4 0 7 3 7 7a7 7 0 01-14 0c0-4 3-7 7-7z"/><path d="M12 8V4M10 4h4"/></svg>
@@ -337,7 +341,7 @@
     <!-- ÉTAPE SYMPTÔMES -->
     <section id="step2" class="hidden">
       <div class="culture-tag" id="culture-tag-2"></div>
-      <p class="step-label">Étape 2 — Symptômes observés (toutes parties de la plante)</p>
+      <p class="step-label">Étape 3 — Symptômes observés (toutes parties de la plante)</p>
       <ul class="symptom-list" id="symptom-list"></ul>
       <div class="actions">
         <button type="button" class="ghost" id="back-to-1">← Changer de culture</button>
@@ -348,7 +352,7 @@
     <!-- ÉTAPE PRÉCISIONS -->
     <section id="stepQuestions" class="hidden">
       <div class="culture-tag" id="culture-tag-2b"></div>
-      <p class="step-label">Étape 3 — Précisions pour affiner le résultat</p>
+      <p class="step-label">Étape 4 — Précisions pour affiner le résultat</p>
       <div style="margin-bottom:20px;">
         <p style="font-size:14px; font-weight:600; margin:0 0 8px;">As-tu observé des insectes sur la plante (pucerons, mouches blanches, chenilles, punaises...) ?</p>
         <fieldset class="grid-2" id="fu-insectes" style="margin-bottom:0;">
@@ -379,9 +383,16 @@
       <div class="disclaimer">
         Vos observations sont transmises directement à un conseiller pour une réponse adaptée à votre situation réelle. Vous recevrez une réponse personnalisée sur WhatsApp.
       </div>
-      <a href="#" id="whatsapp-contact-btn" target="_blank" rel="noopener" style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:14px; background:#3D5A3A; color:#F3EEE2; text-decoration:none; padding:13px 16px; font-family:'Courier New',monospace; font-size:12.5px; letter-spacing:.06em; text-transform:uppercase;">
+      <div id="photo-block-diag" class="hidden" style="margin-top:14px;">
+        <label style="display:block; font-size:13px; margin-bottom:6px; color:var(--ink-soft);">Joindre une photo (optionnel, recommandé)</label>
+        <input type="file" accept="image/*" id="photo-input-diag" style="width:100%; font-size:13px;">
+      </div>
+      <button type="button" id="share-photo-btn-diag" class="hidden" style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:10px; background:#3D5A3A; color:#F3EEE2; border:none; width:100%; padding:13px 16px; font-family:'Courier New',monospace; font-size:12.5px; letter-spacing:.06em; text-transform:uppercase; cursor:pointer;">
+        📷 Envoyer avec la photo
+      </button>
+      <a href="#" id="whatsapp-contact-btn" target="_blank" rel="noopener" style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:10px; background:#3D5A3A; color:#F3EEE2; text-decoration:none; padding:13px 16px; font-family:'Courier New',monospace; font-size:12.5px; letter-spacing:.06em; text-transform:uppercase;">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="#F3EEE2"><path d="M12 2a10 10 0 00-8.5 15.2L2 22l4.9-1.4A10 10 0 1012 2zm0 18a8 8 0 01-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1112 20zm4.4-5.9c-.2-.1-1.4-.7-1.6-.8s-.4-.1-.5.1-.6.8-.7.9-.3.2-.5.1a6.6 6.6 0 01-2-1.2 7.3 7.3 0 01-1.4-1.7c-.1-.2 0-.3.1-.5l.4-.4a2 2 0 00.3-.4.5.5 0 000-.5c0-.1-.5-1.3-.7-1.7s-.4-.4-.5-.4h-.5a.9.9 0 00-.6.3 2.8 2.8 0 00-.9 2.1 4.9 4.9 0 001 2.5 11.3 11.3 0 004.4 3.9c.6.3 1.1.4 1.5.6a3.6 3.6 0 001.6.1 2.7 2.7 0 001.8-1.2 2.2 2.2 0 00.1-1.2c-.1-.1-.2-.2-.4-.3z"/></svg>
-        Renvoyer la demande via WhatsApp
+        Renvoyer la demande via WhatsApp (texte seul)
       </a>
       <div class="actions" style="margin-top:14px;">
         <button type="button" class="ghost" id="restart-btn" style="flex:1;">↺ Nouveau diagnostic</button>
@@ -392,7 +403,11 @@
   <main id="main-fertilisation" class="hidden">
     <!-- F-ÉTAPE 0 : CULTURE -->
     <section id="fstep0">
-      <p class="step-label">Étape 1 — Culture concernée</p>
+      <p class="step-label">Étape 1 — Localisation (optionnel)</p>
+      <label style="display:block; font-size:14px; margin-bottom:8px; color:var(--ink-soft);">Région / localité (ex : Bobo-Dioulasso, Kaya...)</label>
+      <input type="text" id="region-input-fert" placeholder="Ex : Kamboinsé, Ouagadougou" style="width:100%; box-sizing:border-box; padding:12px; border:1px solid var(--line); background:var(--paper-dark); font-family:inherit; font-size:16px; margin-bottom:18px;">
+
+      <p class="step-label">Étape 2 — Culture concernée</p>
       <fieldset class="grid-2" id="fert-cultures">
         <button type="button" class="pick-btn" data-fculture="piment">
           <svg viewBox="0 0 24 24"><path d="M12 8c4 0 7 3 7 7a7 7 0 01-14 0c0-4 3-7 7-7z"/><path d="M12 8V4M10 4h4"/></svg>
@@ -420,7 +435,7 @@
     <!-- F-ÉTAPE 1 : TYPE -->
     <section id="fstep1" class="hidden">
       <div class="culture-tag" id="fculture-tag-1"></div>
-      <p class="step-label">Étape 2 — Type de fertilisation</p>
+      <p class="step-label">Étape 3 — Type de fertilisation</p>
       <fieldset class="grid-2" id="fert-types">
         <button type="button" class="pick-btn" data-ftype="organique">
           <svg viewBox="0 0 24 24"><path d="M4 20c8-1 13-6 15-15C10 6 5 11 4 20z"/></svg>
@@ -439,7 +454,7 @@
     <!-- F-ÉTAPE 2 : SURFACE -->
     <section id="fstep2" class="hidden">
       <div class="culture-tag" id="fculture-tag-2"></div>
-      <p class="step-label">Étape 3 — Écartement et surface</p>
+      <p class="step-label">Étape 4 — Écartement et surface</p>
 
       <div class="disclaimer" id="fspacing-info" style="margin-bottom:16px; border-top:none; padding-top:0;"></div>
 
@@ -472,6 +487,13 @@
       <div class="disclaimer">
         Votre demande est transmise directement à un conseiller, qui vous proposera un plan de fertilisation adapté à votre situation réelle. Réponse sur WhatsApp.
       </div>
+      <div id="photo-block-fert" class="hidden" style="margin-top:14px;">
+        <label style="display:block; font-size:13px; margin-bottom:6px; color:var(--ink-soft);">Joindre une photo (optionnel, recommandé)</label>
+        <input type="file" accept="image/*" id="photo-input-fert" style="width:100%; font-size:13px;">
+      </div>
+      <button type="button" id="share-photo-btn-fert" class="hidden" style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:10px; background:#3D5A3A; color:#F3EEE2; border:none; width:100%; padding:13px 16px; font-family:'Courier New',monospace; font-size:12.5px; letter-spacing:.06em; text-transform:uppercase; cursor:pointer;">
+        📷 Envoyer avec la photo
+      </button>
       <div class="actions" style="margin-top:14px;">
         <button type="button" class="ghost" id="frestart-btn" style="flex:1;">↺ Nouveau calcul</button>
       </div>
@@ -481,7 +503,10 @@
   <main id="main-sol" class="hidden">
     <!-- ÉTAPE UNIQUE : QUESTIONS SOL -->
     <section id="solStep0">
-      <p class="step-label">Étape 1 — Observation du terrain</p>
+      <label style="display:block; font-size:14px; margin-bottom:8px; color:var(--ink-soft);">Région / localité (optionnel — ex : Bobo-Dioulasso, Kaya...)</label>
+      <input type="text" id="region-input-sol" placeholder="Ex : Kamboinsé, Ouagadougou" style="width:100%; box-sizing:border-box; padding:12px; border:1px solid var(--line); background:var(--paper-dark); font-family:inherit; font-size:16px; margin-bottom:18px;">
+
+      <p class="step-label">Observation du terrain</p>
 
       <p style="font-size:14px; font-weight:600; margin:0 0 8px;">Au toucher (sol humide, frotté entre les doigts), la texture est :</p>
       <fieldset class="grid-2" id="sol-texture" style="margin-bottom:20px;">
@@ -539,9 +564,16 @@
       <div class="disclaimer">
         Cette estimation se base sur l'observation visuelle du terrain, pas sur une analyse de laboratoire. Elle donne une orientation, à confirmer sur le terrain par un conseiller si besoin.
       </div>
-      <a href="#" id="sol-whatsapp-btn" target="_blank" rel="noopener" style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:14px; background:#3D5A3A; color:#F3EEE2; text-decoration:none; padding:13px 16px; font-family:'Courier New',monospace; font-size:12.5px; letter-spacing:.06em; text-transform:uppercase;">
+      <div id="photo-block-sol" class="hidden" style="margin-top:14px;">
+        <label style="display:block; font-size:13px; margin-bottom:6px; color:var(--ink-soft);">Joindre une photo (optionnel, recommandé)</label>
+        <input type="file" accept="image/*" id="photo-input-sol" style="width:100%; font-size:13px;">
+      </div>
+      <button type="button" id="share-photo-btn-sol" class="hidden" style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:10px; background:#3D5A3A; color:#F3EEE2; border:none; width:100%; padding:13px 16px; font-family:'Courier New',monospace; font-size:12.5px; letter-spacing:.06em; text-transform:uppercase; cursor:pointer;">
+        📷 Envoyer avec la photo
+      </button>
+      <a href="#" id="sol-whatsapp-btn" target="_blank" rel="noopener" style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:10px; background:#3D5A3A; color:#F3EEE2; text-decoration:none; padding:13px 16px; font-family:'Courier New',monospace; font-size:12.5px; letter-spacing:.06em; text-transform:uppercase;">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="#F3EEE2"><path d="M12 2a10 10 0 00-8.5 15.2L2 22l4.9-1.4A10 10 0 1012 2zm0 18a8 8 0 01-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1112 20zm4.4-5.9c-.2-.1-1.4-.7-1.6-.8s-.4-.1-.5.1-.6.8-.7.9-.3.2-.5.1a6.6 6.6 0 01-2-1.2 7.3 7.3 0 01-1.4-1.7c-.1-.2 0-.3.1-.5l.4-.4a2 2 0 00.3-.4.5.5 0 000-.5c0-.1-.5-1.3-.7-1.7s-.4-.4-.5-.4h-.5a.9.9 0 00-.6.3 2.8 2.8 0 00-.9 2.1 4.9 4.9 0 001 2.5 11.3 11.3 0 004.4 3.9c.6.3 1.1.4 1.5.6a3.6 3.6 0 001.6.1 2.7 2.7 0 001.8-1.2 2.2 2.2 0 00.1-1.2c-.1-.1-.2-.2-.4-.3z"/></svg>
-        Renvoyer la demande via WhatsApp
+        Renvoyer la demande via WhatsApp (texte seul)
       </a>
       <div class="actions" style="margin-top:14px;">
         <button type="button" class="ghost" id="sol-restart-btn" style="flex:1;">↺ Nouvelle évaluation</button>
@@ -559,6 +591,27 @@
 
 <script>
 const CULTURE_LABELS = { piment: "Piment", tomate: "Tomate", gombo: "Gombo", mais: "Maïs", niebe: "Niébé" };
+
+// --- Partage natif avec photo (utilise le partage du téléphone pour joindre texte + image vers WhatsApp) ---
+function supportsFileShare(){
+  if (!navigator.canShare) return false;
+  try {
+    const testFile = new File(["test"], "test.txt", { type: "text/plain" });
+    return navigator.canShare({ files: [testFile] });
+  } catch(e) { return false; }
+}
+const fileShareSupported = supportsFileShare();
+let lastMessageDiag = "", lastMessageFert = "", lastMessageSol = "";
+
+function setupPhotoShare(inputId, btnId, getMessage){
+  document.getElementById(btnId).addEventListener("click", async () => {
+    const file = document.getElementById(inputId).files[0];
+    if (!file) { alert("Sélectionnez d'abord une photo."); return; }
+    try {
+      await navigator.share({ text: getMessage(), files: [file] });
+    } catch(e) { /* partage annulé par l'utilisateur, rien à faire */ }
+  });
+}
 
 // Pictogrammes réutilisables par grande famille de symptômes
 const ICONS = {
@@ -1113,8 +1166,12 @@ document.getElementById("calculate-btn").addEventListener("click", () => {
   const now = new Date();
   const refCodeMsg = "FERT-" + now.getFullYear().toString().slice(2) + String(now.getMonth()+1).padStart(2,"0") + String(now.getDate()).padStart(2,"0") + "-" + Math.floor(Math.random()*90+10);
 
-  const waMessage = `📋 FICHE DE FERTILISATION — N° ${refCodeMsg}\n\nCulture : ${CULTURE_LABELS[fSelectedCulture]}\nType : ${TYPE_LABELS[fSelectedType]}\nSurface : ${surface} m²\n${spacingNote}\n\n— PLAN CALCULÉ PAR L'OUTIL —${planText}\n\nConseil : ${data.conseil}\n\n(Aide à la décision — à confirmer par le conseiller)`;
+  const regionF = document.getElementById("region-input-fert").value.trim();
+  const regionLineF = regionF ? `\nRégion/localité : ${regionF}` : "";
+  const waMessage = `📋 FICHE DE FERTILISATION — N° ${refCodeMsg}${regionLineF}\n\nCulture : ${CULTURE_LABELS[fSelectedCulture]}\nType : ${TYPE_LABELS[fSelectedType]}\nSurface : ${surface} m²\n${spacingNote}\n\n— PLAN CALCULÉ PAR L'OUTIL —${planText}\n\nConseil : ${data.conseil}\n\n(Aide à la décision — à confirmer par le conseiller)`;
   const waLink = "https://wa.me/22674864682?text=" + encodeURIComponent(waMessage);
+  lastMessageFert = waMessage;
+  if (fileShareSupported) { document.getElementById("photo-block-fert").classList.remove("hidden"); document.getElementById("share-photo-btn-fert").classList.remove("hidden"); }
 
   document.getElementById("fculture-tag-3").textContent = CULTURE_LABELS[fSelectedCulture] + " — " + TYPE_LABELS[fSelectedType] + " — " + surface + " m²";
 
@@ -1308,8 +1365,12 @@ solSubmitBtn.addEventListener("click", () => {
   if (solAnswers.ruissellement) obsLines.push(`- Ruissellement : ${solAnswers.ruissellement === "ruiss_oui" ? "oui" : "non"}`);
   if (solAnswers.rendement) obsLines.push(`- Rendement historique : ${solAnswers.rendement === "rend_bon" ? "bon" : "faible"}`);
 
-  const waMessage = `📋 FICHE D'ÉVALUATION DU SOL — N° ${refCodeMsg}\n\nObservations transmises :\n${obsLines.join("\n")}\n\n— RÉSULTAT DE L'OUTIL —\n${scored.map((s,i) => `\n${i+1}. ${s.nom} (${s.pct}% de correspondance)\n   Description : ${s.description}\n   Aptitudes par culture :\n   ${aptitudesText(s)}\n   Amendements conseillés : ${s.amendements}\n   Pour confirmer : ${s.missingLabels.length > 0 ? s.missingLabels.join(", ") : "tous les indices sont déjà présents"}`).join("\n")}\n\n(Aide à la décision — à confirmer par le conseiller)`;
+  const regionSol = document.getElementById("region-input-sol").value.trim();
+  const regionLineSol = regionSol ? `\nRégion/localité : ${regionSol}` : "";
+  const waMessage = `📋 FICHE D'ÉVALUATION DU SOL — N° ${refCodeMsg}${regionLineSol}\n\nObservations transmises :\n${obsLines.join("\n")}\n\n— RÉSULTAT DE L'OUTIL —\n${scored.map((s,i) => `\n${i+1}. ${s.nom} (${s.pct}% de correspondance)\n   Description : ${s.description}\n   Aptitudes par culture :\n   ${aptitudesText(s)}\n   Amendements conseillés : ${s.amendements}\n   Pour confirmer : ${s.missingLabels.length > 0 ? s.missingLabels.join(", ") : "tous les indices sont déjà présents"}`).join("\n")}\n\n(Aide à la décision — à confirmer par le conseiller)`;
   const waLink = "https://wa.me/22674864682?text=" + encodeURIComponent(waMessage);
+  lastMessageSol = waMessage;
+  if (fileShareSupported) { document.getElementById("photo-block-sol").classList.remove("hidden"); document.getElementById("share-photo-btn-sol").classList.remove("hidden"); }
 
   const resultsDivSol = document.getElementById("sol-results");
   if (isExpert) {
@@ -1485,8 +1546,12 @@ document.getElementById("submit-btn").addEventListener("click", () => {
   const now = new Date();
   const refCodeMsg = "AGR-" + now.getFullYear().toString().slice(2) + String(now.getMonth()+1).padStart(2,"0") + String(now.getDate()).padStart(2,"0") + "-" + Math.floor(Math.random()*90+10);
 
-  const waMessage = `📋 FICHE DE DIAGNOSTIC — N° ${refCodeMsg}\n\nCulture : ${CULTURE_LABELS[selectedCulture]}\n\nSymptômes observés :\n${symptomLabels}${precisionsText}\n\n— RÉSULTAT DE L'OUTIL —${hypothesesText}\n\n(Aide à la décision — à confirmer par le conseiller)`;
+  const region = document.getElementById("region-input-diag").value.trim();
+  const regionLine = region ? `\nRégion/localité : ${region}` : "";
+  const waMessage = `📋 FICHE DE DIAGNOSTIC — N° ${refCodeMsg}${regionLine}\n\nCulture : ${CULTURE_LABELS[selectedCulture]}\n\nSymptômes observés :\n${symptomLabels}${precisionsText}\n\n— RÉSULTAT DE L'OUTIL —${hypothesesText}\n\n(Aide à la décision — à confirmer par le conseiller)`;
   const waLink = "https://wa.me/22674864682?text=" + encodeURIComponent(waMessage);
+  lastMessageDiag = waMessage;
+  if (fileShareSupported) { document.getElementById("photo-block-diag").classList.remove("hidden"); document.getElementById("share-photo-btn-diag").classList.remove("hidden"); }
 
   document.getElementById("culture-tag-3").textContent = CULTURE_LABELS[selectedCulture];
 
@@ -1583,6 +1648,11 @@ if (lockCulture && CULTURE_LABELS[lockCulture]) {
   document.getElementById("fstep1").classList.remove("hidden");
   document.getElementById("fback-to-0").classList.add("hidden");
 }
+
+// --- Connexion des boutons de partage photo ---
+setupPhotoShare("photo-input-diag", "share-photo-btn-diag", () => lastMessageDiag);
+setupPhotoShare("photo-input-fert", "share-photo-btn-fert", () => lastMessageFert);
+setupPhotoShare("photo-input-sol", "share-photo-btn-sol", () => lastMessageSol);
 </script>
 </body>
 </html>
