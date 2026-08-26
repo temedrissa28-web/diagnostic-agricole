@@ -654,6 +654,9 @@
         <button type="button" class="pick-btn" data-dgroup="severite" data-dval="3">Sévère (plants détruits)</button>
       </fieldset>
 
+      <label style="display:block; font-size:14px; margin-bottom:8px; color:var(--ink-soft);">Rendement habituel de cette parcelle (optionnel, si connu — pour un constat en vue d'une médiation)</label>
+      <input type="text" id="degats-rendement-input" placeholder="Ex : environ 8 sacs par saison" style="width:100%; box-sizing:border-box; padding:12px; border:1px solid var(--line); background:var(--paper-dark); font-family:inherit; font-size:16px; margin-bottom:12px;">
+
       <div class="actions">
         <button type="button" class="ghost" id="dback-to-0">← Retour</button>
         <button type="button" class="primary" id="degats-submit-btn" disabled>Envoyer ma demande</button>
@@ -1832,11 +1835,15 @@ degatsSubmitBtn.addEventListener("click", () => {
   const result = evaluateDegat(etendue, severite, degatsAnswers.stade);
 
   const now = new Date();
+  const dateConstat = now.toLocaleDateString("fr-FR", { year: "numeric", month: "long", day: "numeric" });
   const refCodeMsg = "DEG-" + now.getFullYear().toString().slice(2) + String(now.getMonth()+1).padStart(2,"0") + String(now.getDate()).padStart(2,"0") + "-" + Math.floor(Math.random()*90+10);
   const regionD = document.getElementById("region-input-degats").value.trim();
   const regionLineD = regionD ? `\nRégion/localité : ${regionD}` : "";
+  const rendementD = document.getElementById("degats-rendement-input").value.trim();
 
-  const waMessage = `📋 FICHE D'ÉVALUATION DES DÉGÂTS — N° ${refCodeMsg}${regionLineD}\n\nCulture : ${CULTURE_LABELS[dSelectedCulture]}\nCause probable : ${CAUSE_LABELS_DEGATS[degatsAnswers.cause]}\nStade au moment du dégât : ${STADE_LABELS_DEGATS[degatsAnswers.stade]}\nPart de la parcelle touchée : ${ETENDUE_LABELS_DEGATS[degatsAnswers.etendue]}\nSévérité sur les plants touchés : ${SEVERITE_LABELS_DEGATS[degatsAnswers.severite]}\n\n— RÉSULTAT DE L'OUTIL —\nNiveau estimé : ${result.niveau}\n${result.description}\n\nRecommandation générale : ${result.recoGenerale}\n\nRecommandation liée au stade : ${result.recoStade}\n\n(Aide à la décision — à confirmer par le conseiller)`;
+  const constatText = `\n\n— CONSTAT DE DÉGÂTS (document de base pour médiation) —\nDate du constat : ${dateConstat}\nRégion/localité : ${regionD || "non précisée"}\nCulture concernée : ${CULTURE_LABELS[dSelectedCulture]}\nStade au moment du dégât : ${STADE_LABELS_DEGATS[degatsAnswers.stade]}\nCause déclarée du dégât : ${CAUSE_LABELS_DEGATS[degatsAnswers.cause]}\nSuperficie estimée touchée : ${ETENDUE_LABELS_DEGATS[degatsAnswers.etendue]}\nSévérité observée : ${SEVERITE_LABELS_DEGATS[degatsAnswers.severite]}\nRendement habituel déclaré : ${rendementD || "non précisé"}\n\nCe constat décrit les faits observés. Le montant d'un éventuel dédommagement reste à déterminer entre les parties, un comité local ou une autorité compétente, sur la base des prix du marché en vigueur — il n'est pas calculé par cet outil.\n\nTémoin 1 : ______________________\nTémoin 2 : ______________________\nSignature producteur : ______________________\nSignature partie mise en cause : ______________________`;
+
+  const waMessage = `📋 FICHE D'ÉVALUATION DES DÉGÂTS — N° ${refCodeMsg}${regionLineD}\n\nCulture : ${CULTURE_LABELS[dSelectedCulture]}\nCause probable : ${CAUSE_LABELS_DEGATS[degatsAnswers.cause]}\nStade au moment du dégât : ${STADE_LABELS_DEGATS[degatsAnswers.stade]}\nPart de la parcelle touchée : ${ETENDUE_LABELS_DEGATS[degatsAnswers.etendue]}\nSévérité sur les plants touchés : ${SEVERITE_LABELS_DEGATS[degatsAnswers.severite]}\n\n— RÉSULTAT DE L'OUTIL —\nNiveau estimé : ${result.niveau}\n${result.description}\n\nRecommandation générale : ${result.recoGenerale}\n\nRecommandation liée au stade : ${result.recoStade}${constatText}\n\n(Aide à la décision — à confirmer par le conseiller)`;
   const waLink = "https://wa.me/22674864682?text=" + encodeURIComponent(waMessage);
   lastMessageDegats = waMessage;
   if (fileShareSupported) { document.getElementById("photo-block-degats").classList.remove("hidden"); document.getElementById("share-photo-btn-degats").classList.remove("hidden"); }
@@ -1853,6 +1860,20 @@ degatsSubmitBtn.addEventListener("click", () => {
         <p>${result.recoGenerale}</p>
         <h3>Recommandation liée au stade (${STADE_LABELS_DEGATS[degatsAnswers.stade]})</h3>
         <p>${result.recoStade}</p>
+      </div>
+      <div class="result-card">
+        <h2 style="margin-top:6px;">Constat de dégâts</h2>
+        <div class="latin">Document de base pour une médiation — pas de montant calculé</div>
+        <h3>Date</h3>
+        <p>${dateConstat}</p>
+        <h3>Région/localité</h3>
+        <p>${regionD || "non précisée"}</p>
+        <h3>Rendement habituel déclaré</h3>
+        <p>${rendementD || "non précisé"}</p>
+        <h3>Note</h3>
+        <p>Le montant d'un éventuel dédommagement reste à déterminer entre les parties, un comité local ou une autorité compétente, sur la base des prix du marché en vigueur.</p>
+        <h3>Signatures</h3>
+        <p>Témoin 1 : ______________________<br>Témoin 2 : ______________________<br>Signature producteur : ______________________<br>Signature partie mise en cause : ______________________</p>
       </div>
     `;
     document.getElementById("degats-whatsapp-btn").href = waLink;
@@ -1875,6 +1896,7 @@ document.getElementById("degats-restart-btn").addEventListener("click", () => {
   document.querySelectorAll("#main-degats .pick-btn").forEach(b => b.classList.remove("active"));
   dSelectedCulture = null;
   degatsAnswers = { cause: "", stade: "", etendue: "", severite: "" };
+  document.getElementById("degats-rendement-input").value = "";
   degatsSubmitBtn.disabled = true;
   document.getElementById("degatsStep2").classList.add("hidden");
   document.getElementById("degatsStep0").classList.remove("hidden");
