@@ -301,9 +301,10 @@
   </header>
 
   <div id="tab-switcher" style="display:flex; margin:0 6px; border-bottom:2px solid var(--ink);">
-    <button type="button" id="tab-diagnostic" style="flex:1; padding:12px; font-family:'Courier New',monospace; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; border:none; background:var(--leaf-deep); color:var(--paper); cursor:pointer;">Diagnostic</button>
-    <button type="button" id="tab-fertilisation" style="flex:1; padding:12px; font-family:'Courier New',monospace; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; border:none; background:var(--paper-dark); color:var(--ink-soft); cursor:pointer;">Fertilisation</button>
-    <button type="button" id="tab-sol" style="flex:1; padding:12px; font-family:'Courier New',monospace; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; border:none; background:var(--paper-dark); color:var(--ink-soft); cursor:pointer;">Sol</button>
+    <button type="button" id="tab-diagnostic" style="flex:1; padding:12px; font-family:'Courier New',monospace; font-size:9.5px; letter-spacing:.03em; text-transform:uppercase; border:none; background:var(--leaf-deep); color:var(--paper); cursor:pointer;">Diagnostic</button>
+    <button type="button" id="tab-fertilisation" style="flex:1; padding:12px; font-family:'Courier New',monospace; font-size:9.5px; letter-spacing:.03em; text-transform:uppercase; border:none; background:var(--paper-dark); color:var(--ink-soft); cursor:pointer;">Fertilisation</button>
+    <button type="button" id="tab-sol" style="flex:1; padding:12px; font-family:'Courier New',monospace; font-size:9.5px; letter-spacing:.03em; text-transform:uppercase; border:none; background:var(--paper-dark); color:var(--ink-soft); cursor:pointer;">Sol</button>
+    <button type="button" id="tab-degats" style="flex:1; padding:12px; font-family:'Courier New',monospace; font-size:9.5px; letter-spacing:.03em; text-transform:uppercase; border:none; background:var(--paper-dark); color:var(--ink-soft); cursor:pointer;">Dégâts</button>
   </div>
 
   <main id="main-diagnostic">
@@ -581,6 +582,109 @@
     </section>
   </main>
 
+  <main id="main-degats" class="hidden">
+    <!-- ÉTAPE 0 : LOCALISATION + CULTURE -->
+    <section id="degatsStep0">
+      <label style="display:block; font-size:14px; margin-bottom:8px; color:var(--ink-soft);">Région / localité (optionnel — ex : Bobo-Dioulasso, Kaya...)</label>
+      <input type="text" id="region-input-degats" placeholder="Ex : Kamboinsé, Ouagadougou" style="width:100%; box-sizing:border-box; padding:12px; border:1px solid var(--line); background:var(--paper-dark); font-family:inherit; font-size:16px; margin-bottom:18px;">
+
+      <p class="step-label">Culture concernée</p>
+      <fieldset class="grid-2" id="degats-cultures">
+        <button type="button" class="pick-btn" data-dculture="piment">
+          <svg viewBox="0 0 24 24"><path d="M12 8c4 0 7 3 7 7a7 7 0 01-14 0c0-4 3-7 7-7z"/><path d="M12 8V4M10 4h4"/></svg>
+          Piment
+        </button>
+        <button type="button" class="pick-btn" data-dculture="tomate">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="7"/><path d="M12 6V4M9 5l1.5 1.5M15 5l-1.5 1.5"/></svg>
+          Tomate
+        </button>
+        <button type="button" class="pick-btn" data-dculture="gombo">
+          <svg viewBox="0 0 24 24"><path d="M12 4c2 4 3 8 2 16-3-2-5-6-5-10 0-3 1.5-5 3-6z"/></svg>
+          Gombo
+        </button>
+        <button type="button" class="pick-btn" data-dculture="mais">
+          <svg viewBox="0 0 24 24"><rect x="9" y="4" width="6" height="16" rx="3"/><path d="M9 8h6M9 12h6M9 16h6"/></svg>
+          Maïs
+        </button>
+        <button type="button" class="pick-btn" data-dculture="niebe">
+          <svg viewBox="0 0 24 24"><path d="M6 12c0-4 3-7 7-7s7 3 7 7-3 7-7 7-7-3-7-7z"/><circle cx="9" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="15" cy="12" r="1.3"/></svg>
+          Niébé
+        </button>
+      </fieldset>
+    </section>
+
+    <!-- ÉTAPE 1 : DÉTAIL DU DÉGÂT -->
+    <section id="degatsStep1" class="hidden">
+      <div class="culture-tag" id="dculture-tag-1"></div>
+      <p class="step-label">Détail du dégât observé</p>
+
+      <p style="font-size:14px; font-weight:600; margin:0 0 8px;">Cause probable du dégât :</p>
+      <fieldset class="grid-2" id="degats-cause" style="margin-bottom:20px;">
+        <button type="button" class="pick-btn" data-dgroup="cause" data-dval="maladie_ravageur">Maladie / ravageur</button>
+        <button type="button" class="pick-btn" data-dgroup="cause" data-dval="secheresse">Sécheresse</button>
+        <button type="button" class="pick-btn" data-dgroup="cause" data-dval="inondation">Inondation / excès d'eau</button>
+        <button type="button" class="pick-btn" data-dgroup="cause" data-dval="vent_tempete">Vent / tempête</button>
+        <button type="button" class="pick-btn" data-dgroup="cause" data-dval="feu">Feu de brousse</button>
+        <button type="button" class="pick-btn" data-dgroup="cause" data-dval="divagation">Animaux en divagation</button>
+        <button type="button" class="pick-btn" data-dgroup="cause" data-dval="autre">Autre / cause inconnue</button>
+      </fieldset>
+
+      <p style="font-size:14px; font-weight:600; margin:0 0 8px;">Stade de la culture au moment du dégât :</p>
+      <fieldset class="grid-2" id="degats-stade" style="margin-bottom:20px;">
+        <button type="button" class="pick-btn" data-dgroup="stade" data-dval="semis">Semis / levée</button>
+        <button type="button" class="pick-btn" data-dgroup="stade" data-dval="jeune">Jeune plant</button>
+        <button type="button" class="pick-btn" data-dgroup="stade" data-dval="croissance">Croissance</button>
+        <button type="button" class="pick-btn" data-dgroup="stade" data-dval="floraison">Floraison</button>
+        <button type="button" class="pick-btn" data-dgroup="stade" data-dval="fructification">Fructification</button>
+        <button type="button" class="pick-btn" data-dgroup="stade" data-dval="recolte">Proche de la récolte</button>
+      </fieldset>
+
+      <p style="font-size:14px; font-weight:600; margin:0 0 8px;">Part de la parcelle touchée :</p>
+      <fieldset class="grid-2" id="degats-etendue" style="margin-bottom:20px;">
+        <button type="button" class="pick-btn" data-dgroup="etendue" data-dval="1">Moins de 25%</button>
+        <button type="button" class="pick-btn" data-dgroup="etendue" data-dval="2">25% à 50%</button>
+        <button type="button" class="pick-btn" data-dgroup="etendue" data-dval="3">50% à 75%</button>
+        <button type="button" class="pick-btn" data-dgroup="etendue" data-dval="4">Plus de 75%</button>
+      </fieldset>
+
+      <p style="font-size:14px; font-weight:600; margin:0 0 8px;">Sévérité sur les plants touchés :</p>
+      <fieldset class="grid-2" id="degats-severite" style="margin-bottom:12px;">
+        <button type="button" class="pick-btn" data-dgroup="severite" data-dval="1">Légère (retard, jaunissement)</button>
+        <button type="button" class="pick-btn" data-dgroup="severite" data-dval="2">Modérée (perte partielle)</button>
+        <button type="button" class="pick-btn" data-dgroup="severite" data-dval="3">Sévère (plants détruits)</button>
+      </fieldset>
+
+      <div class="actions">
+        <button type="button" class="ghost" id="dback-to-0">← Retour</button>
+        <button type="button" class="primary" id="degats-submit-btn" disabled>Envoyer ma demande</button>
+      </div>
+    </section>
+
+    <!-- RÉSULTATS DÉGÂTS -->
+    <section id="degatsStep2" class="hidden">
+      <div class="culture-tag" id="dculture-tag-2"></div>
+      <p class="step-label">Résultat — Estimation du dégât</p>
+      <div id="degats-results"></div>
+      <div class="disclaimer">
+        Cette estimation se base sur l'observation déclarée, pas sur un relevé de terrain mesuré. Elle donne une orientation, à confirmer par un conseiller pour toute décision importante (resemis, déclaration).
+      </div>
+      <div id="photo-block-degats" class="hidden" style="margin-top:14px;">
+        <label style="display:block; font-size:13px; margin-bottom:6px; color:var(--ink-soft);">Joindre une photo (optionnel, recommandé)</label>
+        <input type="file" accept="image/*" id="photo-input-degats" style="width:100%; font-size:13px;">
+      </div>
+      <button type="button" id="share-photo-btn-degats" class="hidden" style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:10px; background:#3D5A3A; color:#F3EEE2; border:none; width:100%; padding:13px 16px; font-family:'Courier New',monospace; font-size:12.5px; letter-spacing:.06em; text-transform:uppercase; cursor:pointer;">
+        📷 Envoyer avec la photo
+      </button>
+      <a href="#" id="degats-whatsapp-btn" target="_blank" rel="noopener" style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:10px; background:#3D5A3A; color:#F3EEE2; text-decoration:none; padding:13px 16px; font-family:'Courier New',monospace; font-size:12.5px; letter-spacing:.06em; text-transform:uppercase;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="#F3EEE2"><path d="M12 2a10 10 0 00-8.5 15.2L2 22l4.9-1.4A10 10 0 1012 2zm0 18a8 8 0 01-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1112 20zm4.4-5.9c-.2-.1-1.4-.7-1.6-.8s-.4-.1-.5.1-.6.8-.7.9-.3.2-.5.1a6.6 6.6 0 01-2-1.2 7.3 7.3 0 01-1.4-1.7c-.1-.2 0-.3.1-.5l.4-.4a2 2 0 00.3-.4.5.5 0 000-.5c0-.1-.5-1.3-.7-1.7s-.4-.4-.5-.4h-.5a.9.9 0 00-.6.3 2.8 2.8 0 00-.9 2.1 4.9 4.9 0 001 2.5 11.3 11.3 0 004.4 3.9c.6.3 1.1.4 1.5.6a3.6 3.6 0 001.6.1 2.7 2.7 0 001.8-1.2 2.2 2.2 0 00.1-1.2c-.1-.1-.2-.2-.4-.3z"/></svg>
+        Renvoyer la demande via WhatsApp (texte seul)
+      </a>
+      <div class="actions" style="margin-top:14px;">
+        <button type="button" class="ghost" id="degats-restart-btn" style="flex:1;">↺ Nouvelle évaluation</button>
+      </div>
+    </section>
+  </main>
+
   <footer>
     <span>Zone soudano-sahélienne</span>
     <div class="progress-dots">
@@ -601,7 +705,7 @@ function supportsFileShare(){
   } catch(e) { return false; }
 }
 const fileShareSupported = supportsFileShare();
-let lastMessageDiag = "", lastMessageFert = "", lastMessageSol = "";
+let lastMessageDiag = "", lastMessageFert = "", lastMessageSol = "", lastMessageDegats = "";
 
 function setupPhotoShare(inputId, btnId, getMessage){
   document.getElementById(btnId).addEventListener("click", async () => {
@@ -1014,40 +1118,33 @@ function getSymptomLabel(culture, symptomId){
 let selectedCulture = null;
 let selectedSymptomes = new Set();
 
-// --- Bascule entre les deux outils ---
+// --- Bascule entre les quatre outils ---
 const tabDiag = document.getElementById("tab-diagnostic");
 const tabFert = document.getElementById("tab-fertilisation");
+const tabSol = document.getElementById("tab-sol");
+const tabDegats = document.getElementById("tab-degats");
 const mainDiag = document.getElementById("main-diagnostic");
 const mainFert = document.getElementById("main-fertilisation");
-tabDiag.addEventListener("click", () => {
-  mainDiag.classList.remove("hidden");
-  mainFert.classList.add("hidden");
-  tabDiag.style.background = "var(--leaf-deep)"; tabDiag.style.color = "var(--paper)";
-  tabFert.style.background = "var(--paper-dark)"; tabFert.style.color = "var(--ink-soft)";
-});
-tabFert.addEventListener("click", () => {
-  mainFert.classList.remove("hidden");
-  mainDiag.classList.add("hidden");
-  document.getElementById("main-sol").classList.add("hidden");
-  tabFert.style.background = "var(--leaf-deep)"; tabFert.style.color = "var(--paper)";
-  tabDiag.style.background = "var(--paper-dark)"; tabDiag.style.color = "var(--ink-soft)";
-  document.getElementById("tab-sol").style.background = "var(--paper-dark)"; document.getElementById("tab-sol").style.color = "var(--ink-soft)";
-});
-
-const tabSol = document.getElementById("tab-sol");
 const mainSol = document.getElementById("main-sol");
-tabSol.addEventListener("click", () => {
-  mainSol.classList.remove("hidden");
-  mainDiag.classList.add("hidden");
-  mainFert.classList.add("hidden");
-  tabSol.style.background = "var(--leaf-deep)"; tabSol.style.color = "var(--paper)";
-  tabDiag.style.background = "var(--paper-dark)"; tabDiag.style.color = "var(--ink-soft)";
-  tabFert.style.background = "var(--paper-dark)"; tabFert.style.color = "var(--ink-soft)";
-});
-tabDiag.addEventListener("click", () => {
-  document.getElementById("main-sol").classList.add("hidden");
-  tabSol.style.background = "var(--paper-dark)"; tabSol.style.color = "var(--ink-soft)";
-});
+const mainDegats = document.getElementById("main-degats");
+
+const TABS = [
+  { btn: tabDiag, main: mainDiag },
+  { btn: tabFert, main: mainFert },
+  { btn: tabSol, main: mainSol },
+  { btn: tabDegats, main: mainDegats }
+];
+
+function activateTab(activeBtn){
+  TABS.forEach(t => {
+    const isActive = t.btn === activeBtn;
+    t.main.classList.toggle("hidden", !isActive);
+    t.btn.style.background = isActive ? "var(--leaf-deep)" : "var(--paper-dark)";
+    t.btn.style.color = isActive ? "var(--paper)" : "var(--ink-soft)";
+  });
+}
+
+TABS.forEach(t => t.btn.addEventListener("click", () => activateTab(t.btn)));
 
 // --- Base de recommandations de fertilisation (doses indicatives par m²) ---
 const FERTILISATION = {
@@ -1649,10 +1746,145 @@ if (lockCulture && CULTURE_LABELS[lockCulture]) {
   document.getElementById("fback-to-0").classList.add("hidden");
 }
 
+// --- Module Dégâts : matrice de sévérité et recommandations ---
+const CAUSE_LABELS_DEGATS = {
+  maladie_ravageur: "Maladie / ravageur", secheresse: "Sécheresse", inondation: "Inondation / excès d'eau",
+  vent_tempete: "Vent / tempête", feu: "Feu de brousse", divagation: "Animaux en divagation", autre: "Autre / cause inconnue"
+};
+const STADE_LABELS_DEGATS = {
+  semis: "Semis / levée", jeune: "Jeune plant", croissance: "Croissance",
+  floraison: "Floraison", fructification: "Fructification", recolte: "Proche de la récolte"
+};
+const ETENDUE_LABELS_DEGATS = { "1": "Moins de 25%", "2": "25% à 50%", "3": "50% à 75%", "4": "Plus de 75%" };
+const SEVERITE_LABELS_DEGATS = { "1": "Légère (retard, jaunissement)", "2": "Modérée (perte partielle)", "3": "Sévère (plants détruits)" };
+
+function evaluateDegat(etendue, severite, stade){
+  const score = etendue * severite; // max 4*3 = 12
+  let niveau, description, recoGenerale;
+  if (score <= 2) {
+    niveau = "Dégât léger";
+    description = "Impact limité, sur une faible portion de la parcelle et/ou peu sévère sur les plants touchés.";
+    recoGenerale = "Poursuivre le cycle normalement. Renforcer la surveillance des zones touchées et traiter localement si une cause identifiable persiste.";
+  } else if (score <= 5) {
+    niveau = "Dégât modéré";
+    description = "Impact réel mais circonscrit, ou plus étendu mais de faible sévérité par plant.";
+    recoGenerale = "Traiter et soutenir (fertilisation, soins) les zones affectées. Surveiller l'évolution dans les prochains jours avant toute décision plus lourde.";
+  } else if (score <= 8) {
+    niveau = "Dégât sévère";
+    description = "Impact important sur une part significative de la parcelle, avec des plants fortement touchés.";
+    recoGenerale = "Évaluer avec un conseiller la faisabilité d'un resemis partiel selon le stade de la culture. Documenter le dégât (photos, superficie) en vue d'une éventuelle déclaration.";
+  } else {
+    niveau = "Dégât total / quasi-total";
+    description = "La majorité de la parcelle est sévèrement affectée.";
+    recoGenerale = "Un resemis est probablement à envisager si la fenêtre de semis le permet encore. Documenter précisément le dégât (photos, superficie, date) pour toute démarche de déclaration auprès des autorités locales ou d'une structure d'appui.";
+  }
+
+  let recoStade;
+  if (stade === "semis" || stade === "jeune") {
+    recoStade = "Le stade encore précoce laisse généralement la possibilité d'un resemis si le dégât est sévère à total.";
+  } else if (stade === "croissance" || stade === "floraison") {
+    recoStade = "À ce stade, un resemis ferait perdre un temps de cycle important : privilégier le sauvetage des plants encore récupérables avant d'envisager un resemis complet.";
+  } else {
+    recoStade = "À un stade aussi avancé (fructification/récolte proche), le resemis n'est en général plus pertinent : privilégier la valorisation de ce qui peut encore être récolté.";
+  }
+
+  return { score, niveau, description, recoGenerale, recoStade };
+}
+
+let dSelectedCulture = null;
+let degatsAnswers = { cause: "", stade: "", etendue: "", severite: "" };
+const degatsSubmitBtn = document.getElementById("degats-submit-btn");
+
+function checkDegatsComplete(){
+  degatsSubmitBtn.disabled = !(degatsAnswers.cause && degatsAnswers.stade && degatsAnswers.etendue && degatsAnswers.severite);
+}
+
+document.querySelectorAll("#degats-cultures .pick-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#degats-cultures .pick-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    dSelectedCulture = btn.dataset.dculture;
+    document.getElementById("dculture-tag-1").textContent = CULTURE_LABELS[dSelectedCulture];
+    document.getElementById("degatsStep0").classList.add("hidden");
+    document.getElementById("degatsStep1").classList.remove("hidden");
+  });
+});
+
+["cause","stade","etendue","severite"].forEach(group => {
+  document.querySelectorAll(`#degats-${group} .pick-btn`).forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(`#degats-${group} .pick-btn`).forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      degatsAnswers[group] = btn.dataset.dval;
+      checkDegatsComplete();
+    });
+  });
+});
+
+document.getElementById("dback-to-0").addEventListener("click", () => {
+  document.getElementById("degatsStep1").classList.add("hidden");
+  document.getElementById("degatsStep0").classList.remove("hidden");
+});
+
+degatsSubmitBtn.addEventListener("click", () => {
+  const etendue = parseInt(degatsAnswers.etendue, 10);
+  const severite = parseInt(degatsAnswers.severite, 10);
+  const result = evaluateDegat(etendue, severite, degatsAnswers.stade);
+
+  const now = new Date();
+  const refCodeMsg = "DEG-" + now.getFullYear().toString().slice(2) + String(now.getMonth()+1).padStart(2,"0") + String(now.getDate()).padStart(2,"0") + "-" + Math.floor(Math.random()*90+10);
+  const regionD = document.getElementById("region-input-degats").value.trim();
+  const regionLineD = regionD ? `\nRégion/localité : ${regionD}` : "";
+
+  const waMessage = `📋 FICHE D'ÉVALUATION DES DÉGÂTS — N° ${refCodeMsg}${regionLineD}\n\nCulture : ${CULTURE_LABELS[dSelectedCulture]}\nCause probable : ${CAUSE_LABELS_DEGATS[degatsAnswers.cause]}\nStade au moment du dégât : ${STADE_LABELS_DEGATS[degatsAnswers.stade]}\nPart de la parcelle touchée : ${ETENDUE_LABELS_DEGATS[degatsAnswers.etendue]}\nSévérité sur les plants touchés : ${SEVERITE_LABELS_DEGATS[degatsAnswers.severite]}\n\n— RÉSULTAT DE L'OUTIL —\nNiveau estimé : ${result.niveau}\n${result.description}\n\nRecommandation générale : ${result.recoGenerale}\n\nRecommandation liée au stade : ${result.recoStade}\n\n(Aide à la décision — à confirmer par le conseiller)`;
+  const waLink = "https://wa.me/22674864682?text=" + encodeURIComponent(waMessage);
+  lastMessageDegats = waMessage;
+  if (fileShareSupported) { document.getElementById("photo-block-degats").classList.remove("hidden"); document.getElementById("share-photo-btn-degats").classList.remove("hidden"); }
+
+  document.getElementById("dculture-tag-2").textContent = CULTURE_LABELS[dSelectedCulture];
+
+  const degatsResultsDiv = document.getElementById("degats-results");
+  if (isExpert) {
+    degatsResultsDiv.innerHTML = `
+      <div class="result-card">
+        <h2 style="margin-top:6px;">${result.niveau}</h2>
+        <p>${result.description}</p>
+        <h3>Recommandation générale</h3>
+        <p>${result.recoGenerale}</p>
+        <h3>Recommandation liée au stade (${STADE_LABELS_DEGATS[degatsAnswers.stade]})</h3>
+        <p>${result.recoStade}</p>
+      </div>
+    `;
+    document.getElementById("degats-whatsapp-btn").href = waLink;
+  } else {
+    degatsResultsDiv.innerHTML = `
+      <div class="result-card">
+        <h2 style="margin-top:6px;">Demande envoyée</h2>
+        <p>Vos observations ont été transmises. Vous recevrez une évaluation personnalisée directement sur WhatsApp.</p>
+      </div>
+    `;
+    document.getElementById("degats-whatsapp-btn").href = waLink;
+    window.open(waLink, "_blank");
+  }
+
+  document.getElementById("degatsStep1").classList.add("hidden");
+  document.getElementById("degatsStep2").classList.remove("hidden");
+});
+
+document.getElementById("degats-restart-btn").addEventListener("click", () => {
+  document.querySelectorAll("#main-degats .pick-btn").forEach(b => b.classList.remove("active"));
+  dSelectedCulture = null;
+  degatsAnswers = { cause: "", stade: "", etendue: "", severite: "" };
+  degatsSubmitBtn.disabled = true;
+  document.getElementById("degatsStep2").classList.add("hidden");
+  document.getElementById("degatsStep0").classList.remove("hidden");
+});
+
 // --- Connexion des boutons de partage photo ---
 setupPhotoShare("photo-input-diag", "share-photo-btn-diag", () => lastMessageDiag);
 setupPhotoShare("photo-input-fert", "share-photo-btn-fert", () => lastMessageFert);
 setupPhotoShare("photo-input-sol", "share-photo-btn-sol", () => lastMessageSol);
+setupPhotoShare("photo-input-degats", "share-photo-btn-degats", () => lastMessageDegats);
 </script>
 </body>
 </html>
