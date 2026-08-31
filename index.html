@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fiche de diagnostic — Cultures</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root{
     --paper:#F3EEE2;
@@ -300,11 +301,12 @@
     <div class="sub">Outil d'aide au diagnostic phytosanitaire au champ</div>
   </header>
 
-  <div id="tab-switcher" style="display:flex; margin:0 6px; border-bottom:2px solid var(--ink);">
-    <button type="button" id="tab-diagnostic" style="flex:1; padding:12px; font-family:'Courier New',monospace; font-size:9.5px; letter-spacing:.03em; text-transform:uppercase; border:none; background:var(--leaf-deep); color:var(--paper); cursor:pointer;">Diagnostic</button>
-    <button type="button" id="tab-fertilisation" style="flex:1; padding:12px; font-family:'Courier New',monospace; font-size:9.5px; letter-spacing:.03em; text-transform:uppercase; border:none; background:var(--paper-dark); color:var(--ink-soft); cursor:pointer;">Fertilisation</button>
-    <button type="button" id="tab-sol" style="flex:1; padding:12px; font-family:'Courier New',monospace; font-size:9.5px; letter-spacing:.03em; text-transform:uppercase; border:none; background:var(--paper-dark); color:var(--ink-soft); cursor:pointer;">Sol</button>
-    <button type="button" id="tab-degats" style="flex:1; padding:12px; font-family:'Courier New',monospace; font-size:9.5px; letter-spacing:.03em; text-transform:uppercase; border:none; background:var(--paper-dark); color:var(--ink-soft); cursor:pointer;">Dégâts</button>
+  <div id="tab-switcher" style="display:flex; flex-wrap:wrap; margin:0 6px; border-bottom:2px solid var(--ink);">
+    <button type="button" id="tab-diagnostic" style="flex:1; min-width:19%; padding:12px; font-family:'Courier New',monospace; font-size:9px; letter-spacing:.02em; text-transform:uppercase; border:none; background:var(--leaf-deep); color:var(--paper); cursor:pointer;">Diagnostic</button>
+    <button type="button" id="tab-fertilisation" style="flex:1; min-width:19%; padding:12px; font-family:'Courier New',monospace; font-size:9px; letter-spacing:.02em; text-transform:uppercase; border:none; background:var(--paper-dark); color:var(--ink-soft); cursor:pointer;">Fertilisation</button>
+    <button type="button" id="tab-sol" style="flex:1; min-width:19%; padding:12px; font-family:'Courier New',monospace; font-size:9px; letter-spacing:.02em; text-transform:uppercase; border:none; background:var(--paper-dark); color:var(--ink-soft); cursor:pointer;">Sol</button>
+    <button type="button" id="tab-degats" style="flex:1; min-width:19%; padding:12px; font-family:'Courier New',monospace; font-size:9px; letter-spacing:.02em; text-transform:uppercase; border:none; background:var(--paper-dark); color:var(--ink-soft); cursor:pointer;">Dégâts</button>
+    <button type="button" id="tab-stats" style="flex:1; min-width:19%; padding:12px; font-family:'Courier New',monospace; font-size:9px; letter-spacing:.02em; text-transform:uppercase; border:none; background:var(--paper-dark); color:var(--ink-soft); cursor:pointer;">Stats</button>
   </div>
 
   <main id="main-diagnostic">
@@ -756,6 +758,35 @@
       </a>
       <div class="actions" style="margin-top:14px;">
         <button type="button" class="ghost" id="degats-restart-btn" style="flex:1;">↺ Nouvelle évaluation</button>
+      </div>
+    </section>
+  </main>
+
+  <main id="main-stats" class="hidden">
+    <section id="statsStep0">
+      <p class="step-label">Analyse statistique de données d'essai</p>
+      <div class="disclaimer" style="border-top:none; padding-top:0; margin-bottom:16px;">
+        Format attendu du fichier (CSV ou Excel) : une colonne <strong>FacteurA</strong>, une colonne <strong>FacteurB</strong> (facultative, pour un dispositif à deux facteurs), et une colonne <strong>Valeur</strong> (numérique). Une ligne par observation/répétition.
+      </div>
+
+      <label style="display:block; font-size:14px; margin-bottom:8px; color:var(--ink-soft);">Fichier de données (.csv ou .xlsx)</label>
+      <input type="file" accept=".csv,.xlsx,.xls" id="stats-file-input" style="width:100%; font-size:14px; margin-bottom:18px;">
+
+      <div id="stats-preview" style="font-size:12.5px; color:var(--ink-soft); margin-bottom:14px;"></div>
+
+      <div class="actions">
+        <button type="button" class="primary" id="stats-analyze-btn" disabled style="flex:1;">Analyser</button>
+      </div>
+    </section>
+
+    <section id="statsStep1" class="hidden">
+      <p class="step-label">Résultats de l'analyse</p>
+      <div id="stats-results"></div>
+      <div class="disclaimer">
+        Outil d'aide à l'analyse (Shapiro-Wilk, ANOVA, comparaisons de Tukey calculées par intégration numérique). Pour une publication scientifique, recouper avec un logiciel de référence (R, XLSTAT, SPSS...) reste recommandé.
+      </div>
+      <div class="actions" style="margin-top:14px;">
+        <button type="button" class="ghost" id="stats-restart-btn" style="flex:1;">↺ Nouvelle analyse</button>
       </div>
     </section>
   </main>
@@ -1483,21 +1514,24 @@ function getSymptomLabel(culture, symptomId){
 let selectedCulture = null;
 let selectedSymptomes = new Set();
 
-// --- Bascule entre les quatre outils ---
+// --- Bascule entre les cinq outils ---
 const tabDiag = document.getElementById("tab-diagnostic");
 const tabFert = document.getElementById("tab-fertilisation");
 const tabSol = document.getElementById("tab-sol");
 const tabDegats = document.getElementById("tab-degats");
+const tabStats = document.getElementById("tab-stats");
 const mainDiag = document.getElementById("main-diagnostic");
 const mainFert = document.getElementById("main-fertilisation");
 const mainSol = document.getElementById("main-sol");
 const mainDegats = document.getElementById("main-degats");
+const mainStats = document.getElementById("main-stats");
 
 const TABS = [
   { btn: tabDiag, main: mainDiag },
   { btn: tabFert, main: mainFert },
   { btn: tabSol, main: mainSol },
-  { btn: tabDegats, main: mainDegats }
+  { btn: tabDegats, main: mainDegats },
+  { btn: tabStats, main: mainStats }
 ];
 
 function activateTab(activeBtn){
@@ -1973,6 +2007,328 @@ document.querySelectorAll("#cultures .pick-btn").forEach(btn => {
   });
 });
 
+
+// ============================================================
+// MOTEUR STATISTIQUE : normalité (Shapiro-Wilk), ANOVA 1 et 2
+// facteurs, comparaisons post-hoc (Tukey HSD par intégration
+// numérique de la loi du range studentisé).
+// ============================================================
+
+// --- Fonctions mathématiques de base ---
+
+function erf(x) {
+  // Approximation d'Abramowitz-Stegun (précision ~1.5e-7)
+  const sign = x < 0 ? -1 : 1;
+  x = Math.abs(x);
+  const a1=0.254829592, a2=-0.284496736, a3=1.421413741, a4=-1.453152027, a5=1.061405429, p=0.3275911;
+  const t = 1 / (1 + p * x);
+  const y = 1 - (((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);
+  return sign * y;
+}
+
+function normCDF(x) {
+  return 0.5 * (1 + erf(x / Math.SQRT2));
+}
+
+function normPDF(x) {
+  return Math.exp(-x*x/2) / Math.sqrt(2*Math.PI);
+}
+
+function invNormCDF(p) {
+  // Algorithme de Peter Acklam (rational approximation), précision élevée
+  if (p <= 0) return -Infinity;
+  if (p >= 1) return Infinity;
+  const a = [-3.969683028665376e+01, 2.209460984245205e+02, -2.759285104469687e+02, 1.383577518672690e+02, -3.066479806614716e+01, 2.506628277459239e+00];
+  const b = [-5.447609879822406e+01, 1.615858368580409e+02, -1.556989798598866e+02, 6.680131188771972e+01, -1.328068155288572e+01];
+  const c = [-7.784894002430293e-03, -3.223964580411365e-01, -2.400758277161838e+00, -2.549732539343734e+00, 4.374664141464968e+00, 2.938163982698783e+00];
+  const d = [7.784695709041462e-03, 3.224671290700398e-01, 2.445134137142996e+00, 3.754408661907416e+00];
+  const plow = 0.02425, phigh = 1 - plow;
+  let q, r;
+  if (p < plow) {
+    q = Math.sqrt(-2*Math.log(p));
+    return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+  } else if (p <= phigh) {
+    q = p - 0.5; r = q*q;
+    return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q / (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+  } else {
+    q = Math.sqrt(-2*Math.log(1-p));
+    return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+  }
+}
+
+function logGamma(x) {
+  // Approximation de Lanczos (g=7, n=9), haute précision
+  const g = 7;
+  const coef = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
+    -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+  if (x < 0.5) {
+    return Math.log(Math.PI / Math.sin(Math.PI * x)) - logGamma(1 - x);
+  }
+  x -= 1;
+  let a = coef[0];
+  const t = x + g + 0.5;
+  for (let i = 1; i < g + 2; i++) a += coef[i] / (x + i);
+  return 0.5 * Math.log(2 * Math.PI) + (x + 0.5) * Math.log(t) - t + Math.log(a);
+}
+
+function betacf(x, a, b) {
+  // Fraction continue pour la fonction bêta incomplète (Numerical Recipes)
+  const MAXIT = 200, EPS = 3e-9, FPMIN = 1e-30;
+  let qab = a + b, qap = a + 1, qam = a - 1;
+  let c = 1, d = 1 - qab * x / qap;
+  if (Math.abs(d) < FPMIN) d = FPMIN;
+  d = 1 / d;
+  let h = d;
+  for (let m = 1; m <= MAXIT; m++) {
+    const m2 = 2 * m;
+    let aa = m * (b - m) * x / ((qam + m2) * (a + m2));
+    d = 1 + aa * d; if (Math.abs(d) < FPMIN) d = FPMIN;
+    c = 1 + aa / c; if (Math.abs(c) < FPMIN) c = FPMIN;
+    d = 1 / d; h *= d * c;
+    aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2));
+    d = 1 + aa * d; if (Math.abs(d) < FPMIN) d = FPMIN;
+    c = 1 + aa / c; if (Math.abs(c) < FPMIN) c = FPMIN;
+    d = 1 / d;
+    const del = d * c; h *= del;
+    if (Math.abs(del - 1) < EPS) break;
+  }
+  return h;
+}
+
+function incompleteBeta(x, a, b) {
+  if (x <= 0) return 0;
+  if (x >= 1) return 1;
+  const bt = Math.exp(logGamma(a+b) - logGamma(a) - logGamma(b) + a*Math.log(x) + b*Math.log(1-x));
+  if (x < (a+1)/(a+b+2)) return bt * betacf(x, a, b) / a;
+  return 1 - bt * betacf(1-x, b, a) / b;
+}
+
+function fDistPValue(F, df1, df2) {
+  if (F <= 0) return 1;
+  const x = df2 / (df2 + df1 * F);
+  return incompleteBeta(x, df2/2, df1/2);
+}
+
+function tDistPValue(t, df) {
+  // Bilatéral
+  const x = df / (df + t*t);
+  return incompleteBeta(x, df/2, 0.5);
+}
+
+// --- Statistiques descriptives ---
+function mean(arr) { return arr.reduce((s,v)=>s+v,0) / arr.length; }
+function variance(arr) {
+  const m = mean(arr);
+  return arr.reduce((s,v)=>s+(v-m)*(v-m),0) / (arr.length - 1);
+}
+
+// --- Test de normalité : Shapiro-Wilk (approximation de Royston, 1995 / AS R94) ---
+function shapiroWilk(data) {
+  const x = [...data].sort((a,b)=>a-b);
+  const n = x.length;
+  if (n < 3) return { W: null, p: null, error: "Échantillon trop petit (minimum 3 valeurs)." };
+
+  const m = new Array(n);
+  for (let i = 0; i < n; i++) m[i] = invNormCDF((i + 1 - 0.375) / (n + 0.25));
+  const ssm = m.reduce((s,v)=>s+v*v, 0);
+  const rsn = 1 / Math.sqrt(n);
+
+  const a = new Array(n).fill(0);
+  const an = -2.706056*Math.pow(rsn,5) + 4.434685*Math.pow(rsn,4) - 2.071190*Math.pow(rsn,3) - 0.147981*Math.pow(rsn,2) + 0.221157*rsn + m[n-1]/Math.sqrt(ssm);
+  a[n-1] = an;
+  a[0] = -an;
+
+  if (n > 5) {
+    const an1 = -3.582633*Math.pow(rsn,5) + 5.682633*Math.pow(rsn,4) - 1.752461*Math.pow(rsn,3) - 0.293762*Math.pow(rsn,2) + 0.042981*rsn + m[n-2]/Math.sqrt(ssm);
+    a[n-2] = an1; a[1] = -an1;
+    const phi = (ssm - 2*m[n-1]*m[n-1] - 2*m[n-2]*m[n-2]) / (1 - 2*an*an - 2*an1*an1);
+    for (let i = 2; i < n-2; i++) a[i] = m[i] / Math.sqrt(phi);
+  } else if (n >= 4) {
+    const phi = (ssm - 2*m[n-1]*m[n-1]) / (1 - 2*an*an);
+    for (let i = 1; i < n-1; i++) a[i] = m[i] / Math.sqrt(phi);
+  } else {
+    // n = 3 : coefficients exacts connus
+    a[0] = -Math.SQRT1_2; a[1] = 0; a[2] = Math.SQRT1_2;
+  }
+
+  const xbar = mean(x);
+  const num = x.reduce((s,v,i)=>s+a[i]*v, 0);
+  const den = x.reduce((s,v)=>s+(v-xbar)*(v-xbar), 0);
+  const W = (num*num) / den;
+
+  let pval;
+  const lnn = Math.log(n);
+  let z;
+  if (n === 3) {
+    // Cas exact connu pour n=3 (loi de W tabulée analytiquement)
+    const pi = Math.PI;
+    pval = (6/pi) * (Math.asin(Math.sqrt(W)) - Math.asin(Math.sqrt(0.75)));
+    pval = Math.max(0, Math.min(1, pval));
+    return { W, p: pval };
+  } else if (n <= 11) {
+    const g = -2.273 + 0.459*n;
+    const w1 = -Math.log(g - Math.log(1-W));
+    const mu = 0.5440 - 0.39978*n + 0.025054*n*n - 0.0006714*n*n*n;
+    const sigma = Math.exp(1.3822 - 0.77857*n + 0.062767*n*n - 0.0020322*n*n*n);
+    z = (w1 - mu) / sigma;
+  } else {
+    const w1 = Math.log(1-W);
+    const mu = -1.5861 - 0.31082*lnn - 0.083751*lnn*lnn + 0.0038915*lnn*lnn*lnn;
+    const sigma = Math.exp(-0.4803 - 0.082676*lnn + 0.0030302*lnn*lnn);
+    z = (w1 - mu) / sigma;
+  }
+  pval = 1 - normCDF(z);
+  return { W, p: pval };
+}
+
+// --- ANOVA à un facteur ---
+function oneWayANOVA(groups) {
+  // groups: { "niveau1": [valeurs...], "niveau2": [...] , ... }
+  const levels = Object.keys(groups);
+  const allValues = levels.flatMap(l => groups[l]);
+  const N = allValues.length;
+  const grandMean = mean(allValues);
+  let ssBetween = 0, ssWithin = 0;
+  levels.forEach(l => {
+    const g = groups[l];
+    const gm = mean(g);
+    ssBetween += g.length * (gm - grandMean) ** 2;
+    g.forEach(v => ssWithin += (v - gm) ** 2);
+  });
+  const dfBetween = levels.length - 1;
+  const dfWithin = N - levels.length;
+  const msBetween = ssBetween / dfBetween;
+  const msWithin = ssWithin / dfWithin;
+  const F = msBetween / msWithin;
+  const p = fDistPValue(F, dfBetween, dfWithin);
+  return { ssBetween, ssWithin, dfBetween, dfWithin, msBetween, msWithin, F, p, msError: msWithin, dfError: dfWithin };
+}
+
+// --- ANOVA à deux facteurs avec interaction (dispositif équilibré) ---
+function twoWayANOVA(rows) {
+  // rows: [{a: "niveauA", b: "niveauB", value: nombre}, ...]
+  const levelsA = [...new Set(rows.map(r=>r.a))];
+  const levelsB = [...new Set(rows.map(r=>r.b))];
+  const N = rows.length;
+  const grandMean = mean(rows.map(r=>r.value));
+
+  let ssA = 0, ssB = 0, ssAB = 0, ssTotal = 0, ssError = 0;
+
+  // Total
+  rows.forEach(r => ssTotal += (r.value - grandMean) ** 2);
+
+  // Moyennes par niveau de A et de B
+  const meansA = {}, nA = {};
+  levelsA.forEach(a => { const vs = rows.filter(r=>r.a===a).map(r=>r.value); meansA[a]=mean(vs); nA[a]=vs.length; });
+  const meansB = {}, nB = {};
+  levelsB.forEach(b => { const vs = rows.filter(r=>r.b===b).map(r=>r.value); meansB[b]=mean(vs); nB[b]=vs.length; });
+
+  levelsA.forEach(a => ssA += nA[a] * (meansA[a]-grandMean)**2);
+  levelsB.forEach(b => ssB += nB[b] * (meansB[b]-grandMean)**2);
+
+  // Interaction + erreur : décomposition par cellule (a,b)
+  const cellMeans = {};
+  levelsA.forEach(a => levelsB.forEach(b => {
+    const vs = rows.filter(r=>r.a===a && r.b===b).map(r=>r.value);
+    if (vs.length > 0) {
+      const cm = mean(vs);
+      cellMeans[a+"|"+b] = { mean: cm, n: vs.length };
+      ssAB += vs.length * (cm - meansA[a] - meansB[b] + grandMean) ** 2;
+      vs.forEach(v => ssError += (v - cm) ** 2);
+    }
+  }));
+
+  const dfA = levelsA.length - 1;
+  const dfB = levelsB.length - 1;
+  const dfAB = dfA * dfB;
+  const dfError = N - levelsA.length * levelsB.length;
+  const dfTotal = N - 1;
+
+  const msA = ssA/dfA, msB = ssB/dfB, msAB = ssAB/dfAB, msError = ssError/dfError;
+  const Fa = msA/msError, Fb = msB/msError, Fab = msAB/msError;
+  const pa = fDistPValue(Fa, dfA, dfError);
+  const pb = fDistPValue(Fb, dfB, dfError);
+  const pab = fDistPValue(Fab, dfAB, dfError);
+
+  return {
+    A: { ss: ssA, df: dfA, ms: msA, F: Fa, p: pa },
+    B: { ss: ssB, df: dfB, ms: msB, F: Fb, p: pb },
+    AB: { ss: ssAB, df: dfAB, ms: msAB, F: Fab, p: pab },
+    Error: { ss: ssError, df: dfError, ms: msError },
+    Total: { ss: ssTotal, df: dfTotal },
+    levelsA, levelsB, meansA, meansB, nA, nB, cellMeans, grandMean
+  };
+}
+
+// --- Loi du range studentisé (Tukey) par intégration numérique ---
+function studentizedRangeCDF(q, k, df) {
+  // Intégrale intérieure sur z (loi du range de k normales centrées réduites)
+  function innerIntegral(s) {
+    const zMin = -8, zMax = 8, steps = 400;
+    const h = (zMax - zMin) / steps;
+    let sum = 0;
+    for (let i = 0; i <= steps; i++) {
+      const z = zMin + i*h;
+      const phi = normPDF(z);
+      const diff = normCDF(z) - normCDF(z - q*s);
+      const val = k * phi * Math.pow(Math.max(diff,0), k-1);
+      const weight = (i===0 || i===steps) ? 1 : (i%2===0 ? 2 : 4);
+      sum += weight * val;
+    }
+    return sum * h / 3;
+  }
+  // Intégrale extérieure sur s (loi de sqrt(chi2_df/df))
+  const sMax = 1 + 6/Math.sqrt(df);
+  const stepsS = 200;
+  const hs = sMax / stepsS;
+  const logC = Math.log(2) * (1 - df/2) + (df/2)*Math.log(df) - logGamma(df/2);
+  let total = 0;
+  for (let j = 0; j <= stepsS; j++) {
+    const s = j===0 ? 1e-6 : j*hs;
+    const logDensity = logC + (df-1)*Math.log(s) - df*s*s/2;
+    const density = Math.exp(logDensity);
+    const val = density * innerIntegral(s);
+    const weight = (j===0 || j===stepsS) ? 1 : (j%2===0 ? 2 : 4);
+    total += weight * val;
+  }
+  return Math.min(1, Math.max(0, total * hs / 3));
+}
+
+function studentizedRangePValue(q, k, df) {
+  return 1 - studentizedRangeCDF(q, k, df);
+}
+
+function studentizedRangeCritical(alpha, k, df) {
+  // Recherche par dichotomie du q tel que P(Q>q) = alpha
+  let lo = 0.1, hi = 20;
+  for (let iter = 0; iter < 60; iter++) {
+    const mid = (lo+hi)/2;
+    const p = studentizedRangePValue(mid, k, df);
+    if (p > alpha) lo = mid; else hi = mid;
+  }
+  return (lo+hi)/2;
+}
+
+// --- Comparaisons multiples post-hoc : Tukey HSD ---
+function tukeyHSD(groupMeans, groupN, msError, dfError) {
+  // groupMeans: {niveau: moyenne}, groupN: {niveau: effectif}
+  const levels = Object.keys(groupMeans);
+  const k = levels.length;
+  const results = [];
+  for (let i = 0; i < levels.length; i++) {
+    for (let j = i+1; j < levels.length; j++) {
+      const li = levels[i], lj = levels[j];
+      const diff = groupMeans[li] - groupMeans[lj];
+      const nHarm = 2 / (1/groupN[li] + 1/groupN[lj]);
+      const se = Math.sqrt(msError / nHarm);
+      const q = Math.abs(diff) / se;
+      const p = studentizedRangePValue(q, k, dfError);
+      results.push({ groupe1: li, groupe2: lj, difference: diff, q, p, significatif: p < 0.05 });
+    }
+  }
+  return results;
+}
+
 const ORGANE_ORDER = ["feuilles", "tiges", "fleurs", "fruits", "plante"];
 
 function buildAllSymptomsList(culture){
@@ -2329,6 +2685,171 @@ setupPhotoShare("photo-input-diag", "share-photo-btn-diag", () => lastMessageDia
 setupPhotoShare("photo-input-fert", "share-photo-btn-fert", () => lastMessageFert);
 setupPhotoShare("photo-input-sol", "share-photo-btn-sol", () => lastMessageSol);
 setupPhotoShare("photo-input-degats", "share-photo-btn-degats", () => lastMessageDegats);
+
+// =========================================================
+// Module Stats : import de fichier, calculs, affichage
+// =========================================================
+let parsedStatsRows = null; // [{a, b, value}]
+const statsFileInput = document.getElementById("stats-file-input");
+const statsAnalyzeBtn = document.getElementById("stats-analyze-btn");
+const statsPreview = document.getElementById("stats-preview");
+
+function parseCSVText(text){
+  const delim = text.includes(";") && !text.includes(",") ? ";" : ",";
+  const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+  const headers = lines[0].split(delim).map(h => h.trim());
+  const idxA = headers.findIndex(h => h.toLowerCase() === "facteura");
+  const idxB = headers.findIndex(h => h.toLowerCase() === "facteurb");
+  const idxV = headers.findIndex(h => h.toLowerCase() === "valeur");
+  const rows = [];
+  for (let i = 1; i < lines.length; i++){
+    const cells = lines[i].split(delim).map(c => c.trim());
+    if (idxV === -1 || cells[idxV] === undefined || cells[idxV] === "") continue;
+    rows.push({
+      a: idxA !== -1 ? cells[idxA] : null,
+      b: idxB !== -1 ? cells[idxB] : null,
+      value: parseFloat(cells[idxV].replace(",", "."))
+    });
+  }
+  return rows.filter(r => !isNaN(r.value));
+}
+
+function parseSheetRows(json){
+  if (json.length === 0) return [];
+  const headers = Object.keys(json[0]);
+  const findKey = (name) => headers.find(h => h.toLowerCase() === name);
+  const kA = findKey("facteura"), kB = findKey("facteurb"), kV = findKey("valeur");
+  return json.map(row => ({
+    a: kA ? String(row[kA]) : null,
+    b: kB ? String(row[kB]) : null,
+    value: kV ? parseFloat(String(row[kV]).replace(",", ".")) : NaN
+  })).filter(r => !isNaN(r.value));
+}
+
+statsFileInput.addEventListener("change", () => {
+  const file = statsFileInput.files[0];
+  if (!file) return;
+  const isCsv = /\.csv$/i.test(file.name);
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      if (isCsv) {
+        parsedStatsRows = parseCSVText(e.target.result);
+      } else {
+        const wb = XLSX.read(e.target.result, { type: "binary" });
+        const sheet = wb.Sheets[wb.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+        parsedStatsRows = parseSheetRows(json);
+      }
+      const hasA = parsedStatsRows.some(r => r.a);
+      const hasB = parsedStatsRows.some(r => r.b);
+      statsPreview.textContent = `${parsedStatsRows.length} observation(s) lue(s). ` +
+        (hasA && hasB ? "Dispositif à deux facteurs détecté (ANOVA à deux facteurs)." :
+         hasA ? "Un seul facteur détecté (ANOVA à un facteur)." :
+         "Aucun facteur détecté — vérifiez les en-têtes de colonnes (FacteurA, Valeur).");
+      statsAnalyzeBtn.disabled = parsedStatsRows.length < 3 || !hasA;
+    } catch(err) {
+      statsPreview.textContent = "Erreur de lecture du fichier : " + err.message;
+      statsAnalyzeBtn.disabled = true;
+    }
+  };
+  if (isCsv) reader.readAsText(file); else reader.readAsBinaryString(file);
+});
+
+function fmtP(p){
+  if (p < 0.0001) return "< 0.0001";
+  return p.toFixed(4);
+}
+function sigStars(p){
+  if (p < 0.001) return "***";
+  if (p < 0.01) return "**";
+  if (p < 0.05) return "*";
+  return "ns";
+}
+
+statsAnalyzeBtn.addEventListener("click", () => {
+  if (!parsedStatsRows || parsedStatsRows.length < 3) return;
+  const values = parsedStatsRows.map(r => r.value);
+  const hasB = parsedStatsRows.some(r => r.b);
+
+  const sw = shapiroWilk(values);
+  let html = `
+    <div class="result-card">
+      <h2 style="margin-top:6px;">Test de normalité (Shapiro-Wilk)</h2>
+      <p>W = ${sw.W.toFixed(4)} — p-value = ${fmtP(sw.p)}</p>
+      <p>${sw.p > 0.05 ? "Les données ne s'écartent pas significativement d'une distribution normale (p > 0.05)." : "Les données s'écartent significativement d'une distribution normale (p < 0.05) — interpréter l'ANOVA avec prudence, ou envisager une transformation des données."}</p>
+    </div>
+  `;
+
+  if (hasB) {
+    const anova = twoWayANOVA(parsedStatsRows);
+    html += `
+      <div class="result-card">
+        <h2 style="margin-top:6px;">ANOVA à deux facteurs</h2>
+        <div style="overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
+          <tr style="border-bottom:1px solid var(--ink);"><th style="text-align:left; padding:4px 6px;">Source</th><th style="padding:4px 6px;">ddl</th><th style="padding:4px 6px;">CM</th><th style="padding:4px 6px;">F</th><th style="padding:4px 6px;">p</th><th style="padding:4px 6px;"></th></tr>
+          <tr><td style="padding:4px 6px;">Facteur A</td><td style="padding:4px 6px; text-align:center;">${anova.A.df}</td><td style="padding:4px 6px; text-align:center;">${anova.A.ms.toFixed(3)}</td><td style="padding:4px 6px; text-align:center;">${anova.A.F.toFixed(3)}</td><td style="padding:4px 6px; text-align:center;">${fmtP(anova.A.p)}</td><td style="padding:4px 6px; text-align:center;">${sigStars(anova.A.p)}</td></tr>
+          <tr><td style="padding:4px 6px;">Facteur B</td><td style="padding:4px 6px; text-align:center;">${anova.B.df}</td><td style="padding:4px 6px; text-align:center;">${anova.B.ms.toFixed(3)}</td><td style="padding:4px 6px; text-align:center;">${anova.B.F.toFixed(3)}</td><td style="padding:4px 6px; text-align:center;">${fmtP(anova.B.p)}</td><td style="padding:4px 6px; text-align:center;">${sigStars(anova.B.p)}</td></tr>
+          <tr><td style="padding:4px 6px;">Interaction A×B</td><td style="padding:4px 6px; text-align:center;">${anova.AB.df}</td><td style="padding:4px 6px; text-align:center;">${anova.AB.ms.toFixed(3)}</td><td style="padding:4px 6px; text-align:center;">${anova.AB.F.toFixed(3)}</td><td style="padding:4px 6px; text-align:center;">${fmtP(anova.AB.p)}</td><td style="padding:4px 6px; text-align:center;">${sigStars(anova.AB.p)}</td></tr>
+          <tr><td style="padding:4px 6px;">Résiduelle</td><td style="padding:4px 6px; text-align:center;">${anova.Error.df}</td><td style="padding:4px 6px; text-align:center;">${anova.Error.ms.toFixed(3)}</td><td colspan="2"></td><td></td></tr>
+        </table>
+        </div>
+        <p style="font-size:11px; margin-top:8px;">*** p&lt;0.001, ** p&lt;0.01, * p&lt;0.05, ns = non significatif</p>
+      </div>
+    `;
+
+    if (anova.A.p < 0.05) {
+      const pairsA = tukeyHSD(anova.meansA, anova.nA, anova.Error.ms, anova.Error.df);
+      html += `<div class="result-card"><h2 style="margin-top:6px;">Comparaisons multiples — Facteur A (Tukey HSD)</h2>` +
+        pairsA.map(p => `<p style="margin:4px 0;">${p.groupe1} vs ${p.groupe2} : différence = ${p.difference.toFixed(3)}, p = ${fmtP(p.p)} ${p.significatif ? "(significatif)" : "(non significatif)"}</p>`).join("") +
+        `</div>`;
+    }
+    if (anova.B.p < 0.05) {
+      const pairsB = tukeyHSD(anova.meansB, anova.nB, anova.Error.ms, anova.Error.df);
+      html += `<div class="result-card"><h2 style="margin-top:6px;">Comparaisons multiples — Facteur B (Tukey HSD)</h2>` +
+        pairsB.map(p => `<p style="margin:4px 0;">${p.groupe1} vs ${p.groupe2} : différence = ${p.difference.toFixed(3)}, p = ${fmtP(p.p)} ${p.significatif ? "(significatif)" : "(non significatif)"}</p>`).join("") +
+        `</div>`;
+    }
+  } else {
+    const groups = {};
+    parsedStatsRows.forEach(r => { (groups[r.a] = groups[r.a] || []).push(r.value); });
+    const ow = oneWayANOVA(groups);
+    html += `
+      <div class="result-card">
+        <h2 style="margin-top:6px;">ANOVA à un facteur</h2>
+        <div style="overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
+          <tr style="border-bottom:1px solid var(--ink);"><th style="text-align:left; padding:4px 6px;">Source</th><th style="padding:4px 6px;">ddl</th><th style="padding:4px 6px;">CM</th><th style="padding:4px 6px;">F</th><th style="padding:4px 6px;">p</th><th style="padding:4px 6px;"></th></tr>
+          <tr><td style="padding:4px 6px;">Facteur</td><td style="padding:4px 6px; text-align:center;">${ow.dfBetween}</td><td style="padding:4px 6px; text-align:center;">${ow.msBetween.toFixed(3)}</td><td style="padding:4px 6px; text-align:center;">${ow.F.toFixed(3)}</td><td style="padding:4px 6px; text-align:center;">${fmtP(ow.p)}</td><td style="padding:4px 6px; text-align:center;">${sigStars(ow.p)}</td></tr>
+          <tr><td style="padding:4px 6px;">Résiduelle</td><td style="padding:4px 6px; text-align:center;">${ow.dfWithin}</td><td style="padding:4px 6px; text-align:center;">${ow.msWithin.toFixed(3)}</td><td colspan="2"></td><td></td></tr>
+        </table>
+        </div>
+      </div>
+    `;
+    if (ow.p < 0.05) {
+      const means = {}, ns = {};
+      Object.keys(groups).forEach(g => { means[g] = mean(groups[g]); ns[g] = groups[g].length; });
+      const pairs = tukeyHSD(means, ns, ow.msError, ow.dfError);
+      html += `<div class="result-card"><h2 style="margin-top:6px;">Comparaisons multiples (Tukey HSD)</h2>` +
+        pairs.map(p => `<p style="margin:4px 0;">${p.groupe1} vs ${p.groupe2} : différence = ${p.difference.toFixed(3)}, p = ${fmtP(p.p)} ${p.significatif ? "(significatif)" : "(non significatif)"}</p>`).join("") +
+        `</div>`;
+    }
+  }
+
+  document.getElementById("stats-results").innerHTML = html;
+  document.getElementById("statsStep0").classList.add("hidden");
+  document.getElementById("statsStep1").classList.remove("hidden");
+});
+
+document.getElementById("stats-restart-btn").addEventListener("click", () => {
+  parsedStatsRows = null;
+  statsFileInput.value = "";
+  statsPreview.textContent = "";
+  statsAnalyzeBtn.disabled = true;
+  document.getElementById("statsStep1").classList.add("hidden");
+  document.getElementById("statsStep0").classList.remove("hidden");
+});
 </script>
 </body>
 </html>
