@@ -2507,6 +2507,15 @@ if (lockOutil === "diagnostic") {
 } else if (lockOutil === "fertilisation") {
   document.getElementById("tab-switcher").classList.add("hidden");
   tabFert.click();
+} else if (lockOutil === "sol") {
+  document.getElementById("tab-switcher").classList.add("hidden");
+  tabSol.click();
+} else if (lockOutil === "degats") {
+  document.getElementById("tab-switcher").classList.add("hidden");
+  tabDegats.click();
+} else if (lockOutil === "stats") {
+  document.getElementById("tab-switcher").classList.add("hidden");
+  tabStats.click();
 }
 
 if (lockCulture && CULTURE_LABELS[lockCulture]) {
@@ -2850,6 +2859,16 @@ document.getElementById("stats-restart-btn").addEventListener("click", () => {
   document.getElementById("statsStep1").classList.add("hidden");
   document.getElementById("statsStep0").classList.remove("hidden");
 });
+
+// --- Verrouille la culture côté Dégâts (bloc séparé, placé ici pour que
+// toutes les variables du module Dégâts soient déjà déclarées) ---
+if (lockCulture && CULTURE_LABELS[lockCulture]) {
+  dSelectedCulture = lockCulture;
+  document.getElementById("dculture-tag-1").textContent = CULTURE_LABELS[lockCulture];
+  document.getElementById("degatsStep0").classList.add("hidden");
+  document.getElementById("degatsStep1").classList.remove("hidden");
+  document.getElementById("dback-to-0").classList.add("hidden");
+}
 </script>
 </body>
 </html>
