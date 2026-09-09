@@ -524,6 +524,16 @@
 
       <label style="display:block; font-size:14px; margin-bottom:8px; color:var(--ink-soft);">Surface en m² (ex : une planche de 20 m² → 20)</label>
       <input type="number" id="surface-input" min="1" placeholder="Ex : 50" style="width:100%; box-sizing:border-box; padding:12px; border:1px solid var(--line); background:var(--paper-dark); font-family:inherit; font-size:16px; margin-bottom:18px;">
+
+      <p style="font-size:14px; font-weight:600; margin:0 0 8px;">Jours écoulés depuis le semis ou le repiquage</p>
+      <input type="number" id="fert-jours-input" min="0" placeholder="Ex : 30" style="width:100%; box-sizing:border-box; padding:12px; border:1px solid var(--line); background:var(--paper-dark); font-family:inherit; font-size:16px; margin-bottom:18px;">
+
+      <p style="font-size:14px; font-weight:600; margin:0 0 8px;">Un jaunissement des feuilles est-il visible ?</p>
+      <fieldset class="grid-2" id="fert-jaunissement-choice" style="margin-bottom:12px;">
+        <button type="button" class="pick-btn" data-jaunissement="oui">Oui, visible</button>
+        <button type="button" class="pick-btn" data-jaunissement="non">Non</button>
+      </fieldset>
+
       <div class="actions">
         <button type="button" class="ghost" id="fback-to-1">← Retour</button>
         <button type="button" class="primary" id="calculate-btn">Envoyer ma demande</button>
@@ -1548,48 +1558,48 @@ TABS.forEach(t => t.btn.addEventListener("click", () => activateTab(t.btn)));
 // --- Base de recommandations de fertilisation (doses indicatives par m²) ---
 const FERTILISATION = {
   piment: {
-    organique: { apports:[{produit:"Fumier de volaille bien composté", dose_par_m2:1.5, moment:"En fond, à épandre et incorporer 2 à 3 semaines avant le repiquage."}], conseil:"Un apport complémentaire léger de compost toutes les 3 semaines pendant la culture améliore la vigueur des plants." },
-    mineral: { apports:[{produit:"NPK 15-15-15", dose_par_m2:0.03, moment:"En fond, au repiquage."},{produit:"Urée (46% N)", dose_par_m2:0.01, moment:"En couverture, fractionnée en 2 apports à 30 et 60 jours après repiquage."}], conseil:"Fractionner l'urée limite les pertes par lessivage et les risques de brûlure foliaire." }
+    organique: { apports:[{produit:"Fumier de volaille bien composté", dose_par_m2:1.5, moment:"En fond, à épandre et incorporer 2 à 3 semaines avant le repiquage.", jours:[0], azote:false}], conseil:"Un apport complémentaire léger de compost toutes les 3 semaines pendant la culture améliore la vigueur des plants." },
+    mineral: { apports:[{produit:"NPK 15-15-15", dose_par_m2:0.03, moment:"En fond, au repiquage.", jours:[0], azote:false},{produit:"Urée (46% N)", dose_par_m2:0.01, moment:"En couverture, fractionnée en 2 apports à 30 et 60 jours après repiquage.", jours:[30, 60], azote:true}], conseil:"Fractionner l'urée limite les pertes par lessivage et les risques de brûlure foliaire." }
   },
   tomate: {
-    organique: { apports:[{produit:"Fumier de volaille bien composté", dose_par_m2:1.8, moment:"En fond, 2 à 3 semaines avant plantation."}], conseil:"Un apport de compost au stade floraison soutient la fructification." },
-    mineral: { apports:[{produit:"NPK 15-15-15", dose_par_m2:0.04, moment:"En fond, au repiquage."},{produit:"Urée (46% N)", dose_par_m2:0.015, moment:"En couverture, fractionnée en 2 à 3 apports (30, 45 et 60 jours après repiquage)."}], conseil:"Éviter les excès d'azote qui favorisent le feuillage au détriment de la fructification." }
+    organique: { apports:[{produit:"Fumier de volaille bien composté", dose_par_m2:1.8, moment:"En fond, 2 à 3 semaines avant plantation.", jours:[0], azote:false}], conseil:"Un apport de compost au stade floraison soutient la fructification." },
+    mineral: { apports:[{produit:"NPK 15-15-15", dose_par_m2:0.04, moment:"En fond, au repiquage.", jours:[0], azote:false},{produit:"Urée (46% N)", dose_par_m2:0.015, moment:"En couverture, fractionnée en 2 à 3 apports (30, 45 et 60 jours après repiquage).", jours:[30, 45, 60], azote:true}], conseil:"Éviter les excès d'azote qui favorisent le feuillage au détriment de la fructification." }
   },
   gombo: {
-    organique: { apports:[{produit:"Fumier de volaille composté", dose_par_m2:1.0, moment:"Au labour, avant semis."}], conseil:"Un complément de compost toutes les 3 à 4 semaines soutient la production continue de capsules." },
-    mineral: { apports:[{produit:"NPK 15-15-15", dose_par_m2:0.02, moment:"Au semis."},{produit:"Urée (46% N)", dose_par_m2:0.005, moment:"En couverture, 3 semaines après la levée."}], conseil:"Le gombo est peu exigeant : éviter les excès qui favorisent le feuillage au détriment des capsules." }
+    organique: { apports:[{produit:"Fumier de volaille composté", dose_par_m2:1.0, moment:"Au labour, avant semis.", jours:[0], azote:false}], conseil:"Un complément de compost toutes les 3 à 4 semaines soutient la production continue de capsules." },
+    mineral: { apports:[{produit:"NPK 15-15-15", dose_par_m2:0.02, moment:"Au semis.", jours:[0], azote:false},{produit:"Urée (46% N)", dose_par_m2:0.005, moment:"En couverture, 3 semaines après la levée.", jours:[21], azote:true}], conseil:"Le gombo est peu exigeant : éviter les excès qui favorisent le feuillage au détriment des capsules." }
   },
   mais: {
-    organique: { apports:[{produit:"Fumier de volaille composté", dose_par_m2:1.2, moment:"Enfoui avant semis."}], conseil:"Un paillage limite le lessivage des éléments nutritifs en début de cycle." },
-    mineral: { apports:[{produit:"NPK 15-15-15", dose_par_m2:0.02, moment:"Au semis."},{produit:"Urée (46% N)", dose_par_m2:0.01, moment:"En couverture, fractionnée en 2 apports (25 et 45 jours après semis)."}], conseil:"Le 2e apport d'urée juste avant la floraison est déterminant pour le remplissage des grains." }
+    organique: { apports:[{produit:"Fumier de volaille composté", dose_par_m2:1.2, moment:"Enfoui avant semis.", jours:[0], azote:false}], conseil:"Un paillage limite le lessivage des éléments nutritifs en début de cycle." },
+    mineral: { apports:[{produit:"NPK 15-15-15", dose_par_m2:0.02, moment:"Au semis.", jours:[0], azote:false},{produit:"Urée (46% N)", dose_par_m2:0.01, moment:"En couverture, fractionnée en 2 apports (25 et 45 jours après semis).", jours:[25, 45], azote:true}], conseil:"Le 2e apport d'urée juste avant la floraison est déterminant pour le remplissage des grains." }
   },
   niebe: {
-    organique: { apports:[{produit:"Fumier de volaille composté", dose_par_m2:0.5, moment:"Au labour, avant semis."}], conseil:"Le niébé fixe une partie de son azote grâce aux bactéries des nodosités racinaires : un apport léger suffit." },
-    mineral: { apports:[{produit:"NPK 15-15-15", dose_par_m2:0.01, moment:"Au semis uniquement."}], conseil:"Éviter tout apport d'azote supplémentaire (urée) : un excès réduit la formation des nodosités fixatrices." }
+    organique: { apports:[{produit:"Fumier de volaille composté", dose_par_m2:0.5, moment:"Au labour, avant semis.", jours:[0], azote:false}], conseil:"Le niébé fixe une partie de son azote grâce aux bactéries des nodosités racinaires : un apport léger suffit." },
+    mineral: { apports:[{produit:"NPK 15-15-15", dose_par_m2:0.01, moment:"Au semis uniquement.", jours:[0], azote:false}], conseil:"Éviter tout apport d'azote supplémentaire (urée) : un excès réduit la formation des nodosités fixatrices." }
   },
   arachide: {
-    organique: { apports:[{produit:"Fumier de volaille composté", dose_par_m2:0.6, moment:"Au labour, avant semis."}], conseil:"L'arachide, comme le niébé, fixe une partie de son azote : un apport léger suffit généralement." },
-    mineral: { apports:[{produit:"NPK 15-15-15 (faible dose)", dose_par_m2:0.012, moment:"Au semis uniquement."}], conseil:"Éviter tout apport d'azote supplémentaire (urée), qui limite la fixation symbiotique. Privilégier un engrais riche en phosphore et en calcium si disponible." }
+    organique: { apports:[{produit:"Fumier de volaille composté", dose_par_m2:0.6, moment:"Au labour, avant semis.", jours:[0], azote:false}], conseil:"L'arachide, comme le niébé, fixe une partie de son azote : un apport léger suffit généralement." },
+    mineral: { apports:[{produit:"NPK 15-15-15 (faible dose)", dose_par_m2:0.012, moment:"Au semis uniquement.", jours:[0], azote:false}], conseil:"Éviter tout apport d'azote supplémentaire (urée), qui limite la fixation symbiotique. Privilégier un engrais riche en phosphore et en calcium si disponible." }
   },
   sorgho: {
-    organique: { apports:[{produit:"Fumier de volaille composté", dose_par_m2:1.2, moment:"Enfoui avant semis."}], conseil:"Un paillage limite le lessivage des éléments nutritifs en début de cycle." },
-    mineral: { apports:[{produit:"NPK 15-15-15", dose_par_m2:0.018, moment:"Au semis."},{produit:"Urée (46% N)", dose_par_m2:0.009, moment:"En couverture, fractionnée en 2 apports (25 et 45 jours après semis)."}], conseil:"Le sorgho valorise bien un apport azoté modéré ; éviter les excès qui favorisent la verse." }
+    organique: { apports:[{produit:"Fumier de volaille composté", dose_par_m2:1.2, moment:"Enfoui avant semis.", jours:[0], azote:false}], conseil:"Un paillage limite le lessivage des éléments nutritifs en début de cycle." },
+    mineral: { apports:[{produit:"NPK 15-15-15", dose_par_m2:0.018, moment:"Au semis.", jours:[0], azote:false},{produit:"Urée (46% N)", dose_par_m2:0.009, moment:"En couverture, fractionnée en 2 apports (25 et 45 jours après semis).", jours:[25, 45], azote:true}], conseil:"Le sorgho valorise bien un apport azoté modéré ; éviter les excès qui favorisent la verse." }
   },
   mil: {
-    organique: { apports:[{produit:"Fumier de volaille composté", dose_par_m2:0.6, moment:"Au labour, avant semis, en petites doses localisées au poquet."}], conseil:"Le mil est très rustique et tolère les sols pauvres ; privilégier un apport localisé plutôt qu'une couverture généralisée." },
-    mineral: { apports:[{produit:"Engrais phosphaté (type DAP)", dose_par_m2:0.008, moment:"Localisé au poquet, au semis."}], conseil:"Le phosphore est souvent l'élément le plus limitant sur les sols sableux où le mil est cultivé. Éviter les excès d'azote qui favorisent la verse plutôt que le rendement en grain." }
+    organique: { apports:[{produit:"Fumier de volaille composté", dose_par_m2:0.6, moment:"Au labour, avant semis, en petites doses localisées au poquet.", jours:[0], azote:false}], conseil:"Le mil est très rustique et tolère les sols pauvres ; privilégier un apport localisé plutôt qu'une couverture généralisée." },
+    mineral: { apports:[{produit:"Engrais phosphaté (type DAP)", dose_par_m2:0.008, moment:"Localisé au poquet, au semis.", jours:[0], azote:false}], conseil:"Le phosphore est souvent l'élément le plus limitant sur les sols sableux où le mil est cultivé. Éviter les excès d'azote qui favorisent la verse plutôt que le rendement en grain." }
   },
   riz: {
-    organique: { apports:[{produit:"Fumier de volaille composté", dose_par_m2:1.5, moment:"Incorporé avant repiquage ou semis."}], conseil:"Un apport organique régulier aide à maintenir la structure du sol en bas-fond irrigué." },
-    mineral: { apports:[{produit:"NPK 15-15-15", dose_par_m2:0.035, moment:"En fond, avant repiquage."},{produit:"Urée (46% N)", dose_par_m2:0.02, moment:"En couverture, fractionnée en 2 apports (tallage et montaison)."}], conseil:"Le riz est exigeant en azote ; bien fractionner les apports pour limiter les pertes par l'eau d'irrigation." }
+    organique: { apports:[{produit:"Fumier de volaille composté", dose_par_m2:1.5, moment:"Incorporé avant repiquage ou semis.", jours:[0], azote:false}], conseil:"Un apport organique régulier aide à maintenir la structure du sol en bas-fond irrigué." },
+    mineral: { apports:[{produit:"NPK 15-15-15", dose_par_m2:0.035, moment:"En fond, avant repiquage.", jours:[0], azote:false},{produit:"Urée (46% N)", dose_par_m2:0.02, moment:"En couverture, fractionnée en 2 apports (tallage et montaison).", jours:[25, 55], azote:true}], conseil:"Le riz est exigeant en azote ; bien fractionner les apports pour limiter les pertes par l'eau d'irrigation." }
   },
   aubergine: {
-    organique: { apports:[{produit:"Fumier de volaille bien composté", dose_par_m2:1.6, moment:"En fond, 2 à 3 semaines avant plantation."}], conseil:"Un apport de compost en cours de cycle soutient la production continue de fruits." },
-    mineral: { apports:[{produit:"NPK 15-15-15", dose_par_m2:0.035, moment:"En fond, au repiquage."},{produit:"Urée (46% N)", dose_par_m2:0.012, moment:"En couverture, fractionnée en 2 apports (30 et 60 jours après repiquage)."}], conseil:"Fractionner l'urée limite les pertes par lessivage, comme pour les autres solanacées." }
+    organique: { apports:[{produit:"Fumier de volaille bien composté", dose_par_m2:1.6, moment:"En fond, 2 à 3 semaines avant plantation.", jours:[0], azote:false}], conseil:"Un apport de compost en cours de cycle soutient la production continue de fruits." },
+    mineral: { apports:[{produit:"NPK 15-15-15", dose_par_m2:0.035, moment:"En fond, au repiquage.", jours:[0], azote:false},{produit:"Urée (46% N)", dose_par_m2:0.012, moment:"En couverture, fractionnée en 2 apports (30 et 60 jours après repiquage)."}], conseil:"Fractionner l'urée limite les pertes par lessivage, comme pour les autres solanacées." }
   },
   oignon: {
-    organique: { apports:[{produit:"Fumier de volaille bien composté", dose_par_m2:1.5, moment:"En fond, avant plantation/repiquage."}], conseil:"L'oignon demande un sol riche mais bien ameubli pour permettre au bulbe de bien se former." },
-    mineral: { apports:[{produit:"NPK 15-15-15", dose_par_m2:0.03, moment:"En fond, au repiquage."},{produit:"Urée (46% N)", dose_par_m2:0.006, moment:"En couverture légère, en début de bulbaison uniquement."}], conseil:"Limiter l'azote en fin de cycle : un excès nuit à la formation et à la conservation du bulbe." }
+    organique: { apports:[{produit:"Fumier de volaille bien composté", dose_par_m2:1.5, moment:"En fond, avant plantation/repiquage.", jours:[0], azote:false}], conseil:"L'oignon demande un sol riche mais bien ameubli pour permettre au bulbe de bien se former." },
+    mineral: { apports:[{produit:"NPK 15-15-15", dose_par_m2:0.03, moment:"En fond, au repiquage.", jours:[0], azote:false},{produit:"Urée (46% N)", dose_par_m2:0.006, moment:"En couverture légère, en début de bulbaison uniquement.", jours:[45], azote:true}], conseil:"Limiter l'azote en fin de cycle : un excès nuit à la formation et à la conservation du bulbe." }
   }
 };
 
@@ -1624,6 +1634,37 @@ document.querySelectorAll("#fert-cultures .pick-btn").forEach(btn => {
 });
 
 let fSpacingRespected = null;
+let fJaunissement = null;
+
+document.querySelectorAll("#fert-jaunissement-choice .pick-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#fert-jaunissement-choice .pick-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    fJaunissement = btn.dataset.jaunissement;
+  });
+});
+
+function evaluerStadeApport(apport, joursActuels, jaunissementVisible){
+  const TOLERANCE = 7;
+  return apport.jours.map(jourCible => {
+    const ecart = joursActuels - jourCible;
+    let statut, message;
+    if (Math.abs(ecart) <= TOLERANCE) {
+      statut = "maintenant";
+      message = `C'est le moment d'appliquer (fenêtre autour du jour ${jourCible}).`;
+    } else if (ecart < -TOLERANCE) {
+      statut = "attendre";
+      message = `Encore trop tôt — attendre environ ${Math.abs(ecart)} jour(s) de plus (prévu vers le jour ${jourCible}).`;
+    } else {
+      statut = "retard";
+      message = `Fenêtre dépassée d'environ ${ecart} jour(s) (prévue vers le jour ${jourCible}) — à appliquer dès que possible si ce n'est pas déjà fait.`;
+    }
+    if (apport.azote && jaunissementVisible === "oui" && statut !== "maintenant") {
+      message += " Le jaunissement observé renforce l'intérêt d'un apport azoté rapide.";
+    }
+    return { jourCible, statut, message };
+  });
+}
 
 document.querySelectorAll("#fert-types .pick-btn").forEach(btn => {
   btn.addEventListener("click", () => {
@@ -1665,6 +1706,9 @@ document.getElementById("calculate-btn").addEventListener("click", () => {
   const surface = parseFloat(document.getElementById("surface-input").value);
   if (!surface || surface <= 0) { alert("Merci d'indiquer une surface valide en m²."); return; }
 
+  const joursActuels = parseFloat(document.getElementById("fert-jours-input").value);
+  const joursValides = !isNaN(joursActuels) && joursActuels >= 0;
+
   let densityFactor = 1;
   let spacingNote = "Écartement conseillé respecté.";
   if (fSpacingRespected === "non") {
@@ -1686,7 +1730,12 @@ document.getElementById("calculate-btn").addEventListener("click", () => {
   const planText = data.apports.map(a => {
     const totalKg = a.dose_par_m2 * surface * densityFactor;
     const totalDisplay = totalKg >= 1 ? totalKg.toFixed(1) + " kg" : (totalKg * 1000).toFixed(0) + " g";
-    return `\n• ${a.produit}\n  Dose totale : ${totalDisplay} pour ${surface} m²\n  Application : ${a.moment}`;
+    let stadeTxt = "";
+    if (joursValides) {
+      const stades = evaluerStadeApport(a, joursActuels, fJaunissement);
+      stadeTxt = "\n  " + stades.map(s => s.message).join("\n  ");
+    }
+    return `\n• ${a.produit}\n  Dose totale : ${totalDisplay} pour ${surface} m²\n  Application : ${a.moment}${stadeTxt}`;
   }).join("\n");
 
   const now = new Date();
@@ -1694,7 +1743,8 @@ document.getElementById("calculate-btn").addEventListener("click", () => {
 
   const regionF = document.getElementById("region-input-fert").value.trim();
   const regionLineF = regionF ? `\nRégion/localité : ${regionF}` : "";
-  const waMessage = `📋 FICHE DE FERTILISATION — N° ${refCodeMsg}${regionLineF}\n\nCulture : ${CULTURE_LABELS[fSelectedCulture]}\nType : ${TYPE_LABELS[fSelectedType]}\nSurface : ${surface} m²\n${spacingNote}\n\n— PLAN CALCULÉ PAR L'OUTIL —${planText}\n\nConseil : ${data.conseil}\n\n(Aide à la décision — à confirmer par le conseiller)`;
+  const stadeLigne = joursValides ? `\nJours depuis semis/repiquage : ${joursActuels}\nJaunissement visible : ${fJaunissement === "oui" ? "oui" : "non"}` : "";
+  const waMessage = `📋 FICHE DE FERTILISATION — N° ${refCodeMsg}${regionLineF}\n\nCulture : ${CULTURE_LABELS[fSelectedCulture]}\nType : ${TYPE_LABELS[fSelectedType]}\nSurface : ${surface} m²\n${spacingNote}${stadeLigne}\n\n— PLAN CALCULÉ PAR L'OUTIL —${planText}\n\nConseil : ${data.conseil}\n\n(Aide à la décision — à confirmer par le conseiller)`;
   const waLink = "https://wa.me/22674864682?text=" + encodeURIComponent(waMessage);
   lastMessageFert = waMessage;
   if (fileShareSupported) { document.getElementById("photo-block-fert").classList.remove("hidden"); document.getElementById("share-photo-btn-fert").classList.remove("hidden"); }
@@ -1712,13 +1762,20 @@ document.getElementById("calculate-btn").addEventListener("click", () => {
     data.apports.forEach(a => {
       const totalKg = a.dose_par_m2 * surface * densityFactor;
       const totalDisplay = totalKg >= 1 ? totalKg.toFixed(1) + " kg" : (totalKg * 1000).toFixed(0) + " g";
+      let stadeHtml = "";
+      if (joursValides) {
+        const stades = evaluerStadeApport(a, joursActuels, fJaunissement);
+        const badge = s => s.statut === "maintenant" ? "🟢 MAINTENANT" : s.statut === "attendre" ? "🟡 ATTENDRE" : "🔴 EN RETARD";
+        stadeHtml = `<h3>Stade d'application</h3>` + stades.map(s => `<p><strong>${badge(s)}</strong> — ${s.message}</p>`).join("");
+      }
       const card = document.createElement("div");
       card.className = "result-card";
       card.innerHTML = `
         <h2 style="margin-top:6px;">${a.produit}</h2>
         <div class="latin">${totalDisplay} au total pour ${surface} m²</div>
-        <h3>Moment d'application</h3>
+        <h3>Moment d'application (référence)</h3>
         <p>${a.moment}</p>
+        ${stadeHtml}
       `;
       fertResultsDiv.appendChild(card);
     });
@@ -1741,11 +1798,12 @@ document.getElementById("calculate-btn").addEventListener("click", () => {
 });
 
 document.getElementById("frestart-btn").addEventListener("click", () => {
-  document.querySelectorAll("#fert-cultures .pick-btn, #fert-types .pick-btn, #fert-spacing-choice .pick-btn").forEach(b => b.classList.remove("active"));
-  fSelectedCulture = null; fSelectedType = null; fSpacingRespected = null;
+  document.querySelectorAll("#fert-cultures .pick-btn, #fert-types .pick-btn, #fert-spacing-choice .pick-btn, #fert-jaunissement-choice .pick-btn").forEach(b => b.classList.remove("active"));
+  fSelectedCulture = null; fSelectedType = null; fSpacingRespected = null; fJaunissement = null;
   document.getElementById("surface-input").value = "";
   document.getElementById("spacing-inter-input").value = "";
   document.getElementById("spacing-sur-input").value = "";
+  document.getElementById("fert-jours-input").value = "";
   document.getElementById("fert-spacing-custom").classList.add("hidden");
   document.getElementById("fstep3").classList.add("hidden");
   document.getElementById("fstep0").classList.remove("hidden");
