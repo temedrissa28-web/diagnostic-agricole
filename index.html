@@ -307,6 +307,7 @@
     <button type="button" id="tab-sol" style="flex:1; min-width:19%; padding:12px; font-family:'Courier New',monospace; font-size:9px; letter-spacing:.02em; text-transform:uppercase; border:none; background:var(--paper-dark); color:var(--ink-soft); cursor:pointer;">Sol</button>
     <button type="button" id="tab-degats" style="flex:1; min-width:19%; padding:12px; font-family:'Courier New',monospace; font-size:9px; letter-spacing:.02em; text-transform:uppercase; border:none; background:var(--paper-dark); color:var(--ink-soft); cursor:pointer;">Dégâts</button>
     <button type="button" id="tab-stats" style="flex:1; min-width:19%; padding:12px; font-family:'Courier New',monospace; font-size:9px; letter-spacing:.02em; text-transform:uppercase; border:none; background:var(--paper-dark); color:var(--ink-soft); cursor:pointer;">Stats</button>
+    <button type="button" id="tab-rapport" style="flex:1; min-width:19%; padding:12px; font-family:'Courier New',monospace; font-size:9px; letter-spacing:.02em; text-transform:uppercase; border:none; background:var(--paper-dark); color:var(--ink-soft); cursor:pointer;">Rapport</button>
   </div>
 
   <main id="main-diagnostic">
@@ -797,6 +798,90 @@
       </div>
       <div class="actions" style="margin-top:14px;">
         <button type="button" class="ghost" id="stats-restart-btn" style="flex:1;">↺ Nouvelle analyse</button>
+      </div>
+    </section>
+  </main>
+
+  <main id="main-rapport" class="hidden">
+    <section id="rapportStep0">
+      <p class="step-label">Rapport hebdomadaire — Agent de terrain</p>
+
+      <label style="display:block; font-size:14px; margin-bottom:8px; color:var(--ink-soft);">Nom de l'agent</label>
+      <input type="text" id="rap-agent-nom" placeholder="Ex : Issouf Ouédraogo" style="width:100%; box-sizing:border-box; padding:12px; border:1px solid var(--line); background:var(--paper-dark); font-family:inherit; font-size:16px; margin-bottom:12px;">
+
+      <label style="display:block; font-size:14px; margin-bottom:8px; color:var(--ink-soft);">Zone / village(s) couverts</label>
+      <input type="text" id="rap-zone" placeholder="Ex : Secteur de Kamboinsé" style="width:100%; box-sizing:border-box; padding:12px; border:1px solid var(--line); background:var(--paper-dark); font-family:inherit; font-size:16px; margin-bottom:20px;">
+
+      <div class="culture-tag">A. Situation de la production</div>
+      <label style="display:block; font-size:13px; margin:10px 0 4px; color:var(--ink-soft);">Superficie emblavée (par culture)</label>
+      <input type="text" id="rap-superficie" placeholder="Ex : 125 ha maïs, 40 ha niébé" style="width:100%; box-sizing:border-box; padding:10px; border:1px solid var(--line); background:var(--paper-dark); font-family:inherit; font-size:15px; margin-bottom:10px;">
+      <label style="display:block; font-size:13px; margin:0 0 4px; color:var(--ink-soft);">Cultures dominantes</label>
+      <input type="text" id="rap-cultures-dom" placeholder="Ex : maïs, niébé, gombo" style="width:100%; box-sizing:border-box; padding:10px; border:1px solid var(--line); background:var(--paper-dark); font-family:inherit; font-size:15px; margin-bottom:10px;">
+      <label style="display:block; font-size:13px; margin:0 0 4px; color:var(--ink-soft);">Stade des cultures</label>
+      <input type="text" id="rap-stade" placeholder="Ex : maïs en floraison, niébé en croissance" style="width:100%; box-sizing:border-box; padding:10px; border:1px solid var(--line); background:var(--paper-dark); font-family:inherit; font-size:15px; margin-bottom:10px;">
+      <label style="display:block; font-size:13px; margin:0 0 6px; color:var(--ink-soft);">État général des cultures</label>
+      <fieldset class="grid-2" id="rap-etat" style="margin-bottom:20px;">
+        <button type="button" class="pick-btn" data-rgroup="etat" data-rval="Bon">Bon</button>
+        <button type="button" class="pick-btn" data-rgroup="etat" data-rval="Moyen">Moyen</button>
+        <button type="button" class="pick-btn" data-rgroup="etat" data-rval="Préoccupant">Préoccupant</button>
+      </fieldset>
+
+      <div class="culture-tag">B. Incidents constatés</div>
+      <ul class="symptom-list" id="rap-incidents" style="margin-bottom:20px;">
+        <li><label><input type="checkbox" value="Maladies"> Maladies</label></li>
+        <li><label><input type="checkbox" value="Ravageurs"> Ravageurs</label></li>
+        <li><label><input type="checkbox" value="Sécheresse"> Sécheresse</label></li>
+        <li><label><input type="checkbox" value="Inondations"> Inondations</label></li>
+        <li><label><input type="checkbox" value="Dégâts d'animaux"> Dégâts d'animaux</label></li>
+        <li><label><input type="checkbox" value="Autres problèmes"> Autres problèmes</label></li>
+      </ul>
+      <textarea id="rap-incidents-detail" placeholder="Détail des incidents (facultatif)" style="width:100%; box-sizing:border-box; padding:10px; border:1px solid var(--line); background:var(--paper-dark); font-family:inherit; font-size:15px; min-height:60px; margin-bottom:20px;"></textarea>
+
+      <div class="culture-tag">C. Interventions réalisées</div>
+      <label style="display:block; font-size:13px; margin:10px 0 4px; color:var(--ink-soft);">Nombre de producteurs visités</label>
+      <input type="number" id="rap-nb-visites" min="0" placeholder="Ex : 18" style="width:100%; box-sizing:border-box; padding:10px; border:1px solid var(--line); background:var(--paper-dark); font-family:inherit; font-size:15px; margin-bottom:10px;">
+      <label style="display:block; font-size:13px; margin:0 0 4px; color:var(--ink-soft);">Conseils donnés / traitements réalisés</label>
+      <textarea id="rap-conseils" placeholder="Ex : traitement ciblé pucerons sur 3 parcelles, conseil fertilisation..." style="width:100%; box-sizing:border-box; padding:10px; border:1px solid var(--line); background:var(--paper-dark); font-family:inherit; font-size:15px; min-height:60px; margin-bottom:10px;"></textarea>
+      <label style="display:block; font-size:13px; margin:0 0 4px; color:var(--ink-soft);">Formations / démonstrations réalisées</label>
+      <input type="text" id="rap-formations" placeholder="Ex : démonstration technique de compostage (12 participants)" style="width:100%; box-sizing:border-box; padding:10px; border:1px solid var(--line); background:var(--paper-dark); font-family:inherit; font-size:15px; margin-bottom:20px;">
+
+      <div class="culture-tag">D. Intrants</div>
+      <input type="text" id="rap-semences" placeholder="Semences distribuées" style="width:100%; box-sizing:border-box; padding:10px; border:1px solid var(--line); background:var(--paper-dark); font-family:inherit; font-size:15px; margin-bottom:10px; margin-top:10px;">
+      <input type="text" id="rap-engrais" placeholder="Engrais utilisés/distribués" style="width:100%; box-sizing:border-box; padding:10px; border:1px solid var(--line); background:var(--paper-dark); font-family:inherit; font-size:15px; margin-bottom:10px;">
+      <input type="text" id="rap-phyto" placeholder="Produits phytosanitaires" style="width:100%; box-sizing:border-box; padding:10px; border:1px solid var(--line); background:var(--paper-dark); font-family:inherit; font-size:15px; margin-bottom:10px;">
+      <input type="text" id="rap-materiel" placeholder="Matériel distribué" style="width:100%; box-sizing:border-box; padding:10px; border:1px solid var(--line); background:var(--paper-dark); font-family:inherit; font-size:15px; margin-bottom:20px;">
+
+      <div class="culture-tag">E. Alerte au responsable</div>
+      <p style="font-size:13px; margin:10px 0 6px; color:var(--ink-soft);">Un problème nécessite-t-il votre intervention ?</p>
+      <fieldset class="grid-2" id="rap-alerte-choice" style="margin-bottom:14px;">
+        <button type="button" class="pick-btn" data-rgroup="alerte" data-rval="oui">Oui</button>
+        <button type="button" class="pick-btn" data-rgroup="alerte" data-rval="non">Non</button>
+      </fieldset>
+      <div id="rap-alerte-detail" class="hidden">
+        <input type="text" id="rap-alerte-loc" placeholder="Localisation" style="width:100%; box-sizing:border-box; padding:10px; border:1px solid var(--line); background:var(--paper-dark); font-family:inherit; font-size:15px; margin-bottom:10px;">
+        <input type="text" id="rap-alerte-superficie" placeholder="Superficie concernée" style="width:100%; box-sizing:border-box; padding:10px; border:1px solid var(--line); background:var(--paper-dark); font-family:inherit; font-size:15px; margin-bottom:10px;">
+        <input type="number" id="rap-alerte-nbprod" min="0" placeholder="Nombre de producteurs concernés" style="width:100%; box-sizing:border-box; padding:10px; border:1px solid var(--line); background:var(--paper-dark); font-family:inherit; font-size:15px; margin-bottom:10px;">
+        <p style="font-size:13px; margin:0 0 6px; color:var(--ink-soft);">Niveau d'urgence</p>
+        <fieldset class="grid-2" id="rap-urgence-choice" style="margin-bottom:10px;">
+          <button type="button" class="pick-btn" data-rgroup="urgence" data-rval="Faible">Faible</button>
+          <button type="button" class="pick-btn" data-rgroup="urgence" data-rval="Moyen">Moyen</button>
+          <button type="button" class="pick-btn" data-rgroup="urgence" data-rval="Élevé">Élevé</button>
+        </fieldset>
+      </div>
+
+      <div class="actions" style="margin-top:14px;">
+        <button type="button" class="primary" id="rapport-submit-btn" style="flex:1;">Envoyer le rapport</button>
+      </div>
+    </section>
+
+    <section id="rapportStep1" class="hidden">
+      <p class="step-label">Rapport envoyé</p>
+      <div class="result-card">
+        <h2 style="margin-top:6px;">Rapport transmis</h2>
+        <p>Votre rapport hebdomadaire a été transmis au responsable de zone.</p>
+      </div>
+      <div class="actions" style="margin-top:14px;">
+        <button type="button" class="ghost" id="rapport-restart-btn" style="flex:1;">↺ Nouveau rapport</button>
       </div>
     </section>
   </main>
@@ -1524,24 +1609,27 @@ function getSymptomLabel(culture, symptomId){
 let selectedCulture = null;
 let selectedSymptomes = new Set();
 
-// --- Bascule entre les cinq outils ---
+// --- Bascule entre les six outils ---
 const tabDiag = document.getElementById("tab-diagnostic");
 const tabFert = document.getElementById("tab-fertilisation");
 const tabSol = document.getElementById("tab-sol");
 const tabDegats = document.getElementById("tab-degats");
 const tabStats = document.getElementById("tab-stats");
+const tabRapport = document.getElementById("tab-rapport");
 const mainDiag = document.getElementById("main-diagnostic");
 const mainFert = document.getElementById("main-fertilisation");
 const mainSol = document.getElementById("main-sol");
 const mainDegats = document.getElementById("main-degats");
 const mainStats = document.getElementById("main-stats");
+const mainRapport = document.getElementById("main-rapport");
 
 const TABS = [
   { btn: tabDiag, main: mainDiag },
   { btn: tabFert, main: mainFert },
   { btn: tabSol, main: mainSol },
   { btn: tabDegats, main: mainDegats },
-  { btn: tabStats, main: mainStats }
+  { btn: tabStats, main: mainStats },
+  { btn: tabRapport, main: mainRapport }
 ];
 
 function activateTab(activeBtn){
@@ -2555,10 +2643,84 @@ document.getElementById("restart-btn").addEventListener("click", () => {
 //   ?outil=fertilisation&culture=mais  → uniquement la fertilisation maïs
 //   ?outil=diagnostic                  → diagnostic, toutes cultures
 //   (aucun paramètre)                  → outil complet, version de référence
+// =========================================================
+// Module Rapport hebdomadaire (agent de terrain)
+// =========================================================
+let rapEtat = "", rapAlerte = "", rapUrgence = "";
+
+["etat","alerte","urgence"].forEach(group => {
+  document.querySelectorAll(`[data-rgroup="${group}"]`).forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(`[data-rgroup="${group}"]`).forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      if (group === "etat") rapEtat = btn.dataset.rval;
+      if (group === "alerte") {
+        rapAlerte = btn.dataset.rval;
+        document.getElementById("rap-alerte-detail").classList.toggle("hidden", rapAlerte !== "oui");
+      }
+      if (group === "urgence") rapUrgence = btn.dataset.rval;
+    });
+  });
+});
+
+document.getElementById("rapport-submit-btn").addEventListener("click", () => {
+  const agentNom = document.getElementById("rap-agent-nom").value.trim() || "(non précisé)";
+  const zone = document.getElementById("rap-zone").value.trim() || "(non précisée)";
+  const incidents = Array.from(document.querySelectorAll('#rap-incidents input[type="checkbox"]:checked')).map(c => c.value);
+  const incidentsDetail = document.getElementById("rap-incidents-detail").value.trim();
+
+  const now = new Date();
+  const refCodeMsg = "RAP-" + now.getFullYear().toString().slice(2) + String(now.getMonth()+1).padStart(2,"0") + String(now.getDate()).padStart(2,"0") + "-" + Math.floor(Math.random()*90+10);
+
+  let alerteBloc = "\n\nE. ALERTE : Aucune intervention urgente signalée.";
+  if (rapAlerte === "oui") {
+    alerteBloc = `\n\n🚨 E. ALERTE — INTERVENTION DEMANDÉE\nLocalisation : ${document.getElementById("rap-alerte-loc").value.trim() || "non précisée"}\nSuperficie concernée : ${document.getElementById("rap-alerte-superficie").value.trim() || "non précisée"}\nProducteurs concernés : ${document.getElementById("rap-alerte-nbprod").value || "non précisé"}\nNiveau d'urgence : ${rapUrgence || "non précisé"}`;
+  }
+
+  const waMessage = `📋 RAPPORT HEBDOMADAIRE — N° ${refCodeMsg}\n` +
+    `Agent : ${agentNom}\nZone/village(s) : ${zone}\nDate : ${now.toLocaleDateString("fr-FR")}\n\n` +
+    `A. SITUATION DE LA PRODUCTION\n` +
+    `Superficie emblavée : ${document.getElementById("rap-superficie").value.trim() || "non précisée"}\n` +
+    `Cultures dominantes : ${document.getElementById("rap-cultures-dom").value.trim() || "non précisées"}\n` +
+    `Stade des cultures : ${document.getElementById("rap-stade").value.trim() || "non précisé"}\n` +
+    `État général : ${rapEtat || "non précisé"}\n\n` +
+    `B. INCIDENTS\n` +
+    `${incidents.length > 0 ? incidents.join(", ") : "Aucun incident signalé"}` +
+    `${incidentsDetail ? "\nDétail : " + incidentsDetail : ""}\n\n` +
+    `C. INTERVENTIONS\n` +
+    `Producteurs visités : ${document.getElementById("rap-nb-visites").value || "0"}\n` +
+    `Conseils/traitements : ${document.getElementById("rap-conseils").value.trim() || "aucun"}\n` +
+    `Formations/démonstrations : ${document.getElementById("rap-formations").value.trim() || "aucune"}\n\n` +
+    `D. INTRANTS\n` +
+    `Semences : ${document.getElementById("rap-semences").value.trim() || "-"}\n` +
+    `Engrais : ${document.getElementById("rap-engrais").value.trim() || "-"}\n` +
+    `Produits phytosanitaires : ${document.getElementById("rap-phyto").value.trim() || "-"}\n` +
+    `Matériel : ${document.getElementById("rap-materiel").value.trim() || "-"}` +
+    alerteBloc;
+
+  const waLink = "https://wa.me/22674864682?text=" + encodeURIComponent(waMessage);
+  window.open(waLink, "_blank");
+
+  document.getElementById("rapportStep0").classList.add("hidden");
+  document.getElementById("rapportStep1").classList.remove("hidden");
+});
+
+document.getElementById("rapport-restart-btn").addEventListener("click", () => {
+  document.querySelectorAll("#main-rapport .pick-btn").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll('#rap-incidents input[type="checkbox"]').forEach(c => c.checked = false);
+  ["rap-zone","rap-superficie","rap-cultures-dom","rap-stade","rap-incidents-detail","rap-nb-visites","rap-conseils","rap-formations","rap-semences","rap-engrais","rap-phyto","rap-materiel","rap-alerte-loc","rap-alerte-superficie","rap-alerte-nbprod"].forEach(id => document.getElementById(id).value = "");
+  if (!currentAgent) document.getElementById("rap-agent-nom").value = "";
+  rapEtat = ""; rapAlerte = ""; rapUrgence = "";
+  document.getElementById("rap-alerte-detail").classList.add("hidden");
+  document.getElementById("rapportStep1").classList.add("hidden");
+  document.getElementById("rapportStep0").classList.remove("hidden");
+});
+
 const urlParams = new URLSearchParams(window.location.search);
 const lockOutil = urlParams.get("outil");
 const lockCulture = urlParams.get("culture");
 const isExpert = urlParams.get("expert") === "1";
+const currentAgent = urlParams.get("agent") || "";
 
 if (lockOutil === "diagnostic") {
   document.getElementById("tab-switcher").classList.add("hidden");
@@ -2574,6 +2736,14 @@ if (lockOutil === "diagnostic") {
 } else if (lockOutil === "stats") {
   document.getElementById("tab-switcher").classList.add("hidden");
   tabStats.click();
+} else if (lockOutil === "rapport") {
+  document.getElementById("tab-switcher").classList.add("hidden");
+  tabRapport.click();
+}
+
+if (currentAgent) {
+  const agentField = document.getElementById("rap-agent-nom");
+  if (agentField) { agentField.value = currentAgent; agentField.readOnly = true; }
 }
 
 if (lockCulture && CULTURE_LABELS[lockCulture]) {
